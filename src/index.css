@@ -43,6 +43,10 @@
     --ga4-light: 217 91% 95%;
     --ga4-foreground: 217 91% 30%;
     
+    --google-ads-primary: 4 90% 58%;
+    --google-ads-light: 4 90% 95%;
+    --google-ads-foreground: 4 90% 25%;
+    
     --meta-primary: 142 76% 36%;
     --meta-light: 142 76% 95%;
     --meta-foreground: 142 76% 20%;
@@ -104,6 +108,10 @@
     --ga4-primary: 217 91% 60%;
     --ga4-light: 217 91% 25%;
     --ga4-foreground: 217 91% 80%;
+    
+    --google-ads-primary: 4 90% 58%;
+    --google-ads-light: 4 90% 25%;
+    --google-ads-foreground: 4 90% 80%;
     
     --meta-primary: 142 76% 45%;
     --meta-light: 142 76% 25%;

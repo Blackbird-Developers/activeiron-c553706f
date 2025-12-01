@@ -65,6 +65,11 @@ export default {
           light: "hsl(var(--ga4-light))",
           foreground: "hsl(var(--ga4-foreground))",
         },
+        "google-ads": {
+          DEFAULT: "hsl(var(--google-ads-primary))",
+          light: "hsl(var(--google-ads-light))",
+          foreground: "hsl(var(--google-ads-foreground))",
+        },
         meta: {
           DEFAULT: "hsl(var(--meta-primary))",
           light: "hsl(var(--meta-light))",

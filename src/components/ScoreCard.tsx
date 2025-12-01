@@ -8,7 +8,7 @@ interface ScoreCardProps {
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
   icon?: LucideIcon;
-  colorScheme?: "ga4" | "meta" | "subbly" | "mailchimp" | "default";
+  colorScheme?: "ga4" | "google-ads" | "meta" | "subbly" | "mailchimp" | "default";
 }
 
 export function ScoreCard({
@@ -21,6 +21,7 @@ export function ScoreCard({
 }: ScoreCardProps) {
   const colorClasses = {
     ga4: "bg-ga4-light text-ga4-foreground border-ga4/20",
+    "google-ads": "bg-google-ads-light text-google-ads-foreground border-google-ads/20",
     meta: "bg-meta-light text-meta-foreground border-meta/20",
     subbly: "bg-subbly-light text-subbly-foreground border-subbly/20",
     mailchimp: "bg-mailchimp-light text-mailchimp-foreground border-mailchimp/20",
