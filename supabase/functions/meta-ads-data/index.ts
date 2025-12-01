@@ -12,23 +12,24 @@ serve(async (req) => {
   }
 
   try {
-    const { startDate, endDate, adAccountId } = await req.json();
+    const { startDate, endDate } = await req.json();
     
     const META_ADS_API_KEY = Deno.env.get('META_ADS_API_KEY');
+    const META_AD_ACCOUNT_ID = Deno.env.get('META_AD_ACCOUNT_ID');
 
     if (!META_ADS_API_KEY) {
       throw new Error('META_ADS_API_KEY not configured');
     }
 
-    if (!adAccountId) {
-      throw new Error('Ad Account ID is required');
+    if (!META_AD_ACCOUNT_ID) {
+      throw new Error('META_AD_ACCOUNT_ID not configured');
     }
 
-    console.log('Fetching Meta Ads data for period:', { startDate, endDate, adAccountId });
+    console.log('Fetching Meta Ads data for period:', { startDate, endDate, adAccountId: META_AD_ACCOUNT_ID });
 
     // Call Meta Marketing API for insights
     const response = await fetch(
-      `https://graph.facebook.com/v21.0/act_${adAccountId}/insights?` + 
+      `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/insights?` +
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
         time_range: JSON.stringify({ since: startDate, until: endDate }),
