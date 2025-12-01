@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +59,33 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        ga4: {
+          DEFAULT: "hsl(var(--ga4-primary))",
+          light: "hsl(var(--ga4-light))",
+          foreground: "hsl(var(--ga4-foreground))",
+        },
+        meta: {
+          DEFAULT: "hsl(var(--meta-primary))",
+          light: "hsl(var(--meta-light))",
+          foreground: "hsl(var(--meta-foreground))",
+        },
+        subbly: {
+          DEFAULT: "hsl(var(--subbly-primary))",
+          light: "hsl(var(--subbly-light))",
+          foreground: "hsl(var(--subbly-foreground))",
+        },
+        mailchimp: {
+          DEFAULT: "hsl(var(--mailchimp-primary))",
+          light: "hsl(var(--mailchimp-light))",
+          foreground: "hsl(var(--mailchimp-foreground))",
+        },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
         },
       },
       borderRadius: {

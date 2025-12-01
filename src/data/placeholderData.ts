@@ -1,0 +1,106 @@
+// Placeholder data for the marketing dashboard
+
+export const ga4Data = {
+  overview: {
+    totalUsers: 45678,
+    newUsers: 12345,
+    engagementRate: 62.5,
+    bounceRate: 42.3,
+  },
+  trafficBySource: [
+    { name: "Organic Search", users: 18500, percentage: 40.5 },
+    { name: "Direct", users: 12000, percentage: 26.3 },
+    { name: "Social Media", users: 8900, percentage: 19.5 },
+    { name: "Referral", users: 4278, percentage: 9.4 },
+    { name: "Email", users: 2000, percentage: 4.3 },
+  ],
+  trendsOverTime: [
+    { date: "Jan 1", users: 3200, newUsers: 890 },
+    { date: "Jan 8", users: 3500, newUsers: 950 },
+    { date: "Jan 15", users: 3800, newUsers: 1020 },
+    { date: "Jan 22", users: 4100, newUsers: 1150 },
+    { date: "Jan 29", users: 4400, newUsers: 1200 },
+    { date: "Feb 5", users: 4200, newUsers: 1100 },
+    { date: "Feb 12", users: 4600, newUsers: 1280 },
+  ],
+};
+
+export const metaAdsData = {
+  overview: {
+    cpc: 1.24,
+    ctr: 3.45,
+    conversions: 1234,
+    adSpend: 8456.78,
+    costPerConversion: 6.85,
+  },
+  performanceOverTime: [
+    { date: "Jan 1", spend: 1100, conversions: 165, ctr: 3.2 },
+    { date: "Jan 8", spend: 1200, conversions: 178, ctr: 3.3 },
+    { date: "Jan 15", spend: 1150, conversions: 172, ctr: 3.4 },
+    { date: "Jan 22", spend: 1300, conversions: 185, ctr: 3.5 },
+    { date: "Jan 29", spend: 1250, conversions: 180, ctr: 3.6 },
+    { date: "Feb 5", spend: 1400, conversions: 198, ctr: 3.4 },
+    { date: "Feb 12", spend: 1350, conversions: 192, ctr: 3.5 },
+  ],
+  campaignPerformance: [
+    { campaign: "Campaign A", spend: 2500, conversions: 380, roas: 4.2 },
+    { campaign: "Campaign B", spend: 2200, conversions: 320, roas: 3.8 },
+    { campaign: "Campaign C", spend: 1800, conversions: 285, roas: 3.5 },
+    { campaign: "Campaign D", spend: 1956, conversions: 249, roas: 3.2 },
+  ],
+};
+
+export const subblyData = {
+  overview: {
+    subscriptions: 987,
+    subscriptionRate: 2.16,
+    costPerSubscription: 8.57,
+    revenue: 29610,
+  },
+  subscriptionsOverTime: [
+    { date: "Jan 1", subscriptions: 125, revenue: 3750 },
+    { date: "Jan 8", subscriptions: 135, revenue: 4050 },
+    { date: "Jan 15", subscriptions: 142, revenue: 4260 },
+    { date: "Jan 22", subscriptions: 148, revenue: 4440 },
+    { date: "Jan 29", subscriptions: 152, revenue: 4560 },
+    { date: "Feb 5", subscriptions: 145, revenue: 4350 },
+    { date: "Feb 12", subscriptions: 140, revenue: 4200 },
+  ],
+  planDistribution: [
+    { plan: "Basic", subscribers: 345, percentage: 35 },
+    { plan: "Premium", subscribers: 432, percentage: 43.8 },
+    { plan: "Enterprise", subscribers: 210, percentage: 21.2 },
+  ],
+};
+
+export const mailchimpData = {
+  overview: {
+    emailOpens: 8765,
+    emailClicks: 2543,
+    openRate: 28.5,
+    clickThroughRate: 8.3,
+    clickToOpenRate: 29.0,
+  },
+  campaignPerformance: [
+    { date: "Jan 1", opens: 1100, clicks: 320, openRate: 27.5, ctr: 8.0 },
+    { date: "Jan 8", opens: 1200, clicks: 350, openRate: 28.0, ctr: 8.2 },
+    { date: "Jan 15", opens: 1250, clicks: 365, openRate: 28.5, ctr: 8.3 },
+    { date: "Jan 22", opens: 1300, clicks: 380, openRate: 29.0, ctr: 8.5 },
+    { date: "Jan 29", opens: 1150, clicks: 340, openRate: 27.8, ctr: 8.1 },
+    { date: "Feb 5", opens: 1400, clicks: 405, openRate: 30.0, ctr: 8.7 },
+    { date: "Feb 12", opens: 1365, clicks: 383, openRate: 29.5, ctr: 8.4 },
+  ],
+  topCampaigns: [
+    { name: "Newsletter #45", opens: 2100, clicks: 630, openRate: 35.0 },
+    { name: "Product Launch", opens: 1850, clicks: 555, openRate: 31.0 },
+    { name: "Weekly Digest", opens: 1650, clicks: 495, openRate: 27.5 },
+    { name: "Special Offer", opens: 1900, clicks: 475, openRate: 31.7 },
+  ],
+};
+
+export const funnelData = [
+  { stage: "Total Users", value: 45678, percentage: 100, color: "hsl(var(--ga4-primary))" },
+  { stage: "Meta Conversions", value: 1234, percentage: 2.7, color: "hsl(var(--meta-primary))" },
+  { stage: "Subscriptions", value: 987, percentage: 2.16, color: "hsl(var(--subbly-primary))" },
+  { stage: "Email Clicks", value: 2543, percentage: 5.57, color: "hsl(var(--mailchimp-primary))" },
+];
