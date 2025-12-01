@@ -130,8 +130,9 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
+          // Use activeUsers to match GA4 UI "Users" card
           metrics: [
-            { name: 'totalUsers' },
+            { name: 'activeUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'bounceRate' },
@@ -172,7 +173,8 @@ serve(async (req) => {
     console.log('Channels response (with dimensions):', JSON.stringify(channelsData, null, 2));
 
     // Extract accurate totals from the no-dimension response
-    const totalUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
+    // NOTE: We use activeUsers here to match the GA4 UI "Users" metric
+    const activeUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
       ? parseInt(totalsData.rows[0].metricValues[0].value) 
       : 0;
     const newUsers = totalsData.rows?.[0]?.metricValues?.[1]?.value 
@@ -185,8 +187,8 @@ serve(async (req) => {
       ? parseFloat(totalsData.rows[0].metricValues[3].value) * 100 
       : 0;
     
-    console.log('Extracted totals:', { 
-      totalUsers, 
+    console.log('Extracted totals (active users primary):', { 
+      activeUsers, 
       newUsers,
       engagementRate,
       bounceRate
@@ -199,7 +201,7 @@ serve(async (req) => {
       return {
         name: row.dimensionValues[0].value,
         users,
-        percentage: totalUsers > 0 ? Math.round((users / totalUsers) * 1000) / 10 : 0
+        percentage: activeUsers > 0 ? Math.round((users / activeUsers) * 1000) / 10 : 0
       };
     }) || [];
     
@@ -209,7 +211,8 @@ serve(async (req) => {
     // Create processed data structure
     const processedData = {
       overview: {
-        totalUsers: totalUsers,
+        // Expose activeUsers as totalUsers so the dashboard label stays consistent
+        totalUsers: activeUsers,
         newUsers: newUsers,
         engagementRate: Math.round(engagementRate * 10) / 10,
         bounceRate: Math.round(bounceRate * 10) / 10,
