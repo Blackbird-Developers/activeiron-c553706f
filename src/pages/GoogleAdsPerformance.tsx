@@ -1,31 +1,27 @@
-import { useState } from "react";
-import { DateFilter } from "@/components/DateFilter";
-import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
-import { subDays } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Construction } from "lucide-react";
 
 export default function GoogleAdsPerformance() {
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-google-ads-foreground">Google Ads Performance</h1>
-          <p className="text-muted-foreground">Comprehensive overview of all Google Ads campaigns</p>
-          <div className="mt-2 px-3 py-1.5 inline-block rounded-lg bg-muted/50 border border-border">
-            <span className="text-sm font-medium text-muted-foreground">Work in Progress</span>
-          </div>
-        </div>
-        <DateFilter
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-        />
+      <div>
+        <h1 className="text-3xl font-bold text-google-ads-foreground">Google Ads Performance</h1>
+        <p className="text-muted-foreground">Comprehensive overview of all Google Ads campaigns</p>
       </div>
 
-      <GoogleAdsSection />
+      <Card className="border-2 border-dashed">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3 text-muted-foreground">
+            <Construction className="h-6 w-6" />
+            Work in Progress
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            Google Ads integration is currently under development. This page will display detailed campaign performance metrics once the integration is complete.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
