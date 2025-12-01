@@ -160,7 +160,32 @@ serve(async (req) => {
       }
     );
 
-    if (!totalsResponse.ok || !channelsResponse.ok) {
+    // THIRD API CALL: Get user trends over time (daily)
+    const trendsResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'date' }],
+          metrics: [
+            { name: 'activeUsers' },
+            { name: 'newUsers' },
+          ],
+          orderBys: [
+            {
+              dimension: { dimensionName: 'date' },
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!totalsResponse.ok || !channelsResponse.ok || !trendsResponse.ok) {
       const errorText = !totalsResponse.ok ? await totalsResponse.text() : await channelsResponse.text();
       console.error('GA4 API error:', errorText);
       throw new Error(`GA4 API error`);
@@ -168,9 +193,11 @@ serve(async (req) => {
 
     const totalsData = await totalsResponse.json();
     const channelsData = await channelsResponse.json();
+    const trendsData = await trendsResponse.json();
     
     console.log('Totals response (no dimensions):', JSON.stringify(totalsData, null, 2));
     console.log('Channels response (with dimensions):', JSON.stringify(channelsData, null, 2));
+    console.log('Trends response (date dimension):', JSON.stringify(trendsData, null, 2));
 
     // Extract accurate totals from the no-dimension response
     // NOTE: We use activeUsers here to match the GA4 UI "Users" metric
@@ -204,8 +231,28 @@ serve(async (req) => {
         percentage: activeUsers > 0 ? Math.round((users / activeUsers) * 1000) / 10 : 0
       };
     }) || [];
+
+    // Build trends over time from date-based report
+    const trendsOverTime = trendsData.rows?.map((row: any) => {
+      const rawDate = row.dimensionValues[0].value; // e.g. "20251101"
+      const year = rawDate.slice(0, 4);
+      const month = rawDate.slice(4, 6);
+      const day = rawDate.slice(6, 8);
+      const dateObj = new Date(`${year}-${month}-${day}T00:00:00`);
+      const formattedDate = dateObj.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+      });
+
+      return {
+        date: formattedDate,
+        users: parseInt(row.metricValues[0].value),
+        newUsers: parseInt(row.metricValues[1].value),
+      };
+    }) || [];
     
     console.log('Traffic by source with accurate percentages:', trafficBySource);
+    console.log('Trends over time (daily):', trendsOverTime);
     console.log('GA4 data retrieved successfully');
     
     // Create processed data structure
@@ -218,7 +265,7 @@ serve(async (req) => {
         bounceRate: Math.round(bounceRate * 10) / 10,
       },
       trafficBySource: trafficBySource.slice(0, 5), // Top 5 sources
-      trendsOverTime: [], // Would need date-based query for this
+      trendsOverTime: trendsOverTime,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {
