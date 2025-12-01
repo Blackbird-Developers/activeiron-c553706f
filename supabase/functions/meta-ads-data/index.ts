@@ -47,8 +47,23 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Meta Ads API error:', response.status, errorText);
+      
+      // Return placeholder data structure on error
+      const placeholderData = {
+        overview: {
+          cpc: 0,
+          ctr: 0,
+          conversions: 0,
+          adSpend: 0,
+          costPerConversion: 0,
+        },
+        performanceOverTime: [],
+        campaignPerformance: [],
+      };
+      
       return new Response(
         JSON.stringify({
+          data: placeholderData,
           error: `Meta Ads API error: ${response.status}`,
           details: errorText,
         }),
@@ -67,10 +82,27 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in meta-ads-data function:', error);
+    
+    // Return placeholder data structure on error
+    const placeholderData = {
+      overview: {
+        cpc: 0,
+        ctr: 0,
+        conversions: 0,
+        adSpend: 0,
+        costPerConversion: 0,
+      },
+      performanceOverTime: [],
+      campaignPerformance: [],
+    };
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ 
+        data: placeholderData,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
