@@ -1,1 +1,13 @@
 project_id = "bjwmcmmxqsuiclabmxtm"
+
+[functions.ga4-data]
+verify_jwt = false
+
+[functions.subbly-data]
+verify_jwt = false
+
+[functions.mailchimp-data]
+verify_jwt = false
+
+[functions.ai-insights]
+verify_jwt = false
