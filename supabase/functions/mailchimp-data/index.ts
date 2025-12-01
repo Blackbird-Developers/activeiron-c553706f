@@ -43,18 +43,75 @@ serve(async (req) => {
       throw new Error(`Mailchimp API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const rawData = await response.json();
     console.log('Mailchimp data retrieved successfully');
 
-    return new Response(JSON.stringify({ data }), {
+    // Transform raw Mailchimp data to match expected format
+    const reports = rawData.reports || [];
+    let totalOpens = 0;
+    let totalClicks = 0;
+    let totalSent = 0;
+    
+    const topCampaigns: any[] = [];
+    
+    reports.forEach((report: any) => {
+      totalOpens += report.opens?.unique_opens || 0;
+      totalClicks += report.clicks?.unique_subscriber_clicks || 0;
+      totalSent += report.emails_sent || 0;
+      
+      // Add to top campaigns
+      if (topCampaigns.length < 4) {
+        topCampaigns.push({
+          name: report.campaign_title || 'Untitled',
+          opens: report.opens?.unique_opens || 0,
+          clicks: report.clicks?.unique_subscriber_clicks || 0,
+          openRate: Math.round((report.opens?.open_rate || 0) * 1000) / 10,
+        });
+      }
+    });
+    
+    const openRate = totalSent > 0 ? (totalOpens / totalSent * 100) : 0;
+    const clickThroughRate = totalSent > 0 ? (totalClicks / totalSent * 100) : 0;
+    const clickToOpenRate = totalOpens > 0 ? (totalClicks / totalOpens * 100) : 0;
+    
+    const processedData = {
+      overview: {
+        emailOpens: totalOpens,
+        emailClicks: totalClicks,
+        openRate: Math.round(openRate * 10) / 10,
+        clickThroughRate: Math.round(clickThroughRate * 10) / 10,
+        clickToOpenRate: Math.round(clickToOpenRate * 10) / 10,
+      },
+      campaignPerformance: [],
+      topCampaigns,
+    };
+
+    return new Response(JSON.stringify({ data: processedData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in mailchimp-data function:', error);
+    
+    // Return placeholder data on error
+    const placeholderData = {
+      overview: {
+        emailOpens: 0,
+        emailClicks: 0,
+        openRate: 0,
+        clickThroughRate: 0,
+        clickToOpenRate: 0,
+      },
+      campaignPerformance: [],
+      topCampaigns: [],
+    };
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ 
+        data: placeholderData,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
