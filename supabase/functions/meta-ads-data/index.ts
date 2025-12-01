@@ -47,7 +47,16 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Meta Ads API error:', response.status, errorText);
-      throw new Error(`Meta Ads API error: ${response.status}`);
+      return new Response(
+        JSON.stringify({
+          error: `Meta Ads API error: ${response.status}`,
+          details: errorText,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const data = await response.json();
