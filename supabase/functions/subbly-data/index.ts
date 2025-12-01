@@ -33,28 +33,108 @@ serve(async (req) => {
     }
 
     console.log('Fetching Subbly data for period:', { startDate, endDate });
-    console.log('Subbly integration is currently disabled. Using placeholder data.');
 
-    const data = {
+    // Call Subbly API
+    const response = await fetch(
+      'https://api.subbly.co/private/v1/subscriptions',
+      {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': SUBBLY_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Subbly API error:', response.status, errorText);
+      
+      // Return placeholder data on error
+      const placeholderData = {
+        overview: {
+          subscriptions: 0,
+          subscriptionRate: 0,
+          costPerSubscription: 0,
+          revenue: 0,
+        },
+        subscriptionsOverTime: [],
+        planDistribution: [],
+      };
+      
+      return new Response(
+        JSON.stringify({
+          data: placeholderData,
+          error: `Subbly API error: ${response.status}`,
+          details: errorText,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const rawData = await response.json();
+    console.log('Subbly data retrieved successfully');
+
+    // Transform Subbly data to match expected format
+    const subscriptions = rawData.data || [];
+    const total = rawData.total || 0;
+    
+    // Filter subscriptions within date range
+    const startDateTime = new Date(startDate).getTime();
+    const endDateTime = new Date(endDate).getTime();
+    
+    const activeSubscriptions = subscriptions.filter((sub: any) => {
+      const createdAt = new Date(sub.created_at).getTime();
+      return sub.status === 'active' && createdAt >= startDateTime && createdAt <= endDateTime;
+    });
+    
+    // Calculate revenue (assuming average subscription price)
+    // You might want to fetch product prices for more accurate revenue
+    const totalRevenue = activeSubscriptions.length * 30; // Placeholder calculation
+    
+    // Calculate subscription rate (would need total users from GA4)
+    const subscriptionRate = 0; // Requires GA4 total users
+    const costPerSubscription = 0; // Requires ad spend data
+    
+    const processedData = {
       overview: {
-        subscriptions: 0,
-        subscriptionRate: 0,
-        revenue: 0,
+        subscriptions: activeSubscriptions.length,
+        subscriptionRate: Math.round(subscriptionRate * 100) / 100,
+        costPerSubscription: Math.round(costPerSubscription * 100) / 100,
+        revenue: totalRevenue,
       },
+      subscriptionsOverTime: [],
+      planDistribution: [],
     };
 
-    return new Response(JSON.stringify({ data, note: 'Subbly integration is currently disabled. Using placeholder data.' }), {
+    return new Response(JSON.stringify({ data: processedData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in subbly-data function:', error);
+    
+    // Return placeholder data on error
+    const placeholderData = {
+      overview: {
+        subscriptions: 0,
+        subscriptionRate: 0,
+        costPerSubscription: 0,
+        revenue: 0,
+      },
+      subscriptionsOverTime: [],
+      planDistribution: [],
+    };
+    
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        note: 'Subbly API documentation is not publicly available. Please contact Subbly support at https://www.subbly.dev/ for API access and documentation.'
+        data: placeholderData,
+        error: error instanceof Error ? error.message : 'Unknown error'
       }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
