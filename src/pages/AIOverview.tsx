@@ -36,9 +36,31 @@ export default function AIOverview() {
           return { data: null, error: err };
         });
 
+      const metaAdsResponse = await supabase.functions.invoke('meta-ads-data', { 
+        body: { 
+          startDate, 
+          endDate,
+          adAccountId: '1234567890' // TODO: Configure via environment variable
+        } 
+      }).catch(err => {
+        console.error('Meta Ads API error:', err);
+        return { data: null, error: err };
+      });
+
+      const googleAdsResponse = await supabase.functions.invoke('google-ads-data', { 
+        body: { 
+          startDate, 
+          endDate,
+          customerId: '1234567890' // TODO: Configure via environment variable
+        } 
+      }).catch(err => {
+        console.error('Google Ads API error:', err);
+        return { data: null, error: err };
+      });
+
       const subblyResponse = await supabase.functions.invoke('subbly-data', { body: { startDate, endDate } })
         .catch(err => {
-          console.error('Subbly API error:', err);
+          console.error('Subbly API error (skipping for now):', err);
           return { data: null, error: err };
         });
 
@@ -51,15 +73,16 @@ export default function AIOverview() {
       // Update state with real data (fallback to placeholder if API fails)
       setMarketingData({
         ga4: ga4Response.data?.data || ga4Data,
-        googleAds: googleAdsData, // Placeholder until Google Ads API is configured
-        metaAds: metaAdsData, // Placeholder until Meta Ads API is configured
+        googleAds: googleAdsResponse.data?.data || googleAdsData,
+        metaAds: metaAdsResponse.data?.data || metaAdsData,
         subbly: subblyResponse.data?.data || subblyData,
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
       });
 
       const errors = [
         ga4Response.error && 'GA4',
-        subblyResponse.error && 'Subbly',
+        metaAdsResponse.error && 'Meta Ads',
+        googleAdsResponse.error && 'Google Ads',
         mailchimpResponse.error && 'Mailchimp'
       ].filter(Boolean);
 
