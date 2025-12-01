@@ -101,14 +101,14 @@ serve(async (req) => {
     const { startDate, endDate } = await req.json();
     
     const GA4_SERVICE_ACCOUNT = Deno.env.get('GA4_SERVICE_ACCOUNT_JSON');
-    const GA4_PROPERTY_ID = Deno.env.get('GA4_Measurement_ID');
+    const GA4_PROPERTY_ID = Deno.env.get('GA4_PROPERTY_ID');
 
     if (!GA4_SERVICE_ACCOUNT) {
       throw new Error('GA4_SERVICE_ACCOUNT_JSON not configured. Please add your service account JSON as a secret.');
     }
 
     if (!GA4_PROPERTY_ID) {
-      throw new Error('GA4_Measurement_ID (Property ID) not configured');
+      throw new Error('GA4_PROPERTY_ID not configured');
     }
 
     console.log('Fetching GA4 data for period:', { startDate, endDate });

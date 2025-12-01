@@ -39,8 +39,7 @@ export default function AIOverview() {
       const metaAdsResponse = await supabase.functions.invoke('meta-ads-data', { 
         body: { 
           startDate, 
-          endDate,
-          adAccountId: '1234567890' // TODO: Configure via environment variable
+          endDate
         } 
       }).catch(err => {
         console.error('Meta Ads API error:', err);

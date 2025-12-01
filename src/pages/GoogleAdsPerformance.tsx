@@ -13,6 +13,9 @@ export default function GoogleAdsPerformance() {
         <div>
           <h1 className="text-3xl font-bold text-google-ads-foreground">Google Ads Performance</h1>
           <p className="text-muted-foreground">Comprehensive overview of all Google Ads campaigns</p>
+          <div className="mt-2 px-3 py-1.5 inline-block rounded-lg bg-muted/50 border border-border">
+            <span className="text-sm font-medium text-muted-foreground">Work in Progress</span>
+          </div>
         </div>
         <DateFilter
           startDate={startDate}

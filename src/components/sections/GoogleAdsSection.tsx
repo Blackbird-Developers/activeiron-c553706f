@@ -7,9 +7,14 @@ import { googleAdsData } from "@/data/placeholderData";
 export function GoogleAdsSection() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-1 w-12 rounded-full bg-google-ads" />
-        <h2 className="text-2xl font-bold text-google-ads-foreground">Google Ads Performance</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-1 w-12 rounded-full bg-google-ads" />
+          <h2 className="text-2xl font-bold text-google-ads-foreground">Google Ads Performance</h2>
+        </div>
+        <div className="px-4 py-2 rounded-lg bg-muted/50 border border-border">
+          <span className="text-sm font-medium text-muted-foreground">Work in Progress</span>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
