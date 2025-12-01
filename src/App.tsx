@@ -7,7 +7,6 @@ import { Sidebar } from "@/components/Sidebar";
 import Index from "./pages/Index";
 import AIOverview from "./pages/AIOverview";
 import MetaPerformance from "./pages/MetaPerformance";
-import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +25,6 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/ai-overview" element={<AIOverview />} />
                 <Route path="/meta-performance" element={<MetaPerformance />} />
-                <Route path="/google-ads-performance" element={<GoogleAdsPerformance />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>

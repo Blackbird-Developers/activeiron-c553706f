@@ -1,12 +1,11 @@
 import { NavLink } from "@/components/NavLink";
-import { BarChart3, Sparkles, TrendingUp, Activity } from "lucide-react";
+import { BarChart3, Sparkles, TrendingUp } from "lucide-react";
 
 export function Sidebar() {
   const navItems = [
     { to: "/ai-overview", label: "AI Overview", icon: Sparkles },
     { to: "/", label: "Marketing Dashboard", icon: BarChart3 },
     { to: "/meta-performance", label: "Meta Performance", icon: TrendingUp },
-    { to: "/google-ads-performance", label: "Google Ads Performance", icon: Activity },
   ];
 
   return (
