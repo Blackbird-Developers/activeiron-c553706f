@@ -14,7 +14,7 @@ export default function AIOverview() {
       icon: Users,
       color: "text-ga4-foreground",
       insight: `Your total traffic stands at ${ga4Data.overview.totalUsers.toLocaleString()} users with a ${ga4Data.overview.engagementRate}% engagement rate. Organic search is your strongest channel at 40.5%, indicating strong SEO performance.`,
-      recommendation: "Consider increasing content production to capitalize on organic search strength.",
+      recommendation: "Consider increasing content production to capitalise on organic search strength.",
     },
     {
       title: "Ad Spend Efficiency",
@@ -35,7 +35,7 @@ export default function AIOverview() {
       icon: Mail,
       color: "text-mailchimp-foreground",
       insight: `Email campaigns show ${mailchimpData.overview.openRate}% open rate and ${mailchimpData.overview.clickThroughRate}% CTR. Your click-to-open rate of ${mailchimpData.overview.clickToOpenRate}% indicates good content relevance.`,
-      recommendation: "Newsletter #45 performed 35% open rate. Analyze its subject line and content for replication in future campaigns.",
+      recommendation: "Newsletter #45 performed 35% open rate. Analyse its subject line and content for replication in future campaigns.",
     },
   ];
 
