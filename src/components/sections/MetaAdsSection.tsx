@@ -2,9 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { DollarSign, MousePointer, Target, TrendingUp } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { metaAdsData } from "@/data/placeholderData";
+import { metaAdsData as placeholderData } from "@/data/placeholderData";
 
-export function MetaAdsSection() {
+interface MetaAdsSectionProps {
+  data?: typeof placeholderData;
+}
+
+export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -15,7 +19,7 @@ export function MetaAdsSection() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <ScoreCard
           title="CPC"
-          value={`$${metaAdsData.overview.cpc}`}
+          value={`$${data.overview.cpc}`}
           change="-5.2% vs last period"
           changeType="positive"
           icon={MousePointer}
@@ -23,7 +27,7 @@ export function MetaAdsSection() {
         />
         <ScoreCard
           title="CTR"
-          value={`${metaAdsData.overview.ctr}%`}
+          value={`${data.overview.ctr}%`}
           change="+0.8% vs last period"
           changeType="positive"
           icon={Target}
@@ -31,7 +35,7 @@ export function MetaAdsSection() {
         />
         <ScoreCard
           title="Conversions"
-          value={metaAdsData.overview.conversions.toLocaleString()}
+          value={data.overview.conversions.toLocaleString()}
           change="+15.3% vs last period"
           changeType="positive"
           icon={TrendingUp}
@@ -39,7 +43,7 @@ export function MetaAdsSection() {
         />
         <ScoreCard
           title="Ad Spend"
-          value={`$${metaAdsData.overview.adSpend.toLocaleString()}`}
+          value={`$${data.overview.adSpend.toLocaleString()}`}
           change="+8.1% vs last period"
           changeType="neutral"
           icon={DollarSign}
@@ -47,7 +51,7 @@ export function MetaAdsSection() {
         />
         <ScoreCard
           title="Cost per Conversion"
-          value={`$${metaAdsData.overview.costPerConversion}`}
+          value={`$${data.overview.costPerConversion}`}
           change="-7.5% vs last period"
           changeType="positive"
           icon={DollarSign}
@@ -62,7 +66,7 @@ export function MetaAdsSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={metaAdsData.performanceOverTime}>
+              <LineChart data={data.performanceOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -87,7 +91,7 @@ export function MetaAdsSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={metaAdsData.campaignPerformance}>
+              <BarChart data={data.campaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="campaign" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />

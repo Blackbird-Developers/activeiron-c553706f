@@ -2,9 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Mail, MousePointer, TrendingUp, Percent } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { mailchimpData } from "@/data/placeholderData";
+import { mailchimpData as placeholderData } from "@/data/placeholderData";
 
-export function MailchimpSection() {
+interface MailchimpSectionProps {
+  data?: typeof placeholderData;
+}
+
+export function MailchimpSection({ data = placeholderData }: MailchimpSectionProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -15,7 +19,7 @@ export function MailchimpSection() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <ScoreCard
           title="Email Opens"
-          value={mailchimpData.overview.emailOpens.toLocaleString()}
+          value={data.overview.emailOpens.toLocaleString()}
           change="+6.5% vs last period"
           changeType="positive"
           icon={Mail}
@@ -23,7 +27,7 @@ export function MailchimpSection() {
         />
         <ScoreCard
           title="Email Clicks"
-          value={mailchimpData.overview.emailClicks.toLocaleString()}
+          value={data.overview.emailClicks.toLocaleString()}
           change="+9.2% vs last period"
           changeType="positive"
           icon={MousePointer}
@@ -31,7 +35,7 @@ export function MailchimpSection() {
         />
         <ScoreCard
           title="Open Rate"
-          value={`${mailchimpData.overview.openRate}%`}
+          value={`${data.overview.openRate}%`}
           change="+1.8% vs last period"
           changeType="positive"
           icon={Percent}
@@ -39,7 +43,7 @@ export function MailchimpSection() {
         />
         <ScoreCard
           title="Click-through Rate"
-          value={`${mailchimpData.overview.clickThroughRate}%`}
+          value={`${data.overview.clickThroughRate}%`}
           change="+0.5% vs last period"
           changeType="positive"
           icon={TrendingUp}
@@ -47,7 +51,7 @@ export function MailchimpSection() {
         />
         <ScoreCard
           title="Click-to-Open Rate"
-          value={`${mailchimpData.overview.clickToOpenRate}%`}
+          value={`${data.overview.clickToOpenRate}%`}
           change="+2.1% vs last period"
           changeType="positive"
           icon={Percent}
@@ -62,7 +66,7 @@ export function MailchimpSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={mailchimpData.campaignPerformance}>
+              <LineChart data={data.campaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -87,7 +91,7 @@ export function MailchimpSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={mailchimpData.topCampaigns}>
+              <BarChart data={data.topCampaigns}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
