@@ -1,13 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { funnelData, ga4Data, metaAdsData, subblyData } from "@/data/placeholderData";
+import { funnelData, ga4Data, googleAdsData, metaAdsData, subblyData } from "@/data/placeholderData";
 import { ArrowDown } from "lucide-react";
 
 export function FunnelSection() {
   const calculateROAS = () => {
     const revenue = subblyData.overview.revenue;
-    const adSpend = metaAdsData.overview.adSpend;
-    return (revenue / adSpend).toFixed(2);
+    const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;
+    return (revenue / totalAdSpend).toFixed(2);
   };
+
+  const totalConversions = googleAdsData.overview.conversions + metaAdsData.overview.conversions;
+  const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;
 
   return (
     <div className="space-y-6">
@@ -62,18 +65,18 @@ export function FunnelSection() {
             </div>
 
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm font-medium text-muted-foreground">Cost per Conversion</p>
-              <p className="mt-2 text-2xl font-bold">${metaAdsData.overview.costPerConversion}</p>
+              <p className="text-sm font-medium text-muted-foreground">Total Conversions</p>
+              <p className="mt-2 text-2xl font-bold">{totalConversions.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                ${metaAdsData.overview.adSpend.toLocaleString()} / {metaAdsData.overview.conversions} conversions
+                Google Ads: {googleAdsData.overview.conversions} + Meta: {metaAdsData.overview.conversions}
               </p>
             </div>
 
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm font-medium text-muted-foreground">ROAS</p>
+              <p className="text-sm font-medium text-muted-foreground">Combined ROAS</p>
               <p className="mt-2 text-2xl font-bold">{calculateROAS()}x</p>
               <p className="text-xs text-muted-foreground mt-1">
-                ${subblyData.overview.revenue.toLocaleString()} / ${metaAdsData.overview.adSpend.toLocaleString()}
+                ${subblyData.overview.revenue.toLocaleString()} / ${totalAdSpend.toLocaleString()}
               </p>
             </div>
           </div>

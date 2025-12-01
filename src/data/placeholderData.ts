@@ -25,6 +25,31 @@ export const ga4Data = {
   ],
 };
 
+export const googleAdsData = {
+  overview: {
+    cpc: 1.58,
+    ctr: 4.12,
+    conversions: 1089,
+    adSpend: 9234.56,
+    costPerConversion: 8.48,
+  },
+  performanceOverTime: [
+    { date: "Jan 1", spend: 1250, conversions: 145, ctr: 3.9 },
+    { date: "Jan 8", spend: 1350, conversions: 160, ctr: 4.0 },
+    { date: "Jan 15", spend: 1280, conversions: 152, ctr: 4.1 },
+    { date: "Jan 22", spend: 1450, conversions: 172, ctr: 4.2 },
+    { date: "Jan 29", spend: 1400, conversions: 168, ctr: 4.3 },
+    { date: "Feb 5", spend: 1550, conversions: 185, ctr: 4.1 },
+    { date: "Feb 12", spend: 1480, conversions: 178, ctr: 4.2 },
+  ],
+  campaignPerformance: [
+    { campaign: "Campaign X", spend: 2800, conversions: 335, roas: 3.9 },
+    { campaign: "Campaign Y", spend: 2400, conversions: 290, roas: 3.6 },
+    { campaign: "Campaign Z", spend: 2100, conversions: 258, roas: 3.3 },
+    { campaign: "Campaign W", spend: 1934, conversions: 206, roas: 3.0 },
+  ],
+};
+
 export const metaAdsData = {
   overview: {
     cpc: 1.24,
@@ -100,7 +125,7 @@ export const mailchimpData = {
 
 export const funnelData = [
   { stage: "Total Users", value: 45678, percentage: 100, color: "hsl(var(--ga4-primary))" },
-  { stage: "Meta Conversions", value: 1234, percentage: 2.7, color: "hsl(var(--meta-primary))" },
+  { stage: "Total Conversions", value: 2323, percentage: 5.08, color: "hsl(var(--chart-2))" },
   { stage: "Subscriptions", value: 987, percentage: 2.16, color: "hsl(var(--subbly-primary))" },
   { stage: "Email Clicks", value: 2543, percentage: 5.57, color: "hsl(var(--mailchimp-primary))" },
 ];
