@@ -119,8 +119,8 @@ serve(async (req) => {
     // Get OAuth access token
     const accessToken = await getAccessToken(serviceAccount);
 
-    // Call GA4 Data API using First user default channel group to mirror GA4 UI
-    const response = await fetch(
+    // FIRST API CALL: Get accurate totals WITHOUT dimensions (matches GA4 UI)
+    const totalsResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
         method: 'POST',
@@ -130,8 +130,6 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
-          // This matches the "First user default channel group" dimension in the GA4 UI
-          dimensions: [{ name: 'firstUserDefaultChannelGroup' }],
           metrics: [
             { name: 'totalUsers' },
             { name: 'newUsers' },
@@ -142,54 +140,79 @@ serve(async (req) => {
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('GA4 API error:', response.status, errorText);
-      throw new Error(`GA4 API error: ${response.status}`);
+    // SECOND API CALL: Get channel breakdown WITH dimensions
+    const channelsResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'firstUserDefaultChannelGroup' }],
+          metrics: [
+            { name: 'totalUsers' },
+          ]
+        }),
+      }
+    );
+
+    if (!totalsResponse.ok || !channelsResponse.ok) {
+      const errorText = !totalsResponse.ok ? await totalsResponse.text() : await channelsResponse.text();
+      console.error('GA4 API error:', errorText);
+      throw new Error(`GA4 API error`);
     }
 
-    const rawData = await response.json();
-    console.log('GA4 data retrieved successfully');
-
-    // Transform raw GA4 data to match expected format
-    let totalUsers = 0;
-    let newUsers = 0;
-    let weightedEngagementRate = 0;
-    let weightedBounceRate = 0;
+    const totalsData = await totalsResponse.json();
+    const channelsData = await channelsResponse.json();
     
-    const trafficBySource = rawData.rows?.map((row: any) => {
+    console.log('Totals response (no dimensions):', JSON.stringify(totalsData, null, 2));
+    console.log('Channels response (with dimensions):', JSON.stringify(channelsData, null, 2));
+
+    // Extract accurate totals from the no-dimension response
+    const totalUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
+      ? parseInt(totalsData.rows[0].metricValues[0].value) 
+      : 0;
+    const newUsers = totalsData.rows?.[0]?.metricValues?.[1]?.value 
+      ? parseInt(totalsData.rows[0].metricValues[1].value) 
+      : 0;
+    const engagementRate = totalsData.rows?.[0]?.metricValues?.[2]?.value 
+      ? parseFloat(totalsData.rows[0].metricValues[2].value) * 100 
+      : 0;
+    const bounceRate = totalsData.rows?.[0]?.metricValues?.[3]?.value 
+      ? parseFloat(totalsData.rows[0].metricValues[3].value) * 100 
+      : 0;
+    
+    console.log('Extracted totals:', { 
+      totalUsers, 
+      newUsers,
+      engagementRate,
+      bounceRate
+    });
+    
+    // Build traffic by source from channels data
+    const trafficBySource = channelsData.rows?.map((row: any) => {
       const users = parseInt(row.metricValues[0].value);
-      const newUsersVal = parseInt(row.metricValues[1].value);
-      const engagementRate = parseFloat(row.metricValues[2].value);
-      const bounceRate = parseFloat(row.metricValues[3].value);
-      
-      totalUsers += users;
-      newUsers += newUsersVal;
-      weightedEngagementRate += engagementRate * users;
-      weightedBounceRate += bounceRate * users;
       
       return {
         name: row.dimensionValues[0].value,
         users,
-        percentage: 0 // Will calculate after totals are known
+        percentage: totalUsers > 0 ? Math.round((users / totalUsers) * 1000) / 10 : 0
       };
     }) || [];
     
-    // Calculate percentages and weighted averages (convert rates to percentages)
-    trafficBySource.forEach((source: any) => {
-      source.percentage = totalUsers > 0 ? Math.round((source.users / totalUsers) * 1000) / 10 : 0;
-    });
-    
-    const avgEngagementRate = totalUsers > 0 ? (weightedEngagementRate / totalUsers) * 100 : 0;
-    const avgBounceRate = totalUsers > 0 ? (weightedBounceRate / totalUsers) * 100 : 0;
+    console.log('Traffic by source with accurate percentages:', trafficBySource);
+    console.log('GA4 data retrieved successfully');
     
     // Create processed data structure
     const processedData = {
       overview: {
-        totalUsers,
-        newUsers,
-        engagementRate: Math.round(avgEngagementRate * 10) / 10,
-        bounceRate: Math.round(avgBounceRate * 10) / 10,
+        totalUsers: totalUsers,
+        newUsers: newUsers,
+        engagementRate: Math.round(engagementRate * 10) / 10,
+        bounceRate: Math.round(bounceRate * 10) / 10,
       },
       trafficBySource: trafficBySource.slice(0, 5), // Top 5 sources
       trendsOverTime: [], // Would need date-based query for this
