@@ -36,7 +36,7 @@ export function DateFilter({
             )}
           >
             <Calendar className="mr-2 h-4 w-4" />
-            {startDate ? format(startDate, "MMM dd, yyyy") : "Start date"}
+            {startDate ? format(startDate, "dd MMM yyyy") : "Start date"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -62,7 +62,7 @@ export function DateFilter({
             )}
           >
             <Calendar className="mr-2 h-4 w-4" />
-            {endDate ? format(endDate, "MMM dd, yyyy") : "End date"}
+            {endDate ? format(endDate, "dd MMM yyyy") : "End date"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
