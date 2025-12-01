@@ -119,8 +119,8 @@ serve(async (req) => {
     // Get OAuth access token
     const accessToken = await getAccessToken(serviceAccount);
 
-    // Call GA4 Data API
-    const response = await fetch(
+    // Call GA4 Data API with dimensions for traffic source breakdown
+    const dimensionedResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
         method: 'POST',
@@ -133,58 +133,58 @@ serve(async (req) => {
           dimensions: [{ name: 'sessionDefaultChannelGroup' }],
           metrics: [
             { name: 'totalUsers' },
-            { name: 'newUsers' },
-            { name: 'engagementRate' },
-            { name: 'bounceRate' },
-            { name: 'sessions' }
           ]
         }),
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('GA4 API error:', response.status, errorText);
-      throw new Error(`GA4 API error: ${response.status}`);
+    // Call GA4 Data API without dimensions for accurate totals
+    const totalsResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          metrics: [
+            { name: 'totalUsers' },
+            { name: 'newUsers' },
+            { name: 'engagementRate' },
+            { name: 'bounceRate' },
+          ]
+        }),
+      }
+    );
+
+    if (!dimensionedResponse.ok || !totalsResponse.ok) {
+      const errorText = !dimensionedResponse.ok ? await dimensionedResponse.text() : await totalsResponse.text();
+      console.error('GA4 API error:', errorText);
+      throw new Error(`GA4 API error`);
     }
 
-    const rawData = await response.json();
+    const dimensionedData = await dimensionedResponse.json();
+    const totalsData = await totalsResponse.json();
     console.log('GA4 data retrieved successfully');
 
-    // Transform raw GA4 data to match expected format
-    let totalUsers = 0;
-    let newUsers = 0;
-    let totalSessions = 0;
-    let weightedEngagementRate = 0;
-    let weightedBounceRate = 0;
+    // Extract actual totals from the totals response (no dimensions = accurate totals)
+    const totalUsers = totalsData.totals?.[0]?.metricValues?.[0]?.value ? parseInt(totalsData.totals[0].metricValues[0].value) : 0;
+    const newUsers = totalsData.totals?.[0]?.metricValues?.[1]?.value ? parseInt(totalsData.totals[0].metricValues[1].value) : 0;
+    const avgEngagementRate = totalsData.totals?.[0]?.metricValues?.[2]?.value ? parseFloat(totalsData.totals[0].metricValues[2].value) * 100 : 0;
+    const avgBounceRate = totalsData.totals?.[0]?.metricValues?.[3]?.value ? parseFloat(totalsData.totals[0].metricValues[3].value) * 100 : 0;
     
-    const trafficBySource = rawData.rows?.map((row: any) => {
+    // Build traffic by source from dimensioned data
+    const trafficBySource = dimensionedData.rows?.map((row: any) => {
       const users = parseInt(row.metricValues[0].value);
-      const newUsersVal = parseInt(row.metricValues[1].value);
-      const engagementRate = parseFloat(row.metricValues[2].value);
-      const bounceRate = parseFloat(row.metricValues[3].value);
-      const sessions = parseInt(row.metricValues[4].value);
-      
-      totalUsers += users;
-      newUsers += newUsersVal;
-      totalSessions += sessions;
-      weightedEngagementRate += engagementRate * users;
-      weightedBounceRate += bounceRate * users;
       
       return {
         name: row.dimensionValues[0].value,
         users: users,
-        percentage: 0 // Will calculate after totals are known
+        percentage: totalUsers > 0 ? Math.round(users / totalUsers * 1000) / 10 : 0
       };
     }) || [];
-    
-    // Calculate percentages and weighted averages
-    trafficBySource.forEach((source: any) => {
-      source.percentage = totalUsers > 0 ? Math.round(source.users / totalUsers * 1000) / 10 : 0;
-    });
-    
-    const avgEngagementRate = totalUsers > 0 ? (weightedEngagementRate / totalUsers * 100) : 0;
-    const avgBounceRate = totalUsers > 0 ? (weightedBounceRate / totalUsers * 100) : 0;
     
     // Create processed data structure
     const processedData = {
