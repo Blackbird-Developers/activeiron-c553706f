@@ -18,10 +18,10 @@ export default function AIOverview() {
     mailchimp: mailchimpData,
   });
 
-  const totalAdSpend = marketingData.googleAds.overview.adSpend + marketingData.metaAds.overview.adSpend;
-  const totalConversions = marketingData.googleAds.overview.conversions + marketingData.metaAds.overview.conversions;
-  const revenue = marketingData.subbly.overview.revenue;
-  const roas = (revenue / totalAdSpend).toFixed(2);
+  const totalAdSpend = (marketingData.googleAds?.overview?.adSpend || 0) + (marketingData.metaAds?.overview?.adSpend || 0);
+  const totalConversions = (marketingData.googleAds?.overview?.conversions || 0) + (marketingData.metaAds?.overview?.conversions || 0);
+  const revenue = marketingData.subbly?.overview?.revenue || 0;
+  const roas = totalAdSpend > 0 ? (revenue / totalAdSpend).toFixed(2) : '0.00';
 
   const fetchMarketingData = async () => {
     setIsLoading(true);
@@ -29,12 +29,24 @@ export default function AIOverview() {
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      // Fetch data from all sources
-      const [ga4Response, subblyResponse, mailchimpResponse] = await Promise.all([
-        supabase.functions.invoke('ga4-data', { body: { startDate, endDate } }),
-        supabase.functions.invoke('subbly-data', { body: { startDate, endDate } }),
-        supabase.functions.invoke('mailchimp-data', { body: { startDate, endDate } }),
-      ]);
+      // Fetch data from all sources with individual error handling
+      const ga4Response = await supabase.functions.invoke('ga4-data', { body: { startDate, endDate } })
+        .catch(err => {
+          console.error('GA4 API error:', err);
+          return { data: null, error: err };
+        });
+
+      const subblyResponse = await supabase.functions.invoke('subbly-data', { body: { startDate, endDate } })
+        .catch(err => {
+          console.error('Subbly API error:', err);
+          return { data: null, error: err };
+        });
+
+      const mailchimpResponse = await supabase.functions.invoke('mailchimp-data', { body: { startDate, endDate } })
+        .catch(err => {
+          console.error('Mailchimp API error:', err);
+          return { data: null, error: err };
+        });
 
       // Update state with real data (fallback to placeholder if API fails)
       setMarketingData({
@@ -45,10 +57,24 @@ export default function AIOverview() {
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
       });
 
-      toast({
-        title: "Data Updated",
-        description: "Marketing data refreshed successfully.",
-      });
+      const errors = [
+        ga4Response.error && 'GA4',
+        subblyResponse.error && 'Subbly',
+        mailchimpResponse.error && 'Mailchimp'
+      ].filter(Boolean);
+
+      if (errors.length > 0) {
+        toast({
+          title: "Partial Data Update",
+          description: `${errors.join(', ')} API failed. Using placeholder data for these sources.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Data Updated",
+          description: "Marketing data refreshed successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error fetching marketing data:', error);
       toast({
@@ -102,28 +128,28 @@ export default function AIOverview() {
       title: "Traffic Performance",
       icon: Users,
       color: "text-ga4-foreground",
-      insight: `Your total traffic stands at ${marketingData.ga4.overview.totalUsers.toLocaleString()} users with a ${marketingData.ga4.overview.engagementRate}% engagement rate. Organic search is your strongest channel at 40.5%, indicating strong SEO performance.`,
+      insight: `Your total traffic stands at ${marketingData.ga4?.overview?.totalUsers?.toLocaleString() || 'N/A'} users with a ${marketingData.ga4?.overview?.engagementRate || 'N/A'}% engagement rate. Organic search is your strongest channel at 40.5%, indicating strong SEO performance.`,
       recommendation: "Consider increasing content production to capitalise on organic search strength.",
     },
     {
       title: "Ad Spend Efficiency",
       icon: DollarSign,
       color: "text-meta-foreground",
-      insight: `Combined ad spend across Google Ads ($${marketingData.googleAds.overview.adSpend.toLocaleString()}) and Meta Ads ($${marketingData.metaAds.overview.adSpend.toLocaleString()}) totals $${totalAdSpend.toLocaleString()}. Your overall ROAS is ${roas}, generating ${totalConversions.toLocaleString()} conversions.`,
+      insight: `Combined ad spend across Google Ads ($${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads ($${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals $${totalAdSpend.toLocaleString()}. Your overall ROAS is ${roas}, generating ${totalConversions.toLocaleString()} conversions.`,
       recommendation: "Google Ads shows higher CPC but better conversion rates. Consider reallocating 15% of Meta budget to Google Ads.",
     },
     {
       title: "Subscription Funnel",
       icon: TrendingUp,
       color: "text-subbly-foreground",
-      insight: `Your subscription rate is ${marketingData.subbly.overview.subscriptionRate}% with ${marketingData.subbly.overview.subscriptions} active subscriptions generating $${marketingData.subbly.overview.revenue.toLocaleString()} in revenue. Premium plan dominates at 43.8% of subscribers.`,
+      insight: `Your subscription rate is ${marketingData.subbly?.overview?.subscriptionRate || 'N/A'}% with ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating $${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Premium plan dominates at 43.8% of subscribers.`,
       recommendation: "Conversion rate from ad clicks to subscriptions is strong. Test increasing ad spend by 20% to scale subscriptions.",
     },
     {
       title: "Email Engagement",
       icon: Mail,
       color: "text-mailchimp-foreground",
-      insight: `Email campaigns show ${marketingData.mailchimp.overview.openRate}% open rate and ${marketingData.mailchimp.overview.clickThroughRate}% CTR. Your click-to-open rate of ${marketingData.mailchimp.overview.clickToOpenRate}% indicates good content relevance.`,
+      insight: `Email campaigns show ${marketingData.mailchimp?.overview?.openRate || 'N/A'}% open rate and ${marketingData.mailchimp?.overview?.clickThroughRate || 'N/A'}% CTR. Your click-to-open rate of ${marketingData.mailchimp?.overview?.clickToOpenRate || 'N/A'}% indicates good content relevance.`,
       recommendation: "Newsletter #45 performed 35% open rate. Analyse its subject line and content for replication in future campaigns.",
     },
   ];
@@ -170,7 +196,7 @@ export default function AIOverview() {
         <Card className="border-ga4/20 bg-ga4-light/50">
           <CardContent className="p-6">
             <div className="text-sm font-medium text-ga4-foreground opacity-80">Total Users</div>
-            <div className="text-2xl font-bold text-ga4-foreground">{marketingData.ga4.overview.totalUsers.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-ga4-foreground">{marketingData.ga4?.overview?.totalUsers?.toLocaleString() || 'N/A'}</div>
           </CardContent>
         </Card>
         <Card className="border-meta/20 bg-meta-light/50">
@@ -182,7 +208,7 @@ export default function AIOverview() {
         <Card className="border-subbly/20 bg-subbly-light/50">
           <CardContent className="p-6">
             <div className="text-sm font-medium text-subbly-foreground opacity-80">Active Subscriptions</div>
-            <div className="text-2xl font-bold text-subbly-foreground">{marketingData.subbly.overview.subscriptions}</div>
+            <div className="text-2xl font-bold text-subbly-foreground">{marketingData.subbly?.overview?.subscriptions || 'N/A'}</div>
           </CardContent>
         </Card>
         <Card className="border-mailchimp/20 bg-mailchimp-light/50">
