@@ -1,8 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { funnelData, ga4Data, googleAdsData, metaAdsData, subblyData } from "@/data/placeholderData";
+import { funnelData, ga4Data as placeholderGa4, googleAdsData as placeholderGoogleAds, metaAdsData as placeholderMeta, subblyData as placeholderSubbly, mailchimpData as placeholderMailchimp } from "@/data/placeholderData";
 import { ArrowDown } from "lucide-react";
 
-export function FunnelSection() {
+interface FunnelSectionProps {
+  ga4Data?: typeof placeholderGa4;
+  googleAdsData?: typeof placeholderGoogleAds;
+  metaAdsData?: typeof placeholderMeta;
+  subblyData?: typeof placeholderSubbly;
+  mailchimpData?: typeof placeholderMailchimp;
+}
+
+export function FunnelSection({ 
+  ga4Data = placeholderGa4,
+  googleAdsData = placeholderGoogleAds,
+  metaAdsData = placeholderMeta,
+  subblyData = placeholderSubbly,
+  mailchimpData = placeholderMailchimp
+}: FunnelSectionProps) {
   const calculateROAS = () => {
     const revenue = subblyData.overview.revenue;
     const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;

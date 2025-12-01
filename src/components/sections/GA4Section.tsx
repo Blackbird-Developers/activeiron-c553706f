@@ -2,9 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Users, UserPlus, Activity, TrendingDown } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { ga4Data } from "@/data/placeholderData";
+import { ga4Data as placeholderData } from "@/data/placeholderData";
 
-export function GA4Section() {
+interface GA4SectionProps {
+  data?: typeof placeholderData;
+}
+
+export function GA4Section({ data = placeholderData }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
   return (
@@ -17,7 +21,7 @@ export function GA4Section() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <ScoreCard
           title="Total Users"
-          value={ga4Data.overview.totalUsers.toLocaleString()}
+          value={data.overview.totalUsers.toLocaleString()}
           change="+12.5% vs last period"
           changeType="positive"
           icon={Users}
@@ -25,7 +29,7 @@ export function GA4Section() {
         />
         <ScoreCard
           title="New Users"
-          value={ga4Data.overview.newUsers.toLocaleString()}
+          value={data.overview.newUsers.toLocaleString()}
           change="+8.3% vs last period"
           changeType="positive"
           icon={UserPlus}
@@ -33,7 +37,7 @@ export function GA4Section() {
         />
         <ScoreCard
           title="Engagement Rate"
-          value={`${ga4Data.overview.engagementRate}%`}
+          value={`${data.overview.engagementRate}%`}
           change="+2.1% vs last period"
           changeType="positive"
           icon={Activity}
@@ -41,7 +45,7 @@ export function GA4Section() {
         />
         <ScoreCard
           title="Bounce Rate"
-          value={`${ga4Data.overview.bounceRate}%`}
+          value={`${data.overview.bounceRate}%`}
           change="-1.8% vs last period"
           changeType="positive"
           icon={TrendingDown}
@@ -56,7 +60,7 @@ export function GA4Section() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={ga4Data.trendsOverTime}>
+              <LineChart data={data.trendsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -83,7 +87,7 @@ export function GA4Section() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={ga4Data.trafficBySource}
+                  data={data.trafficBySource}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -92,7 +96,7 @@ export function GA4Section() {
                   fill="#8884d8"
                   dataKey="users"
                 >
-                  {ga4Data.trafficBySource.map((entry, index) => (
+                  {data.trafficBySource.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

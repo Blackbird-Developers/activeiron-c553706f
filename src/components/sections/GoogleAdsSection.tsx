@@ -2,9 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { DollarSign, MousePointer, Target, TrendingUp } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { googleAdsData } from "@/data/placeholderData";
+import { googleAdsData as placeholderData } from "@/data/placeholderData";
 
-export function GoogleAdsSection() {
+interface GoogleAdsSectionProps {
+  data?: typeof placeholderData;
+}
+
+export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -20,7 +24,7 @@ export function GoogleAdsSection() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <ScoreCard
           title="CPC"
-          value={`$${googleAdsData.overview.cpc}`}
+          value={`$${data.overview.cpc}`}
           change="-4.8% vs last period"
           changeType="positive"
           icon={MousePointer}
@@ -28,7 +32,7 @@ export function GoogleAdsSection() {
         />
         <ScoreCard
           title="CTR"
-          value={`${googleAdsData.overview.ctr}%`}
+          value={`${data.overview.ctr}%`}
           change="+1.2% vs last period"
           changeType="positive"
           icon={Target}
@@ -36,7 +40,7 @@ export function GoogleAdsSection() {
         />
         <ScoreCard
           title="Conversions"
-          value={googleAdsData.overview.conversions.toLocaleString()}
+          value={data.overview.conversions.toLocaleString()}
           change="+12.7% vs last period"
           changeType="positive"
           icon={TrendingUp}
@@ -44,7 +48,7 @@ export function GoogleAdsSection() {
         />
         <ScoreCard
           title="Ad Spend"
-          value={`$${googleAdsData.overview.adSpend.toLocaleString()}`}
+          value={`$${data.overview.adSpend.toLocaleString()}`}
           change="+9.3% vs last period"
           changeType="neutral"
           icon={DollarSign}
@@ -52,7 +56,7 @@ export function GoogleAdsSection() {
         />
         <ScoreCard
           title="Cost per Conversion"
-          value={`$${googleAdsData.overview.costPerConversion}`}
+          value={`$${data.overview.costPerConversion}`}
           change="-6.2% vs last period"
           changeType="positive"
           icon={DollarSign}
@@ -67,7 +71,7 @@ export function GoogleAdsSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={googleAdsData.performanceOverTime}>
+              <LineChart data={data.performanceOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -92,7 +96,7 @@ export function GoogleAdsSection() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={googleAdsData.campaignPerformance}>
+              <BarChart data={data.campaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="campaign" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
