@@ -24,7 +24,7 @@ export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionPro
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <ScoreCard
           title="CPC"
-          value={`$${data.overview.cpc}`}
+          value={`€${data.overview.cpc}`}
           change="-4.8% vs last period"
           changeType="positive"
           icon={MousePointer}
@@ -48,7 +48,7 @@ export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionPro
         />
         <ScoreCard
           title="Ad Spend"
-          value={`$${data.overview.adSpend.toLocaleString()}`}
+          value={`€${data.overview.adSpend.toLocaleString()}`}
           change="+9.3% vs last period"
           changeType="neutral"
           icon={DollarSign}
@@ -56,7 +56,7 @@ export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionPro
         />
         <ScoreCard
           title="Cost per Conversion"
-          value={`$${data.overview.costPerConversion}`}
+          value={`€${data.overview.costPerConversion}`}
           change="-6.2% vs last period"
           changeType="positive"
           icon={DollarSign}

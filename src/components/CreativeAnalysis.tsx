@@ -104,11 +104,11 @@ export function CreativeAnalysis({ startDate, endDate }: CreativeAnalysisProps) 
           {ad.hasVideo ? 'Video' : 'Image'}
         </Badge>
       </TableCell>
-      <TableCell className="text-right">£{ad.spend.toFixed(2)}</TableCell>
+      <TableCell className="text-right">€{ad.spend.toFixed(2)}</TableCell>
       <TableCell className="text-right">{ad.impressions.toLocaleString('en-GB')}</TableCell>
       <TableCell className="text-right">{ad.clicks.toLocaleString('en-GB')}</TableCell>
       <TableCell className="text-right">{ad.ctr.toFixed(2)}%</TableCell>
-      <TableCell className="text-right">£{ad.cpc.toFixed(2)}</TableCell>
+      <TableCell className="text-right">€{ad.cpc.toFixed(2)}</TableCell>
       <TableCell className="text-right">{ad.conversions}</TableCell>
     </TableRow>
   );
@@ -212,7 +212,7 @@ export function CreativeAnalysis({ startDate, endDate }: CreativeAnalysisProps) 
                 <Target className="h-3 w-3" /> By Conversions
               </TabsTrigger>
               <TabsTrigger value="cpc" className="gap-1">
-                £ By CPC (Low)
+                € By CPC (Low)
               </TabsTrigger>
             </TabsList>
 

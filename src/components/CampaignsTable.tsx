@@ -130,15 +130,15 @@ export function CampaignsTable({ campaigns }: CampaignsTableProps) {
           </Badge>
         );
       case 'spend':
-        return `£${campaign.spend.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return `€${campaign.spend.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       case 'cpc':
-        return `£${campaign.cpc.toFixed(2)}`;
+        return `€${campaign.cpc.toFixed(2)}`;
       case 'ctr':
         return `${campaign.ctr.toFixed(2)}%`;
       case 'conversions':
         return campaign.conversions;
       case 'cpa':
-        return `£${campaign.costPerConversion.toFixed(2)}`;
+        return `€${campaign.costPerConversion.toFixed(2)}`;
       case 'roas':
         return campaign.roas ? `${campaign.roas.toFixed(2)}x` : '-';
       case 'impressions':
