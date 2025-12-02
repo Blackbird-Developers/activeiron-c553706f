@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.ai-insights]
 verify_jwt = false
+
+[functions.meta-campaign-insights]
+verify_jwt = false
+
+[functions.meta-creative-analysis]
+verify_jwt = false
