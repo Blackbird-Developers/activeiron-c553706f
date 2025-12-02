@@ -15,7 +15,8 @@ serve(async (req) => {
     const { startDate, endDate } = await req.json();
     
     const META_ADS_API_KEY = Deno.env.get('META_ADS_API_KEY');
-    const META_AD_ACCOUNT_ID = Deno.env.get('META_AD_ACCOUNT_ID');
+    const META_AD_ACCOUNT_ID_RAW = Deno.env.get('META_AD_ACCOUNT_ID');
+    const META_AD_ACCOUNT_ID = META_AD_ACCOUNT_ID_RAW?.trim();
 
     if (!META_ADS_API_KEY) {
       throw new Error('META_ADS_API_KEY not configured');
