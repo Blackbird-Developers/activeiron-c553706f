@@ -38,10 +38,20 @@ export function ConsolidatedMetricsSection({
   const daysInRange = eachDayOfInterval({ start, end });
 
   // Helper to get daily value from trends data
+  // GA4 returns dates like "2 Nov", "3 Nov" etc.
   const getDailyValue = (trendsData: any[], date: Date, field: string) => {
-    if (!trendsData) return 0;
-    const dateStr = format(date, 'yyyy-MM-dd');
-    const dayData = trendsData.find((d: any) => d.date === dateStr);
+    if (!trendsData || trendsData.length === 0) return 0;
+    
+    // Try multiple date formats to match API responses
+    const formats = [
+      format(date, 'd MMM'),      // "2 Nov"
+      format(date, 'yyyy-MM-dd'), // "2025-11-02"
+      format(date, 'dd/MM/yyyy'), // "02/11/2025"
+    ];
+    
+    const dayData = trendsData.find((d: any) => 
+      formats.some(f => d.date === f)
+    );
     return dayData?.[field] || 0;
   };
 
