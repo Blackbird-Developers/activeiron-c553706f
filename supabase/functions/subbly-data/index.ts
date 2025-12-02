@@ -103,10 +103,11 @@ serve(async (req) => {
       return sub.status === 'active' && createdAt >= startDateTime && createdAt <= endDateTime;
     });
     
-    // Calculate churn rate
-    const churnRate = activeAtStart.length > 0 
+    // Calculate churn rate (capped at 100%)
+    const rawChurnRate = activeAtStart.length > 0 
       ? (cancelledDuringPeriod.length / activeAtStart.length) * 100 
       : 0;
+    const churnRate = Math.min(rawChurnRate, 100);
     
     // Calculate revenue (using successful charges count and average price)
     const totalRevenue = newSubscriptions.reduce((sum: number, sub: any) => {

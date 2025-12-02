@@ -86,26 +86,27 @@ export default function MetaPerformance() {
 
       <MetaAdsSection data={metaData} />
 
-      {campaigns.length > 0 && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="h-1 w-12 rounded-full bg-meta" />
-            <h2 className="text-2xl font-bold text-meta-foreground">Active Campaigns</h2>
-          </div>
+      {(() => {
+        const activeCampaigns = campaigns.filter((c) => c.spend > 0);
+        return activeCampaigns.length > 0 ? (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-12 rounded-full bg-meta" />
+              <h2 className="text-2xl font-bold text-meta-foreground">Active Campaigns</h2>
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {campaigns.map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
-            ))}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {activeCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {campaigns.length === 0 && !isLoading && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>No active campaigns found for the selected period.</p>
-        </div>
-      )}
+        ) : !isLoading ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>No campaigns with spend found for the selected period.</p>
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 }
