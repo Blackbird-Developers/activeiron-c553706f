@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { DateFilter } from "@/components/DateFilter";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { CampaignsTable } from "@/components/CampaignsTable";
-import { Clock } from "lucide-react";
+import { CreativeAnalysis } from "@/components/CreativeAnalysis";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Clock, LayoutList, Palette } from "lucide-react";
 import { subDays, format, formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -134,7 +136,26 @@ export default function MetaPerformance() {
 
       <MetaAdsSection data={metaData} />
 
-      {!isLoading && <CampaignsTable campaigns={campaigns} />}
+      <Tabs defaultValue="campaigns" className="w-full">
+        <TabsList>
+          <TabsTrigger value="campaigns" className="gap-2">
+            <LayoutList className="h-4 w-4" />
+            Campaigns
+          </TabsTrigger>
+          <TabsTrigger value="creatives" className="gap-2">
+            <Palette className="h-4 w-4" />
+            Creative Analysis
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="campaigns" className="mt-6">
+          {!isLoading && <CampaignsTable campaigns={campaigns} />}
+        </TabsContent>
+        
+        <TabsContent value="creatives" className="mt-6">
+          <CreativeAnalysis startDate={startDate} endDate={endDate} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

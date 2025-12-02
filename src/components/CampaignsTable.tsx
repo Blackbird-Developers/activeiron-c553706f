@@ -17,7 +17,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronLeft, ChevronRight, Settings2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings2, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Campaign {
   id: string;
@@ -58,11 +60,39 @@ const ALL_COLUMNS: { key: ColumnKey; label: string; defaultVisible: boolean }[] 
 const ITEMS_PER_PAGE = 10;
 
 export function CampaignsTable({ campaigns }: CampaignsTableProps) {
+  const { toast } = useToast();
   const activeCampaigns = campaigns.filter((c) => c.spend > 0);
   const [currentPage, setCurrentPage] = useState(1);
   const [visibleColumns, setVisibleColumns] = useState<Set<ColumnKey>>(
     new Set(ALL_COLUMNS.filter(c => c.defaultVisible).map(c => c.key))
   );
+  const [loadingInsights, setLoadingInsights] = useState<string | null>(null);
+  const [campaignInsights, setCampaignInsights] = useState<Record<string, string>>({});
+
+  const generateInsights = async (campaign: Campaign) => {
+    setLoadingInsights(campaign.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('meta-campaign-insights', {
+        body: { campaign }
+      });
+
+      if (error) throw error;
+      setCampaignInsights(prev => ({ ...prev, [campaign.id]: data.insights }));
+      toast({
+        title: "Insights Generated",
+        description: `AI analysis complete for ${campaign.name}`,
+      });
+    } catch (error) {
+      console.error('Error generating insights:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate insights.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingInsights(null);
+    }
+  };
 
   if (activeCampaigns.length === 0) {
     return (
@@ -180,14 +210,46 @@ export function CampaignsTable({ campaigns }: CampaignsTableProps) {
           </TableHeader>
           <TableBody>
             {paginatedCampaigns.map((campaign) => (
-              <TableRow key={campaign.id}>
-                <TableCell className="font-medium sticky left-0 bg-card z-10">{campaign.name}</TableCell>
-                {ALL_COLUMNS.filter(c => visibleColumns.has(c.key)).map((column) => (
-                  <TableCell key={column.key} className={column.key !== 'status' ? 'text-right' : ''}>
-                    {renderCellValue(campaign, column.key)}
+              <>
+                <TableRow key={campaign.id}>
+                  <TableCell className="font-medium sticky left-0 bg-card z-10">
+                    <div className="flex items-center gap-2">
+                      <span>{campaign.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => generateInsights(campaign)}
+                        disabled={loadingInsights === campaign.id}
+                      >
+                        {loadingInsights === campaign.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3 text-meta" />
+                        )}
+                      </Button>
+                    </div>
                   </TableCell>
-                ))}
-              </TableRow>
+                  {ALL_COLUMNS.filter(c => visibleColumns.has(c.key)).map((column) => (
+                    <TableCell key={column.key} className={column.key !== 'status' ? 'text-right' : ''}>
+                      {renderCellValue(campaign, column.key)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {campaignInsights[campaign.id] && (
+                  <TableRow key={`${campaign.id}-insights`}>
+                    <TableCell colSpan={visibleColumns.size + 1} className="bg-meta/5 border-l-2 border-meta">
+                      <div className="py-2 px-4 text-sm whitespace-pre-wrap">
+                        <div className="flex items-center gap-2 mb-2 font-medium text-meta-foreground">
+                          <Sparkles className="h-4 w-4 text-meta" />
+                          AI Insights
+                        </div>
+                        {campaignInsights[campaign.id]}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
             ))}
           </TableBody>
         </Table>
