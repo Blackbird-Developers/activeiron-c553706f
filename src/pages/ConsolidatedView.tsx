@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { DateFilter } from "@/components/DateFilter";
-import { GA4Section } from "@/components/sections/GA4Section";
-import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
-import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
-import { SubblySection } from "@/components/sections/SubblySection";
-import { MailchimpSection } from "@/components/sections/MailchimpSection";
-import { FunnelSection } from "@/components/sections/FunnelSection";
+import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMetricsSection";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { subDays, format } from "date-fns";
@@ -13,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
 
-const Index = () => {
+export default function ConsolidatedView() {
   const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
@@ -34,7 +29,6 @@ const Index = () => {
       const startDateStr = format(startDate, 'yyyy-MM-dd');
       const endDateStr = format(endDate, 'yyyy-MM-dd');
 
-      // Fetch data from all sources with individual error handling
       const [ga4Response, metaAdsResponse, googleAdsResponse, subblyResponse, mailchimpResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
@@ -48,7 +42,6 @@ const Index = () => {
           .catch(err => ({ data: null, error: err }))
       ]);
 
-      // Update state with real data (fallback to placeholder if API fails)
       setMarketingData({
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
@@ -59,7 +52,7 @@ const Index = () => {
 
       toast({
         title: "Data Updated",
-        description: "Marketing data refreshed successfully.",
+        description: "Consolidated data refreshed successfully.",
       });
     } catch (error) {
       console.error('Error fetching marketing data:', error);
@@ -81,8 +74,8 @@ const Index = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Marketing Dashboard</h1>
-          <p className="text-muted-foreground">Multi-source analytics across all channels</p>
+          <h1 className="text-3xl font-bold">Consolidated View</h1>
+          <p className="text-muted-foreground">All key metrics in one place</p>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -107,25 +100,13 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="space-y-12">
-        <GA4Section data={marketingData.ga4} />
-        <GoogleAdsSection data={marketingData.googleAds} />
-        <MetaAdsSection data={marketingData.metaAds} />
-        <SubblySection 
-          data={marketingData.subbly} 
-          totalAdSpend={marketingData.metaAds.overview.adSpend + marketingData.googleAds.overview.adSpend}
-        />
-        <MailchimpSection data={marketingData.mailchimp} />
-        <FunnelSection 
-          ga4Data={marketingData.ga4}
-          metaAdsData={marketingData.metaAds}
-          googleAdsData={marketingData.googleAds}
-          subblyData={marketingData.subbly}
-          mailchimpData={marketingData.mailchimp}
-        />
-      </div>
+      <ConsolidatedMetricsSection 
+        ga4Data={marketingData.ga4}
+        metaAdsData={marketingData.metaAds}
+        googleAdsData={marketingData.googleAds}
+        subblyData={marketingData.subbly}
+        mailchimpData={marketingData.mailchimp}
+      />
     </div>
   );
-};
-
-export default Index;
+}

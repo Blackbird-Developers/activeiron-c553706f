@@ -71,8 +71,10 @@ export function FunnelSection({
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm font-medium text-muted-foreground">Subscription Rate</p>
-              <p className="mt-2 text-2xl font-bold">{subblyData.overview.subscriptionRate}%</p>
+              <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
+              <p className="mt-2 text-2xl font-bold">
+                {((subblyData.overview.subscriptions / ga4Data.overview.totalUsers) * 100).toFixed(2)}%
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {subblyData.overview.subscriptions} / {ga4Data.overview.totalUsers} users
               </p>
@@ -90,7 +92,7 @@ export function FunnelSection({
               <p className="text-sm font-medium text-muted-foreground">Combined ROAS</p>
               <p className="mt-2 text-2xl font-bold">{calculateROAS()}x</p>
               <p className="text-xs text-muted-foreground mt-1">
-                ${subblyData.overview.revenue.toLocaleString()} / ${totalAdSpend.toLocaleString()}
+                £{subblyData.overview.revenue.toLocaleString()} / £{totalAdSpend.toLocaleString()}
               </p>
             </div>
           </div>

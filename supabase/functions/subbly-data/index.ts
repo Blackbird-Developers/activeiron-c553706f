@@ -22,7 +22,7 @@ serve(async (req) => {
       const data = {
         overview: {
           subscriptions: 0,
-          subscriptionRate: 0,
+          churnRate: 0,
           revenue: 0,
         },
       };
@@ -54,8 +54,7 @@ serve(async (req) => {
       const placeholderData = {
         overview: {
           subscriptions: 0,
-          subscriptionRate: 0,
-          costPerSubscription: 0,
+          churnRate: 0,
           revenue: 0,
         },
         subscriptionsOverTime: [],
@@ -86,24 +85,38 @@ serve(async (req) => {
     const startDateTime = new Date(startDate).getTime();
     const endDateTime = new Date(endDate).getTime();
     
-    const activeSubscriptions = subscriptions.filter((sub: any) => {
+    // Get all active subscriptions at start of period for churn calculation
+    const activeAtStart = subscriptions.filter((sub: any) => {
+      const createdAt = new Date(sub.created_at).getTime();
+      return sub.status === 'active' && createdAt < startDateTime;
+    });
+    
+    // Get cancelled subscriptions during the period
+    const cancelledDuringPeriod = subscriptions.filter((sub: any) => {
+      const updatedAt = new Date(sub.updated_at || sub.created_at).getTime();
+      return sub.status === 'cancelled' && updatedAt >= startDateTime && updatedAt <= endDateTime;
+    });
+    
+    // Get new subscriptions during the period
+    const newSubscriptions = subscriptions.filter((sub: any) => {
       const createdAt = new Date(sub.created_at).getTime();
       return sub.status === 'active' && createdAt >= startDateTime && createdAt <= endDateTime;
     });
     
-    // Calculate revenue (assuming average subscription price)
-    // You might want to fetch product prices for more accurate revenue
-    const totalRevenue = activeSubscriptions.length * 30; // Placeholder calculation
+    // Calculate churn rate
+    const churnRate = activeAtStart.length > 0 
+      ? (cancelledDuringPeriod.length / activeAtStart.length) * 100 
+      : 0;
     
-    // Calculate subscription rate (would need total users from GA4)
-    const subscriptionRate = 0; // Requires GA4 total users
-    const costPerSubscription = 0; // Requires ad spend data
+    // Calculate revenue (using successful charges count and average price)
+    const totalRevenue = newSubscriptions.reduce((sum: number, sub: any) => {
+      return sum + ((sub.successful_charges_count || 1) * 30); // Assuming £30 average
+    }, 0);
     
     const processedData = {
       overview: {
-        subscriptions: activeSubscriptions.length,
-        subscriptionRate: Math.round(subscriptionRate * 100) / 100,
-        costPerSubscription: Math.round(costPerSubscription * 100) / 100,
+        subscriptions: newSubscriptions.length,
+        churnRate: Math.round(churnRate * 100) / 100,
         revenue: totalRevenue,
       },
       subscriptionsOverTime: [],
@@ -120,8 +133,7 @@ serve(async (req) => {
     const placeholderData = {
       overview: {
         subscriptions: 0,
-        subscriptionRate: 0,
-        costPerSubscription: 0,
+        churnRate: 0,
         revenue: 0,
       },
       subscriptionsOverTime: [],

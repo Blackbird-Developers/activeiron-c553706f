@@ -1,10 +1,11 @@
 import { NavLink } from "@/components/NavLink";
-import { BarChart3, Sparkles, TrendingUp } from "lucide-react";
+import { BarChart3, Sparkles, TrendingUp, TableProperties } from "lucide-react";
 
 export function Sidebar() {
   const navItems = [
     { to: "/ai-overview", label: "AI Overview", icon: Sparkles },
     { to: "/", label: "Marketing Dashboard", icon: BarChart3 },
+    { to: "/consolidated-view", label: "Consolidated View", icon: TableProperties },
     { to: "/meta-performance", label: "Meta Performance", icon: TrendingUp },
   ];
 

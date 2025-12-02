@@ -27,8 +27,8 @@ serve(async (req) => {
 
     console.log('Fetching Meta Ads data for period:', { startDate, endDate, adAccountId: META_AD_ACCOUNT_ID });
 
-    // Call Meta Marketing API for insights
-    const response = await fetch(
+    // Call Meta Marketing API for account-level insights
+    const accountResponse = await fetch(
       `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/insights?` +
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
@@ -44,9 +44,25 @@ serve(async (req) => {
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Meta Ads API error:', response.status, errorText);
+    // Call Meta Marketing API for campaign-level insights
+    const campaignsResponse = await fetch(
+      `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/campaigns?` +
+      new URLSearchParams({
+        access_token: META_ADS_API_KEY,
+        fields: 'name,status,effective_status',
+        filtering: JSON.stringify([{ field: 'effective_status', operator: 'IN', value: ['ACTIVE'] }]),
+      }),
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!accountResponse.ok) {
+      const errorText = await accountResponse.text();
+      console.error('Meta Ads API error:', accountResponse.status, errorText);
       
       // Return placeholder data structure on error
       const placeholderData = {
@@ -59,12 +75,13 @@ serve(async (req) => {
         },
         performanceOverTime: [],
         campaignPerformance: [],
+        campaigns: [],
       };
       
       return new Response(
         JSON.stringify({
           data: placeholderData,
-          error: `Meta Ads API error: ${response.status}`,
+          error: `Meta Ads API error: ${accountResponse.status}`,
           details: errorText,
         }),
         {
@@ -74,10 +91,76 @@ serve(async (req) => {
       );
     }
 
-    const data = await response.json();
-    console.log('Meta Ads data retrieved successfully');
+    const accountData = await accountResponse.json();
+    console.log('Meta Ads account data retrieved successfully');
 
-    return new Response(JSON.stringify({ data }), {
+    // Process campaign data
+    let campaigns = [];
+    if (campaignsResponse.ok) {
+      const campaignsData = await campaignsResponse.json();
+      
+      // Fetch insights for each active campaign
+      const campaignInsights = await Promise.all(
+        (campaignsData.data || []).map(async (campaign: any) => {
+          try {
+            const insightsResponse = await fetch(
+              `https://graph.facebook.com/v21.0/${campaign.id}/insights?` +
+              new URLSearchParams({
+                access_token: META_ADS_API_KEY,
+                time_range: JSON.stringify({ since: startDate, until: endDate }),
+                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type',
+              }),
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+
+            if (insightsResponse.ok) {
+              const insights = await insightsResponse.json();
+              const data = insights.data?.[0] || {};
+              
+              // Extract conversions from actions
+              const conversions = data.actions?.find((a: any) => 
+                a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase'
+              )?.value || 0;
+              
+              const costPerConversion = data.cost_per_action_type?.find((a: any) => 
+                a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase'
+              )?.value || 0;
+
+              return {
+                id: campaign.id,
+                name: campaign.name,
+                status: campaign.effective_status,
+                spend: parseFloat(data.spend || 0),
+                cpc: parseFloat(data.cpc || 0),
+                ctr: parseFloat(data.ctr || 0),
+                impressions: parseInt(data.impressions || 0),
+                clicks: parseInt(data.clicks || 0),
+                conversions: parseInt(conversions),
+                costPerConversion: parseFloat(costPerConversion),
+                roas: 0, // Would need revenue data
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching insights for campaign ${campaign.id}:`, error);
+          }
+          return null;
+        })
+      );
+
+      campaigns = campaignInsights.filter(c => c !== null);
+    }
+
+    const processedData = {
+      ...accountData,
+      campaigns,
+    };
+
+    return new Response(JSON.stringify({ data: processedData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

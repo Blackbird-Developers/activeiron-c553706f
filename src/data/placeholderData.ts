@@ -78,8 +78,7 @@ export const metaAdsData = {
 export const subblyData = {
   overview: {
     subscriptions: 987,
-    subscriptionRate: 2.16,
-    costPerSubscription: 8.57,
+    churnRate: 3.2,
     revenue: 29610,
   },
   subscriptionsOverTime: [

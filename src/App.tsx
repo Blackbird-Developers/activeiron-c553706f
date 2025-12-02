@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import Index from "./pages/Index";
 import AIOverview from "./pages/AIOverview";
+import ConsolidatedView from "./pages/ConsolidatedView";
 import MetaPerformance from "./pages/MetaPerformance";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/ai-overview" element={<AIOverview />} />
+                <Route path="/consolidated-view" element={<ConsolidatedView />} />
                 <Route path="/meta-performance" element={<MetaPerformance />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
