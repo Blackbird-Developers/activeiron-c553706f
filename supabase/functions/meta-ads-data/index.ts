@@ -156,8 +156,28 @@ serve(async (req) => {
       campaigns = campaignInsights.filter(c => c !== null);
     }
 
+    // Transform API response to match frontend expectations
+    const accountMetrics = accountData.data?.[0] || {};
+    
+    // Extract conversions from actions array
+    const conversions = accountMetrics.actions?.find((a: any) => 
+      a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
+    )?.value || 0;
+    
+    const costPerConversion = accountMetrics.cost_per_conversion?.find((a: any) => 
+      a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
+    )?.value || 0;
+
     const processedData = {
-      ...accountData,
+      overview: {
+        cpc: parseFloat(accountMetrics.cpc || 0),
+        ctr: parseFloat(accountMetrics.ctr || 0),
+        conversions: parseInt(conversions),
+        adSpend: parseFloat(accountMetrics.spend || 0),
+        costPerConversion: parseFloat(costPerConversion),
+      },
+      performanceOverTime: [],
+      campaignPerformance: [],
       campaigns,
     };
 
