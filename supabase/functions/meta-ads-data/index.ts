@@ -6,6 +6,60 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Function to exchange short-lived token for long-lived token
+async function getLongLivedToken(shortLivedToken: string): Promise<string | null> {
+  const FB_APP_ID = Deno.env.get('FB_APP_ID');
+  const FB_APP_SECRET = Deno.env.get('FB_APP_SECRET');
+  
+  if (!FB_APP_ID || !FB_APP_SECRET) {
+    console.log('FB_APP_ID or FB_APP_SECRET not configured, cannot refresh token');
+    return null;
+  }
+  
+  try {
+    console.log('Attempting to exchange for long-lived token...');
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/oauth/access_token?` +
+      new URLSearchParams({
+        grant_type: 'fb_exchange_token',
+        client_id: FB_APP_ID,
+        client_secret: FB_APP_SECRET,
+        fb_exchange_token: shortLivedToken,
+      }),
+      { method: 'GET' }
+    );
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Successfully obtained long-lived token, expires in:', data.expires_in, 'seconds');
+      return data.access_token;
+    } else {
+      const errorText = await response.text();
+      console.error('Failed to get long-lived token:', errorText);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error exchanging token:', error);
+    return null;
+  }
+}
+
+// Function to check if token is valid
+async function isTokenValid(token: string): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/debug_token?input_token=${token}&access_token=${token}`
+    );
+    if (response.ok) {
+      const data = await response.json();
+      return data.data?.is_valid === true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -14,7 +68,7 @@ serve(async (req) => {
   try {
     const { startDate, endDate } = await req.json();
     
-    const META_ADS_API_KEY = Deno.env.get('META_ADS_API_KEY');
+    let META_ADS_API_KEY = Deno.env.get('META_ADS_API_KEY');
     const META_AD_ACCOUNT_ID_RAW = Deno.env.get('META_AD_ACCOUNT_ID');
     const META_AD_ACCOUNT_ID = META_AD_ACCOUNT_ID_RAW?.trim();
 
@@ -24,6 +78,19 @@ serve(async (req) => {
 
     if (!META_AD_ACCOUNT_ID) {
       throw new Error('META_AD_ACCOUNT_ID not configured');
+    }
+
+    // Check if current token is valid, if not try to refresh
+    const tokenValid = await isTokenValid(META_ADS_API_KEY);
+    if (!tokenValid) {
+      console.log('Current token appears invalid, attempting to get long-lived token...');
+      const longLivedToken = await getLongLivedToken(META_ADS_API_KEY);
+      if (longLivedToken) {
+        META_ADS_API_KEY = longLivedToken;
+        console.log('Using refreshed long-lived token');
+      } else {
+        console.log('Could not refresh token, proceeding with original token');
+      }
     }
 
     console.log('Fetching Meta Ads data for period:', { startDate, endDate, adAccountId: META_AD_ACCOUNT_ID });
