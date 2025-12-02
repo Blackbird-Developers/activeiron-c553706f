@@ -1,15 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { CreditCard, TrendingUp, DollarSign, Percent } from "lucide-react";
+import { CreditCard, TrendingDown, DollarSign, TrendingUp } from "lucide-react";
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { subblyData as placeholderData } from "@/data/placeholderData";
 
 interface SubblySectionProps {
   data?: typeof placeholderData;
+  totalAdSpend?: number;
 }
 
-export function SubblySection({ data = placeholderData }: SubblySectionProps) {
+export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: SubblySectionProps) {
   const COLORS = ["hsl(var(--subbly-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-4))"];
+  
+  // Calculate CAC (Customer Acquisition Cost)
+  const cac = data.overview.subscriptions > 0 
+    ? totalAdSpend / data.overview.subscriptions 
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -28,24 +34,24 @@ export function SubblySection({ data = placeholderData }: SubblySectionProps) {
           colorScheme="subbly"
         />
         <ScoreCard
-          title="Subscription Rate"
-          value={`${data.overview.subscriptionRate}%`}
-          change="+0.4% vs last period"
+          title="Churn Rate"
+          value={`${data.overview.churnRate}%`}
+          change="-0.3% vs last period"
           changeType="positive"
-          icon={Percent}
+          icon={TrendingDown}
           colorScheme="subbly"
         />
         <ScoreCard
-          title="Cost per Subscription"
-          value={`$${data.overview.costPerSubscription}`}
-          change="-12.3% vs last period"
+          title="Customer Acquisition Cost"
+          value={`£${cac.toFixed(2)}`}
+          change="-8.5% vs last period"
           changeType="positive"
           icon={DollarSign}
           colorScheme="subbly"
         />
         <ScoreCard
           title="Revenue"
-          value={`$${data.overview.revenue.toLocaleString()}`}
+          value={`£${data.overview.revenue.toLocaleString()}`}
           change="+22.7% vs last period"
           changeType="positive"
           icon={TrendingUp}
@@ -73,7 +79,7 @@ export function SubblySection({ data = placeholderData }: SubblySectionProps) {
                 />
                 <Legend />
                 <Line type="monotone" dataKey="subscriptions" stroke="hsl(var(--subbly-primary))" strokeWidth={2} name="Subscriptions" />
-                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Revenue ($)" />
+                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Revenue (£)" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

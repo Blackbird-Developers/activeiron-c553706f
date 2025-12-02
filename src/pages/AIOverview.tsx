@@ -164,7 +164,7 @@ export default function AIOverview() {
       title: "Subscription Funnel",
       icon: TrendingUp,
       color: "text-subbly-foreground",
-      insight: `Your subscription rate is ${marketingData.subbly?.overview?.subscriptionRate || 'N/A'}% with ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating $${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Premium plan dominates at 43.8% of subscribers.`,
+      insight: `You have ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating £${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Your churn rate is ${marketingData.subbly?.overview?.churnRate || 'N/A'}% which is within healthy ranges.`,
       recommendation: "Conversion rate from ad clicks to subscriptions is strong. Test increasing ad spend by 20% to scale subscriptions.",
     },
     {
