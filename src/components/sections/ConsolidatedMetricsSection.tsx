@@ -94,23 +94,23 @@ export function ConsolidatedMetricsSection({
     { category: "Site & Traffic", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
     
     // Meta Ads Section
-    { category: "Meta Ads", metric: "Spend", cumulative: `£${metaSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `£${getDailyValue(metaAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-green-500/10" },
-    { category: "Meta Ads", metric: "CPC", cumulative: `£${metaCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `£${getDailyValue(metaAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "Spend", cumulative: `€${metaSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "CPC", cumulative: `€${metaCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-green-500/10" },
     { category: "Meta Ads", metric: "CTR", cumulative: `${metaCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(metaAdsData?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-green-500/10" },
     { category: "Meta Ads", metric: "Conversions", cumulative: metaConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAdsData?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-green-500/10" },
-    { category: "Meta Ads", metric: "CPA", cumulative: `£${metaCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "CPA", cumulative: `€${metaCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-green-500/10" },
     
     // Google Ads Section
-    { category: "Google Ads", metric: "Spend", cumulative: `£${googleSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `£${getDailyValue(googleAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-red-500/10" },
-    { category: "Google Ads", metric: "CPC", cumulative: `£${googleCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `£${getDailyValue(googleAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "Spend", cumulative: `€${googleSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "CPC", cumulative: `€${googleCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-red-500/10" },
     { category: "Google Ads", metric: "CTR", cumulative: `${googleCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(googleAdsData?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-red-500/10" },
     { category: "Google Ads", metric: "Conversions", cumulative: googleConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAdsData?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-red-500/10" },
-    { category: "Google Ads", metric: "CPA", cumulative: `£${googleCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "CPA", cumulative: `€${googleCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-red-500/10" },
     
     // Combined Marketing Section
-    { category: "Combined", metric: "Total Spend", cumulative: `£${totalSpend.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined", metric: "Total Spend", cumulative: `€${totalSpend.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined", metric: "Cumulative CPA", cumulative: `£${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     
     // Subscriptions Section
     { category: "Subscriptions", metric: "Total Subscriptions", cumulative: subscriptions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(subblyData?.subscriptionsOverTime, d, 'subscriptions').toLocaleString()), colorClass: "bg-purple-500/10" },

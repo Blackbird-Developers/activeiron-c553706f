@@ -43,7 +43,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
         />
         <ScoreCard
           title="Customer Acquisition Cost"
-          value={`£${cac.toFixed(2)}`}
+          value={`€${cac.toFixed(2)}`}
           change="-8.5% vs last period"
           changeType="positive"
           icon={DollarSign}
@@ -51,7 +51,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
         />
         <ScoreCard
           title="Revenue"
-          value={`£${data.overview.revenue.toLocaleString()}`}
+          value={`€${data.overview.revenue.toLocaleString()}`}
           change="+22.7% vs last period"
           changeType="positive"
           icon={TrendingUp}
@@ -79,7 +79,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
                 />
                 <Legend />
                 <Line type="monotone" dataKey="subscriptions" stroke="hsl(var(--subbly-primary))" strokeWidth={2} name="Subscriptions" />
-                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Revenue (£)" />
+                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Revenue (€)" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

@@ -157,14 +157,14 @@ export default function AIOverview() {
       title: "Ad Spend Efficiency",
       icon: DollarSign,
       color: "text-meta-foreground",
-      insight: `Combined ad spend across Google Ads ($${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads ($${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals $${totalAdSpend.toLocaleString()}. Your overall ROAS is ${roas}, generating ${totalConversions.toLocaleString()} conversions.`,
+      insight: `Combined ad spend across Google Ads (€${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads (€${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals €${totalAdSpend.toLocaleString()}. Your overall ROAS is ${roas}, generating ${totalConversions.toLocaleString()} conversions.`,
       recommendation: "Google Ads shows higher CPC but better conversion rates. Consider reallocating 15% of Meta budget to Google Ads.",
     },
     {
       title: "Subscription Funnel",
       icon: TrendingUp,
       color: "text-subbly-foreground",
-      insight: `You have ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating £${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Your churn rate is ${marketingData.subbly?.overview?.churnRate || 'N/A'}% which is within healthy ranges.`,
+      insight: `You have ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating €${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Your churn rate is ${marketingData.subbly?.overview?.churnRate || 'N/A'}% which is within healthy ranges.`,
       recommendation: "Conversion rate from ad clicks to subscriptions is strong. Test increasing ad spend by 20% to scale subscriptions.",
     },
     {

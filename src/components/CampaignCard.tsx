@@ -64,7 +64,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               <DollarSign className="h-3 w-3" />
               <span>Spend</span>
             </div>
-            <p className="text-lg font-bold">£{campaign.spend.toFixed(2)}</p>
+            <p className="text-lg font-bold">€{campaign.spend.toFixed(2)}</p>
           </div>
           
           <div className="space-y-1">
@@ -72,7 +72,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               <MousePointerClick className="h-3 w-3" />
               <span>CPC</span>
             </div>
-            <p className="text-lg font-bold">£{campaign.cpc.toFixed(2)}</p>
+            <p className="text-lg font-bold">€{campaign.cpc.toFixed(2)}</p>
           </div>
           
           <div className="space-y-1">
@@ -96,7 +96,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               <DollarSign className="h-3 w-3" />
               <span>CPA</span>
             </div>
-            <p className="text-lg font-bold">£{campaign.costPerConversion.toFixed(2)}</p>
+            <p className="text-lg font-bold">€{campaign.costPerConversion.toFixed(2)}</p>
           </div>
           
           {campaign.roas !== undefined && campaign.roas > 0 && (

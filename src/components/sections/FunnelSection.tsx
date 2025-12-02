@@ -92,7 +92,7 @@ export function FunnelSection({
               <p className="text-sm font-medium text-muted-foreground">Combined ROAS</p>
               <p className="mt-2 text-2xl font-bold">{calculateROAS()}x</p>
               <p className="text-xs text-muted-foreground mt-1">
-                £{subblyData.overview.revenue.toLocaleString()} / £{totalAdSpend.toLocaleString()}
+                €{subblyData.overview.revenue.toLocaleString()} / €{totalAdSpend.toLocaleString()}
               </p>
             </div>
           </div>
