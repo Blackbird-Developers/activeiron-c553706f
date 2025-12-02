@@ -90,8 +90,8 @@ export function ConsolidatedMetricsSection({
     // Site & Traffic Section
     { category: "Site & Traffic", metric: "Total Users", cumulative: totalUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4Data?.trendsOverTime, d, 'users').toLocaleString()), colorClass: "bg-blue-500/10" },
     { category: "Site & Traffic", metric: "New Users", cumulative: newUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4Data?.trendsOverTime, d, 'newUsers').toLocaleString()), colorClass: "bg-blue-500/10" },
-    { category: "Site & Traffic", metric: "Engagement Rate", cumulative: `${(engagementRate * 100).toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
-    { category: "Site & Traffic", metric: "Bounce Rate", cumulative: `${(bounceRate * 100).toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    { category: "Site & Traffic", metric: "Engagement Rate", cumulative: `${engagementRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    { category: "Site & Traffic", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
     
     // Meta Ads Section
     { category: "Meta Ads", metric: "Spend", cumulative: `£${metaSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `£${getDailyValue(metaAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-green-500/10" },
