@@ -106,6 +106,8 @@ export default function ConsolidatedView() {
         googleAdsData={marketingData.googleAds}
         subblyData={marketingData.subbly}
         mailchimpData={marketingData.mailchimp}
+        startDate={startDate}
+        endDate={endDate}
       />
     </div>
   );
