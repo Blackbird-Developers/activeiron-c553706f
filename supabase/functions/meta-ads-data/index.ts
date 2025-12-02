@@ -112,6 +112,24 @@ serve(async (req) => {
       }
     );
 
+    // Call Meta Marketing API for daily breakdown
+    const dailyResponse = await fetch(
+      `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/insights?` +
+      new URLSearchParams({
+        access_token: META_ADS_API_KEY,
+        time_range: JSON.stringify({ since: startDate, until: endDate }),
+        fields: 'impressions,clicks,spend,cpc,ctr,actions',
+        level: 'account',
+        time_increment: '1', // Daily breakdown
+      }),
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
     // Call Meta Marketing API for campaign-level insights
     const campaignsResponse = await fetch(
       `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/campaigns?` +
@@ -161,6 +179,37 @@ serve(async (req) => {
 
     const accountData = await accountResponse.json();
     console.log('Meta Ads account data retrieved successfully');
+
+    // Process daily breakdown data
+    let performanceOverTime: any[] = [];
+    if (dailyResponse.ok) {
+      const dailyData = await dailyResponse.json();
+      console.log('Daily breakdown data retrieved:', dailyData.data?.length || 0, 'days');
+      
+      performanceOverTime = (dailyData.data || []).map((day: any) => {
+        // Parse the date_start field (format: "2025-01-01")
+        const dateObj = new Date(day.date_start);
+        const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString('en-GB', { month: 'short' })}`;
+        
+        // Extract conversions from actions
+        const conversions = day.actions?.find((a: any) => 
+          a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase' ||
+          a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
+        )?.value || 0;
+        
+        return {
+          date: formattedDate,
+          spend: parseFloat(day.spend || 0),
+          cpc: parseFloat(day.cpc || 0),
+          ctr: parseFloat(day.ctr || 0),
+          impressions: parseInt(day.impressions || 0),
+          clicks: parseInt(day.clicks || 0),
+          conversions: parseInt(conversions),
+        };
+      });
+    } else {
+      console.log('Failed to fetch daily breakdown:', await dailyResponse.text());
+    }
 
     // Process campaign data
     let campaigns = [];
@@ -243,7 +292,7 @@ serve(async (req) => {
         adSpend: parseFloat(accountMetrics.spend || 0),
         costPerConversion: parseFloat(costPerConversion),
       },
-      performanceOverTime: [],
+      performanceOverTime,
       campaignPerformance: [],
       campaigns,
     };
