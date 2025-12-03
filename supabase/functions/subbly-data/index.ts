@@ -150,23 +150,38 @@ serve(async (req) => {
       return sum + (price * charges);
     }, 0);
 
-    // Build subscriptions over time data
+    // Build subscriptions over time data - include ALL days in range
     const subscriptionsByDate: Record<string, number> = {};
+    
+    // First, initialize all days in range with 0
+    const currentDate = new Date(startDateTime);
+    while (currentDate <= endDateTime) {
+      const dateKey = currentDate.toISOString().split('T')[0];
+      subscriptionsByDate[dateKey] = 0;
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Then count subscriptions for each day
     subscriptionsInRange.forEach((sub: any) => {
       const createdAt = safeGetDate(sub.created_at);
       if (createdAt) {
         const dateKey = createdAt.toISOString().split('T')[0];
-        subscriptionsByDate[dateKey] = (subscriptionsByDate[dateKey] || 0) + 1;
+        if (subscriptionsByDate.hasOwnProperty(dateKey)) {
+          subscriptionsByDate[dateKey] = (subscriptionsByDate[dateKey] || 0) + 1;
+        }
       }
     });
 
+    // Sort by date and format for chart
     const subscriptionsOverTime = Object.entries(subscriptionsByDate)
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
       .map(([date, count]) => ({
         date: new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
         subscriptions: count,
-        revenue: count * 30, // Estimate
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        revenue: count * 30, // Estimate €30 per subscription
+      }));
+    
+    console.log(`Generated ${subscriptionsOverTime.length} daily data points`);
 
     // Build plan distribution
     const planCounts: Record<string, number> = {};
