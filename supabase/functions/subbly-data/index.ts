@@ -6,6 +6,59 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper to safely get date from potentially null field
+function safeGetDate(dateStr: string | null | undefined): Date | null {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+// Fetch all pages from Subbly API
+async function fetchAllSubscriptions(apiKey: string): Promise<any[]> {
+  const allSubscriptions: any[] = [];
+  let currentPage = 1;
+  let lastPage = 1;
+
+  do {
+    console.log(`Fetching Subbly page ${currentPage}...`);
+    
+    const response = await fetch(
+      `https://api.subbly.co/private/v1/subscriptions?page=${currentPage}`,
+      {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Subbly API error:', response.status, errorText);
+      throw new Error(`Subbly API error: ${response.status} - ${errorText}`);
+    }
+
+    const pageData = await response.json();
+    console.log(`Page ${currentPage} response:`, {
+      current_page: pageData.current_page,
+      last_page: pageData.last_page,
+      total: pageData.total,
+      dataLength: pageData.data?.length || 0
+    });
+
+    const subscriptions = pageData.data || [];
+    allSubscriptions.push(...subscriptions);
+
+    currentPage = (pageData.current_page || currentPage) + 1;
+    lastPage = pageData.last_page || 1;
+
+  } while (currentPage <= lastPage);
+
+  console.log(`Total subscriptions fetched: ${allSubscriptions.length}`);
+  return allSubscriptions;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -15,43 +68,10 @@ serve(async (req) => {
     const { startDate, endDate } = await req.json();
     
     const SUBBLY_API_KEY = Deno.env.get('subbly_private');
-    const STOREFRONT_API = Deno.env.get('Storefront_api_subbly');
 
-    if (!SUBBLY_API_KEY || !STOREFRONT_API) {
+    if (!SUBBLY_API_KEY) {
       console.log('Subbly credentials not configured - returning placeholder data');
       const data = {
-        overview: {
-          subscriptions: 0,
-          churnRate: 0,
-          revenue: 0,
-        },
-      };
-
-      return new Response(JSON.stringify({ data, note: 'Subbly integration is currently disabled. Using placeholder data.' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log('Fetching Subbly data for period:', { startDate, endDate });
-
-    // Call Subbly API
-    const response = await fetch(
-      'https://api.subbly.co/private/v1/subscriptions',
-      {
-        method: 'GET',
-        headers: {
-          'X-API-KEY': SUBBLY_API_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Subbly API error:', response.status, errorText);
-      
-      // Return placeholder data on error
-      const placeholderData = {
         overview: {
           subscriptions: 0,
           churnRate: 0,
@@ -60,69 +80,124 @@ serve(async (req) => {
         subscriptionsOverTime: [],
         planDistribution: [],
       };
-      
-      return new Response(
-        JSON.stringify({
-          data: placeholderData,
-          error: `Subbly API error: ${response.status}`,
-          details: errorText,
-        }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+
+      return new Response(JSON.stringify({ data, note: 'Subbly integration is currently disabled. API key not configured.' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    const rawData = await response.json();
-    console.log('Subbly data retrieved successfully');
+    console.log('Fetching Subbly data for period:', { startDate, endDate });
 
-    // Transform Subbly data to match expected format
-    const subscriptions = rawData.data || [];
-    const total = rawData.total || 0;
-    
-    // Filter subscriptions within date range
-    const startDateTime = new Date(startDate).getTime();
-    const endDateTime = new Date(endDate).getTime();
-    
-    // Get all active subscriptions at start of period for churn calculation
-    const activeAtStart = subscriptions.filter((sub: any) => {
-      const createdAt = new Date(sub.created_at).getTime();
-      return sub.status === 'active' && createdAt < startDateTime;
+    // Fetch all subscriptions with pagination
+    const allSubscriptions = await fetchAllSubscriptions(SUBBLY_API_KEY);
+
+    // Parse date range
+    const startDateTime = new Date(startDate);
+    startDateTime.setHours(0, 0, 0, 0);
+    const endDateTime = new Date(endDate);
+    endDateTime.setHours(23, 59, 59, 999);
+
+    console.log('Filtering subscriptions between:', { 
+      startDateTime: startDateTime.toISOString(), 
+      endDateTime: endDateTime.toISOString() 
     });
-    
-    // Get cancelled subscriptions during the period
-    const cancelledDuringPeriod = subscriptions.filter((sub: any) => {
-      const updatedAt = new Date(sub.updated_at || sub.created_at).getTime();
-      return sub.status === 'cancelled' && updatedAt >= startDateTime && updatedAt <= endDateTime;
+
+    // Filter ALL subscriptions created within the date range (regardless of status)
+    const subscriptionsInRange = allSubscriptions.filter((sub: any) => {
+      const createdAt = safeGetDate(sub.created_at);
+      if (!createdAt) return false;
+      return createdAt >= startDateTime && createdAt <= endDateTime;
     });
-    
-    // Get new subscriptions during the period
-    const newSubscriptions = subscriptions.filter((sub: any) => {
-      const createdAt = new Date(sub.created_at).getTime();
-      return sub.status === 'active' && createdAt >= startDateTime && createdAt <= endDateTime;
+
+    console.log(`Subscriptions in date range: ${subscriptionsInRange.length}`);
+
+    // Count by status for debugging
+    const statusCounts: Record<string, number> = {};
+    subscriptionsInRange.forEach((sub: any) => {
+      const status = sub.status || 'unknown';
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
-    
+    console.log('Status breakdown:', statusCounts);
+
+    // Get active subscriptions at start of period for churn calculation
+    const activeAtStart = allSubscriptions.filter((sub: any) => {
+      const createdAt = safeGetDate(sub.created_at);
+      if (!createdAt) return false;
+      // Was created before the period and is/was active
+      return createdAt < startDateTime && (sub.status === 'active' || sub.status === 'expired' || sub.status === 'cancelled');
+    });
+
+    // Get cancelled/expired subscriptions during the period
+    const churnedDuringPeriod = allSubscriptions.filter((sub: any) => {
+      const updatedAt = safeGetDate(sub.updated_at) || safeGetDate(sub.created_at);
+      if (!updatedAt) return false;
+      return (sub.status === 'cancelled' || sub.status === 'expired') && 
+             updatedAt >= startDateTime && 
+             updatedAt <= endDateTime;
+    });
+
     // Calculate churn rate (capped at 100%)
     const rawChurnRate = activeAtStart.length > 0 
-      ? (cancelledDuringPeriod.length / activeAtStart.length) * 100 
+      ? (churnedDuringPeriod.length / activeAtStart.length) * 100 
       : 0;
     const churnRate = Math.min(rawChurnRate, 100);
-    
-    // Calculate revenue (using successful charges count and average price)
-    const totalRevenue = newSubscriptions.reduce((sum: number, sub: any) => {
-      return sum + ((sub.successful_charges_count || 1) * 30); // Assuming £30 average
+
+    // Calculate revenue estimate from subscriptions in range
+    // Using price from subscription if available, otherwise default estimate
+    const totalRevenue = subscriptionsInRange.reduce((sum: number, sub: any) => {
+      const price = sub.price || sub.amount || 30; // Default €30 if no price
+      const charges = sub.successful_charges_count || 1;
+      return sum + (price * charges);
     }, 0);
-    
+
+    // Build subscriptions over time data
+    const subscriptionsByDate: Record<string, number> = {};
+    subscriptionsInRange.forEach((sub: any) => {
+      const createdAt = safeGetDate(sub.created_at);
+      if (createdAt) {
+        const dateKey = createdAt.toISOString().split('T')[0];
+        subscriptionsByDate[dateKey] = (subscriptionsByDate[dateKey] || 0) + 1;
+      }
+    });
+
+    const subscriptionsOverTime = Object.entries(subscriptionsByDate)
+      .map(([date, count]) => ({
+        date: new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+        subscriptions: count,
+        revenue: count * 30, // Estimate
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Build plan distribution
+    const planCounts: Record<string, number> = {};
+    subscriptionsInRange.forEach((sub: any) => {
+      const planName = sub.product?.name || sub.product_name || 'Standard Plan';
+      planCounts[planName] = (planCounts[planName] || 0) + 1;
+    });
+
+    const totalSubs = subscriptionsInRange.length;
+    const planDistribution = Object.entries(planCounts).map(([plan, count]) => ({
+      plan,
+      subscribers: count,
+      percentage: totalSubs > 0 ? Math.round((count / totalSubs) * 100) : 0,
+    }));
+
     const processedData = {
       overview: {
-        subscriptions: newSubscriptions.length,
+        subscriptions: subscriptionsInRange.length,
         churnRate: Math.round(churnRate * 100) / 100,
         revenue: totalRevenue,
       },
-      subscriptionsOverTime: [],
-      planDistribution: [],
+      subscriptionsOverTime,
+      planDistribution,
+      statusBreakdown: statusCounts,
     };
+
+    console.log('Returning processed data:', {
+      subscriptions: processedData.overview.subscriptions,
+      churnRate: processedData.overview.churnRate,
+      revenue: processedData.overview.revenue,
+    });
 
     return new Response(JSON.stringify({ data: processedData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -130,7 +205,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in subbly-data function:', error);
     
-    // Return placeholder data on error
     const placeholderData = {
       overview: {
         subscriptions: 0,
