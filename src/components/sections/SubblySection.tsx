@@ -10,12 +10,22 @@ interface SubblySectionProps {
 }
 
 export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: SubblySectionProps) {
-  const COLORS = ["hsl(var(--subbly-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-4))"];
+  const COLORS = ["hsl(var(--subbly-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-4))", "hsl(var(--chart-3))"];
   
   // Calculate CAC (Customer Acquisition Cost)
   const cac = data.overview.subscriptions > 0 
     ? totalAdSpend / data.overview.subscriptions 
     : 0;
+
+  // Ensure subscriptionsOverTime data has valid entries
+  const chartData = data.subscriptionsOverTime && data.subscriptionsOverTime.length > 0 
+    ? data.subscriptionsOverTime 
+    : [];
+
+  // Ensure planDistribution data has valid entries
+  const pieData = data.planDistribution && data.planDistribution.length > 0 
+    ? data.planDistribution 
+    : [{ plan: 'No Data', subscribers: 1, percentage: 100 }];
 
   return (
     <div className="space-y-6">
@@ -65,23 +75,61 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
             <CardTitle className="text-subbly-foreground">Subscriptions Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.subscriptionsOverTime}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--card))", 
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
-                  }} 
-                />
-                <Legend />
-                <Line type="monotone" dataKey="subscriptions" stroke="hsl(var(--subbly-primary))" strokeWidth={2} name="Subscriptions" />
-                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Revenue (€)" />
-              </LineChart>
-            </ResponsiveContainer>
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis 
+                    yAxisId="left"
+                    stroke="hsl(var(--subbly-primary))" 
+                    fontSize={12}
+                    label={{ value: 'Subscriptions', angle: -90, position: 'insideLeft', fill: 'hsl(var(--subbly-primary))' }}
+                  />
+                  <YAxis 
+                    yAxisId="right"
+                    orientation="right"
+                    stroke="hsl(var(--chart-2))" 
+                    fontSize={12}
+                    label={{ value: 'Revenue (€)', angle: 90, position: 'insideRight', fill: 'hsl(var(--chart-2))' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: "hsl(var(--card))", 
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "var(--radius)"
+                    }}
+                    formatter={(value: number, name: string) => [
+                      name === 'Revenue (€)' ? `€${value.toLocaleString()}` : value.toLocaleString(),
+                      name
+                    ]}
+                  />
+                  <Legend />
+                  <Line 
+                    yAxisId="left"
+                    type="monotone" 
+                    dataKey="subscriptions" 
+                    stroke="hsl(var(--subbly-primary))" 
+                    strokeWidth={2} 
+                    name="Subscriptions"
+                    dot={{ fill: "hsl(var(--subbly-primary))" }}
+                  />
+                  <Line 
+                    yAxisId="right"
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="hsl(var(--chart-2))" 
+                    strokeWidth={2} 
+                    name="Revenue (€)"
+                    dot={{ fill: "hsl(var(--chart-2))" }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                No subscription data available for selected period
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -93,7 +141,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={data.planDistribution}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -102,7 +150,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
                   fill="#8884d8"
                   dataKey="subscribers"
                 >
-                  {data.planDistribution.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -111,7 +159,8 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "var(--radius)"
-                  }} 
+                  }}
+                  formatter={(value: number, name: string) => [value.toLocaleString(), 'Subscribers']}
                 />
               </PieChart>
             </ResponsiveContainer>
