@@ -130,6 +130,24 @@ serve(async (req) => {
       }
     );
 
+    // Call Meta Marketing API for country breakdown
+    const countryResponse = await fetch(
+      `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/insights?` +
+      new URLSearchParams({
+        access_token: META_ADS_API_KEY,
+        time_range: JSON.stringify({ since: startDate, until: endDate }),
+        fields: 'impressions,clicks,spend,cpc,ctr,actions,country',
+        level: 'account',
+        breakdowns: 'country',
+      }),
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
     // Call Meta Marketing API for campaign-level insights
     const campaignsResponse = await fetch(
       `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/campaigns?` +
@@ -158,10 +176,14 @@ serve(async (req) => {
           conversions: 0,
           adSpend: 0,
           costPerConversion: 0,
+          impressions: 0,
+          clicks: 0,
+          reach: 0,
         },
         performanceOverTime: [],
         campaignPerformance: [],
         campaigns: [],
+        countryBreakdown: [],
       };
       
       return new Response(
@@ -209,6 +231,32 @@ serve(async (req) => {
       });
     } else {
       console.log('Failed to fetch daily breakdown:', await dailyResponse.text());
+    }
+
+    // Process country breakdown data
+    let countryBreakdown: any[] = [];
+    if (countryResponse.ok) {
+      const countryData = await countryResponse.json();
+      console.log('Country breakdown data retrieved:', countryData.data?.length || 0, 'countries');
+      
+      countryBreakdown = (countryData.data || []).map((row: any) => {
+        const conversions = row.actions?.find((a: any) => 
+          a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase' ||
+          a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
+        )?.value || 0;
+
+        return {
+          country: row.country,
+          impressions: parseInt(row.impressions || 0),
+          clicks: parseInt(row.clicks || 0),
+          spend: parseFloat(row.spend || 0),
+          cpc: parseFloat(row.cpc || 0),
+          ctr: parseFloat(row.ctr || 0),
+          conversions: parseInt(conversions),
+        };
+      });
+    } else {
+      console.log('Failed to fetch country breakdown');
     }
 
     // Process campaign data
@@ -291,10 +339,14 @@ serve(async (req) => {
         conversions: parseInt(conversions),
         adSpend: parseFloat(accountMetrics.spend || 0),
         costPerConversion: parseFloat(costPerConversion),
+        impressions: parseInt(accountMetrics.impressions || 0),
+        clicks: parseInt(accountMetrics.clicks || 0),
+        reach: parseInt(accountMetrics.reach || 0),
       },
       performanceOverTime,
       campaignPerformance: [],
       campaigns,
+      countryBreakdown,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {
@@ -311,9 +363,13 @@ serve(async (req) => {
         conversions: 0,
         adSpend: 0,
         costPerConversion: 0,
+        impressions: 0,
+        clicks: 0,
+        reach: 0,
       },
       performanceOverTime: [],
       campaignPerformance: [],
+      countryBreakdown: [],
     };
     
     return new Response(

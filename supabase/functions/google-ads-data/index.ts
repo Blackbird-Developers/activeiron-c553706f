@@ -30,14 +30,27 @@ serve(async (req) => {
     // Google Ads API requires OAuth2 and refresh token flow
     console.log('Google Ads API integration requires OAuth2 setup - using placeholder data');
 
+    // Placeholder structure matching Excel requirements
     const data = {
       overview: {
-        cpc: 0.75,
-        ctr: 3.2,
-        conversions: 245,
-        adSpend: 8500,
-        costPerConversion: 34.69
-      }
+        cpc: 0,
+        ctr: 0,
+        conversions: 0,
+        adSpend: 0,
+        costPerConversion: 0,
+        impressions: 0,
+        clicks: 0,
+        reach: 0,
+      },
+      performanceOverTime: [],
+      campaignPerformance: [],
+      countryBreakdown: [
+        // Placeholder country data - IRE, UK, USA, DE
+        { country: 'Ireland', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
+        { country: 'United Kingdom', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
+        { country: 'United States', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
+        { country: 'Germany', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
+      ],
     };
 
     return new Response(JSON.stringify({ data }), {
