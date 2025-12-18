@@ -6,6 +6,9 @@ export const ga4Data = {
     newUsers: 12345,
     engagementRate: 62.5,
     bounceRate: 42.3,
+    sessions: 58000,
+    pageViews: 125000,
+    avgSessionDuration: 185,
   },
   trafficBySource: [
     { name: "Organic Search", users: 18500, percentage: 40.5 },
@@ -15,13 +18,19 @@ export const ga4Data = {
     { name: "Email", users: 2000, percentage: 4.3 },
   ],
   trendsOverTime: [
-    { date: "Jan 1", users: 3200, newUsers: 890 },
-    { date: "Jan 8", users: 3500, newUsers: 950 },
-    { date: "Jan 15", users: 3800, newUsers: 1020 },
-    { date: "Jan 22", users: 4100, newUsers: 1150 },
-    { date: "Jan 29", users: 4400, newUsers: 1200 },
-    { date: "Feb 5", users: 4200, newUsers: 1100 },
-    { date: "Feb 12", users: 4600, newUsers: 1280 },
+    { date: "Jan 1", users: 3200, newUsers: 890, sessions: 4100, pageViews: 8500 },
+    { date: "Jan 8", users: 3500, newUsers: 950, sessions: 4400, pageViews: 9200 },
+    { date: "Jan 15", users: 3800, newUsers: 1020, sessions: 4800, pageViews: 10100 },
+    { date: "Jan 22", users: 4100, newUsers: 1150, sessions: 5200, pageViews: 11000 },
+    { date: "Jan 29", users: 4400, newUsers: 1200, sessions: 5600, pageViews: 11800 },
+    { date: "Feb 5", users: 4200, newUsers: 1100, sessions: 5300, pageViews: 11200 },
+    { date: "Feb 12", users: 4600, newUsers: 1280, sessions: 5800, pageViews: 12300 },
+  ],
+  countryBreakdown: [
+    { country: "Ireland", users: 15000, sessions: 19000, pageViews: 41000, engagementRate: 68.5 },
+    { country: "United Kingdom", users: 12000, sessions: 15000, pageViews: 33000, engagementRate: 64.2 },
+    { country: "United States", users: 10000, sessions: 13000, pageViews: 27000, engagementRate: 59.8 },
+    { country: "Germany", users: 5000, sessions: 6500, pageViews: 14000, engagementRate: 55.1 },
   ],
 };
 
@@ -32,21 +41,30 @@ export const googleAdsData = {
     conversions: 1089,
     adSpend: 9234.56,
     costPerConversion: 8.48,
+    impressions: 245000,
+    clicks: 10098,
+    reach: 180000,
   },
   performanceOverTime: [
-    { date: "Jan 1", spend: 1250, conversions: 145, ctr: 3.9 },
-    { date: "Jan 8", spend: 1350, conversions: 160, ctr: 4.0 },
-    { date: "Jan 15", spend: 1280, conversions: 152, ctr: 4.1 },
-    { date: "Jan 22", spend: 1450, conversions: 172, ctr: 4.2 },
-    { date: "Jan 29", spend: 1400, conversions: 168, ctr: 4.3 },
-    { date: "Feb 5", spend: 1550, conversions: 185, ctr: 4.1 },
-    { date: "Feb 12", spend: 1480, conversions: 178, ctr: 4.2 },
+    { date: "Jan 1", spend: 1250, conversions: 145, ctr: 3.9, impressions: 32000, clicks: 1248 },
+    { date: "Jan 8", spend: 1350, conversions: 160, ctr: 4.0, impressions: 35000, clicks: 1400 },
+    { date: "Jan 15", spend: 1280, conversions: 152, ctr: 4.1, impressions: 33000, clicks: 1353 },
+    { date: "Jan 22", spend: 1450, conversions: 172, ctr: 4.2, impressions: 37000, clicks: 1554 },
+    { date: "Jan 29", spend: 1400, conversions: 168, ctr: 4.3, impressions: 35500, clicks: 1527 },
+    { date: "Feb 5", spend: 1550, conversions: 185, ctr: 4.1, impressions: 38500, clicks: 1579 },
+    { date: "Feb 12", spend: 1480, conversions: 178, ctr: 4.2, impressions: 37000, clicks: 1554 },
   ],
   campaignPerformance: [
     { campaign: "Campaign X", spend: 2800, conversions: 335, roas: 3.9 },
     { campaign: "Campaign Y", spend: 2400, conversions: 290, roas: 3.6 },
     { campaign: "Campaign Z", spend: 2100, conversions: 258, roas: 3.3 },
     { campaign: "Campaign W", spend: 1934, conversions: 206, roas: 3.0 },
+  ],
+  countryBreakdown: [
+    { country: "Ireland", impressions: 80000, clicks: 3300, spend: 3000, conversions: 360, cpc: 0.91, ctr: 4.1 },
+    { country: "United Kingdom", impressions: 70000, clicks: 2900, spend: 2700, conversions: 310, cpc: 0.93, ctr: 4.1 },
+    { country: "United States", impressions: 60000, clicks: 2500, spend: 2300, conversions: 270, cpc: 0.92, ctr: 4.2 },
+    { country: "Germany", impressions: 35000, clicks: 1398, spend: 1234, conversions: 149, cpc: 0.88, ctr: 4.0 },
   ],
 };
 
@@ -57,21 +75,30 @@ export const metaAdsData = {
     conversions: 1234,
     adSpend: 8456.78,
     costPerConversion: 6.85,
+    impressions: 320000,
+    clicks: 11040,
+    reach: 250000,
   },
   performanceOverTime: [
-    { date: "Jan 1", spend: 1100, conversions: 165, ctr: 3.2 },
-    { date: "Jan 8", spend: 1200, conversions: 178, ctr: 3.3 },
-    { date: "Jan 15", spend: 1150, conversions: 172, ctr: 3.4 },
-    { date: "Jan 22", spend: 1300, conversions: 185, ctr: 3.5 },
-    { date: "Jan 29", spend: 1250, conversions: 180, ctr: 3.6 },
-    { date: "Feb 5", spend: 1400, conversions: 198, ctr: 3.4 },
-    { date: "Feb 12", spend: 1350, conversions: 192, ctr: 3.5 },
+    { date: "Jan 1", spend: 1100, conversions: 165, ctr: 3.2, impressions: 42000, clicks: 1344 },
+    { date: "Jan 8", spend: 1200, conversions: 178, ctr: 3.3, impressions: 45000, clicks: 1485 },
+    { date: "Jan 15", spend: 1150, conversions: 172, ctr: 3.4, impressions: 44000, clicks: 1496 },
+    { date: "Jan 22", spend: 1300, conversions: 185, ctr: 3.5, impressions: 48000, clicks: 1680 },
+    { date: "Jan 29", spend: 1250, conversions: 180, ctr: 3.6, impressions: 46000, clicks: 1656 },
+    { date: "Feb 5", spend: 1400, conversions: 198, ctr: 3.4, impressions: 50000, clicks: 1700 },
+    { date: "Feb 12", spend: 1350, conversions: 192, ctr: 3.5, impressions: 48000, clicks: 1680 },
   ],
   campaignPerformance: [
     { campaign: "Campaign A", spend: 2500, conversions: 380, roas: 4.2 },
     { campaign: "Campaign B", spend: 2200, conversions: 320, roas: 3.8 },
     { campaign: "Campaign C", spend: 1800, conversions: 285, roas: 3.5 },
     { campaign: "Campaign D", spend: 1956, conversions: 249, roas: 3.2 },
+  ],
+  countryBreakdown: [
+    { country: "Ireland", impressions: 100000, clicks: 3450, spend: 2700, conversions: 400, cpc: 0.78, ctr: 3.5 },
+    { country: "United Kingdom", impressions: 90000, clicks: 3100, spend: 2400, conversions: 350, cpc: 0.77, ctr: 3.4 },
+    { country: "United States", impressions: 80000, clicks: 2800, spend: 2100, conversions: 300, cpc: 0.75, ctr: 3.5 },
+    { country: "Germany", impressions: 50000, clicks: 1690, spend: 1256, conversions: 184, cpc: 0.74, ctr: 3.4 },
   ],
 };
 
@@ -120,6 +147,32 @@ export const mailchimpData = {
     { name: "Weekly Digest", opens: 1650, clicks: 495, openRate: 27.5 },
     { name: "Special Offer", opens: 1900, clicks: 475, openRate: 31.7 },
   ],
+};
+
+// Shopify placeholder data - to be replaced with live API data later
+export const shopifyData = {
+  overview: {
+    orders: 0,
+    revenue: 0,
+    averageOrderValue: 0,
+    totalCustomers: 0,
+    returningCustomers: 0,
+    conversionRate: 0,
+  },
+  ordersOverTime: [],
+  countryBreakdown: [
+    { country: "Ireland", orders: 0, revenue: 0, customers: 0 },
+    { country: "United Kingdom", orders: 0, revenue: 0, customers: 0 },
+    { country: "United States", orders: 0, revenue: 0, customers: 0 },
+    { country: "Germany", orders: 0, revenue: 0, customers: 0 },
+  ],
+  topProducts: [],
+  cartAbandonment: {
+    rate: 0,
+    totalCarts: 0,
+    completedCarts: 0,
+    abandonedCarts: 0,
+  },
 };
 
 export const funnelData = [

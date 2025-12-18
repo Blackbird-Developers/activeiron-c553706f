@@ -130,12 +130,14 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
-          // Use activeUsers to match GA4 UI "Users" card
           metrics: [
             { name: 'activeUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'bounceRate' },
+            { name: 'sessions' },
+            { name: 'screenPageViews' },
+            { name: 'averageSessionDuration' },
           ]
         }),
       }
@@ -160,7 +162,7 @@ serve(async (req) => {
       }
     );
 
-    // THIRD API CALL: Get user trends over time (daily)
+    // THIRD API CALL: Get user trends over time (daily) with extended metrics
     const trendsResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
@@ -175,12 +177,43 @@ serve(async (req) => {
           metrics: [
             { name: 'activeUsers' },
             { name: 'newUsers' },
+            { name: 'sessions' },
+            { name: 'screenPageViews' },
           ],
           orderBys: [
             {
               dimension: { dimensionName: 'date' },
             },
           ],
+        }),
+      }
+    );
+
+    // FOURTH API CALL: Get country breakdown
+    const countryResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'country' }],
+          metrics: [
+            { name: 'activeUsers' },
+            { name: 'sessions' },
+            { name: 'screenPageViews' },
+            { name: 'engagementRate' },
+          ],
+          orderBys: [
+            {
+              metric: { metricName: 'activeUsers' },
+              desc: true,
+            },
+          ],
+          limit: 10,
         }),
       }
     );
@@ -194,13 +227,11 @@ serve(async (req) => {
     const totalsData = await totalsResponse.json();
     const channelsData = await channelsResponse.json();
     const trendsData = await trendsResponse.json();
+    const countryData = countryResponse.ok ? await countryResponse.json() : { rows: [] };
     
     console.log('Totals response (no dimensions):', JSON.stringify(totalsData, null, 2));
-    console.log('Channels response (with dimensions):', JSON.stringify(channelsData, null, 2));
-    console.log('Trends response (date dimension):', JSON.stringify(trendsData, null, 2));
 
     // Extract accurate totals from the no-dimension response
-    // NOTE: We use activeUsers here to match the GA4 UI "Users" metric
     const activeUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
       ? parseInt(totalsData.rows[0].metricValues[0].value) 
       : 0;
@@ -213,12 +244,24 @@ serve(async (req) => {
     const bounceRate = totalsData.rows?.[0]?.metricValues?.[3]?.value 
       ? parseFloat(totalsData.rows[0].metricValues[3].value) * 100 
       : 0;
+    const sessions = totalsData.rows?.[0]?.metricValues?.[4]?.value 
+      ? parseInt(totalsData.rows[0].metricValues[4].value) 
+      : 0;
+    const pageViews = totalsData.rows?.[0]?.metricValues?.[5]?.value 
+      ? parseInt(totalsData.rows[0].metricValues[5].value) 
+      : 0;
+    const avgSessionDuration = totalsData.rows?.[0]?.metricValues?.[6]?.value 
+      ? parseFloat(totalsData.rows[0].metricValues[6].value) 
+      : 0;
     
-    console.log('Extracted totals (active users primary):', { 
+    console.log('Extracted totals:', { 
       activeUsers, 
       newUsers,
       engagementRate,
-      bounceRate
+      bounceRate,
+      sessions,
+      pageViews,
+      avgSessionDuration,
     });
     
     // Build traffic by source from channels data
@@ -248,24 +291,41 @@ serve(async (req) => {
         date: formattedDate,
         users: parseInt(row.metricValues[0].value),
         newUsers: parseInt(row.metricValues[1].value),
+        sessions: parseInt(row.metricValues[2].value),
+        pageViews: parseInt(row.metricValues[3].value),
+      };
+    }) || [];
+
+    // Build country breakdown
+    const countryBreakdown = countryData.rows?.map((row: any) => {
+      return {
+        country: row.dimensionValues[0].value,
+        users: parseInt(row.metricValues[0].value),
+        sessions: parseInt(row.metricValues[1].value),
+        pageViews: parseInt(row.metricValues[2].value),
+        engagementRate: parseFloat(row.metricValues[3].value) * 100,
       };
     }) || [];
     
-    console.log('Traffic by source with accurate percentages:', trafficBySource);
-    console.log('Trends over time (daily):', trendsOverTime);
+    console.log('Traffic by source:', trafficBySource);
+    console.log('Trends over time:', trendsOverTime);
+    console.log('Country breakdown:', countryBreakdown);
     console.log('GA4 data retrieved successfully');
     
     // Create processed data structure
     const processedData = {
       overview: {
-        // Expose activeUsers as totalUsers so the dashboard label stays consistent
         totalUsers: activeUsers,
         newUsers: newUsers,
         engagementRate: Math.round(engagementRate * 10) / 10,
         bounceRate: Math.round(bounceRate * 10) / 10,
+        sessions: sessions,
+        pageViews: pageViews,
+        avgSessionDuration: Math.round(avgSessionDuration),
       },
-      trafficBySource: trafficBySource.slice(0, 5), // Top 5 sources
+      trafficBySource: trafficBySource.slice(0, 5),
       trendsOverTime: trendsOverTime,
+      countryBreakdown: countryBreakdown,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {
@@ -281,9 +341,13 @@ serve(async (req) => {
         newUsers: 0,
         engagementRate: 0,
         bounceRate: 0,
+        sessions: 0,
+        pageViews: 0,
+        avgSessionDuration: 0,
       },
       trafficBySource: [],
       trendsOverTime: [],
+      countryBreakdown: [],
     };
     
     return new Response(

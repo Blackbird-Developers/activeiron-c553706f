@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
-import { format, eachDayOfInterval, startOfMonth, endOfMonth, parseISO, isWithinInterval } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, shopifyData } from "@/data/placeholderData";
+import { format, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 
 interface ConsolidatedMetricsSectionProps {
   ga4Data?: typeof ga4Data;
@@ -10,6 +11,7 @@ interface ConsolidatedMetricsSectionProps {
   googleAdsData?: typeof googleAdsData;
   subblyData?: typeof subblyData;
   mailchimpData?: typeof mailchimpData;
+  shopifyData?: typeof shopifyData;
   startDate?: Date;
   endDate?: Date;
 }
@@ -20,14 +22,16 @@ interface MetricRow {
   cumulative: string | number;
   dailyValues: (string | number)[];
   colorClass?: string;
+  isPlaceholder?: boolean;
 }
 
 export function ConsolidatedMetricsSection({
-  ga4Data,
-  metaAdsData,
-  googleAdsData,
-  subblyData,
-  mailchimpData,
+  ga4Data: ga4,
+  metaAdsData: metaAds,
+  googleAdsData: googleAds,
+  subblyData: subbly,
+  mailchimpData: mailchimp,
+  shopifyData: shopify,
   startDate,
   endDate,
 }: ConsolidatedMetricsSectionProps) {
@@ -38,15 +42,13 @@ export function ConsolidatedMetricsSection({
   const daysInRange = eachDayOfInterval({ start, end });
 
   // Helper to get daily value from trends data
-  // GA4 returns dates like "2 Nov", "3 Nov" etc.
   const getDailyValue = (trendsData: any[], date: Date, field: string) => {
     if (!trendsData || trendsData.length === 0) return 0;
     
-    // Try multiple date formats to match API responses
     const formats = [
-      format(date, 'd MMM'),      // "2 Nov"
-      format(date, 'yyyy-MM-dd'), // "2025-11-02"
-      format(date, 'dd/MM/yyyy'), // "02/11/2025"
+      format(date, 'd MMM'),
+      format(date, 'yyyy-MM-dd'),
+      format(date, 'dd/MM/yyyy'),
     ];
     
     const dayData = trendsData.find((d: any) => 
@@ -55,65 +57,98 @@ export function ConsolidatedMetricsSection({
     return dayData?.[field] || 0;
   };
 
-  // Calculate cumulative metrics
-  const totalUsers = ga4Data?.overview?.totalUsers || 0;
-  const newUsers = ga4Data?.overview?.newUsers || 0;
-  const engagementRate = ga4Data?.overview?.engagementRate || 0;
-  const bounceRate = ga4Data?.overview?.bounceRate || 0;
+  // Calculate cumulative metrics - Website/GA4
+  const totalUsers = ga4?.overview?.totalUsers || 0;
+  const newUsers = ga4?.overview?.newUsers || 0;
+  const sessions = ga4?.overview?.sessions || 0;
+  const pageViews = ga4?.overview?.pageViews || 0;
+  const engagementRate = ga4?.overview?.engagementRate || 0;
+  const bounceRate = ga4?.overview?.bounceRate || 0;
   
-  const metaSpend = metaAdsData?.overview?.adSpend || 0;
-  const metaCPC = metaAdsData?.overview?.cpc || 0;
-  const metaCTR = metaAdsData?.overview?.ctr || 0;
-  const metaConversions = metaAdsData?.overview?.conversions || 0;
-  const metaCPA = metaAdsData?.overview?.costPerConversion || 0;
+  // Meta Ads metrics
+  const metaImpressions = metaAds?.overview?.impressions || 0;
+  const metaClicks = metaAds?.overview?.clicks || 0;
+  const metaSpend = metaAds?.overview?.adSpend || 0;
+  const metaCPC = metaAds?.overview?.cpc || 0;
+  const metaCTR = metaAds?.overview?.ctr || 0;
+  const metaConversions = metaAds?.overview?.conversions || 0;
+  const metaCPA = metaAds?.overview?.costPerConversion || 0;
   
-  const googleSpend = googleAdsData?.overview?.adSpend || 0;
-  const googleCPC = googleAdsData?.overview?.cpc || 0;
-  const googleCTR = googleAdsData?.overview?.ctr || 0;
-  const googleConversions = googleAdsData?.overview?.conversions || 0;
-  const googleCPA = googleAdsData?.overview?.costPerConversion || 0;
+  // Google Ads metrics
+  const googleImpressions = googleAds?.overview?.impressions || 0;
+  const googleClicks = googleAds?.overview?.clicks || 0;
+  const googleSpend = googleAds?.overview?.adSpend || 0;
+  const googleCPC = googleAds?.overview?.cpc || 0;
+  const googleCTR = googleAds?.overview?.ctr || 0;
+  const googleConversions = googleAds?.overview?.conversions || 0;
+  const googleCPA = googleAds?.overview?.costPerConversion || 0;
   
+  // Combined Paid Ads
+  const totalImpressions = metaImpressions + googleImpressions;
+  const totalClicks = metaClicks + googleClicks;
   const totalSpend = metaSpend + googleSpend;
   const totalConversions = metaConversions + googleConversions;
+  const combinedCPC = totalClicks > 0 ? totalSpend / totalClicks : 0;
+  const combinedCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
   const cumulativeCPA = totalConversions > 0 ? totalSpend / totalConversions : 0;
   
-  const subscriptions = subblyData?.overview?.subscriptions || 0;
+  // Subscriptions
+  const subscriptions = subbly?.overview?.subscriptions || 0;
+  const subscriptionRevenue = subbly?.overview?.revenue || 0;
   const cumulativeCVR = totalUsers > 0 ? (subscriptions / totalUsers) * 100 : 0;
   
-  const emailOpens = mailchimpData?.overview?.emailOpens || 0;
-  const emailClicks = mailchimpData?.overview?.emailClicks || 0;
-  const openRate = mailchimpData?.overview?.openRate || 0;
-  const clickRate = mailchimpData?.overview?.clickThroughRate || 0;
+  // Email metrics
+  const emailOpens = mailchimp?.overview?.emailOpens || 0;
+  const emailClicks = mailchimp?.overview?.emailClicks || 0;
+  const openRate = mailchimp?.overview?.openRate || 0;
+  const clickRate = mailchimp?.overview?.clickThroughRate || 0;
 
-  // Generate metric rows
+  // Shopify placeholders (e-commerce)
+  const orders = shopify?.overview?.orders || 0;
+  const shopifyRevenue = shopify?.overview?.revenue || 0;
+  const averageOrderValue = shopify?.overview?.averageOrderValue || 0;
+  const shopifyConversionRate = shopify?.overview?.conversionRate || 0;
+
+  // Generate metric rows matching Excel structure
   const metricRows: MetricRow[] = [
-    // Site & Traffic Section
-    { category: "Site & Traffic", metric: "Total Users", cumulative: totalUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4Data?.trendsOverTime, d, 'users').toLocaleString()), colorClass: "bg-blue-500/10" },
-    { category: "Site & Traffic", metric: "New Users", cumulative: newUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4Data?.trendsOverTime, d, 'newUsers').toLocaleString()), colorClass: "bg-blue-500/10" },
-    { category: "Site & Traffic", metric: "Engagement Rate", cumulative: `${engagementRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
-    { category: "Site & Traffic", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    // Website Tracking Section (GA4)
+    { category: "Website", metric: "Total Users", cumulative: totalUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'users').toLocaleString()), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "New Users", cumulative: newUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'newUsers').toLocaleString()), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Sessions", cumulative: sessions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'sessions').toLocaleString()), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Page Views", cumulative: pageViews.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'pageViews').toLocaleString()), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Engagement Rate", cumulative: `${engagementRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
     
     // Meta Ads Section
-    { category: "Meta Ads", metric: "Spend", cumulative: `€${metaSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-green-500/10" },
-    { category: "Meta Ads", metric: "CPC", cumulative: `€${metaCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-green-500/10" },
-    { category: "Meta Ads", metric: "CTR", cumulative: `${metaCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(metaAdsData?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-green-500/10" },
-    { category: "Meta Ads", metric: "Conversions", cumulative: metaConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAdsData?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "Impressions", cumulative: metaImpressions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAds?.performanceOverTime, d, 'impressions').toLocaleString()), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "Clicks", cumulative: metaClicks.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAds?.performanceOverTime, d, 'clicks').toLocaleString()), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "Spend", cumulative: `€${metaSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAds?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "CPC", cumulative: `€${metaCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(metaAds?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "CTR", cumulative: `${metaCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(metaAds?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-green-500/10" },
+    { category: "Meta Ads", metric: "Conversions", cumulative: metaConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAds?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-green-500/10" },
     { category: "Meta Ads", metric: "CPA", cumulative: `€${metaCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-green-500/10" },
     
     // Google Ads Section
-    { category: "Google Ads", metric: "Spend", cumulative: `€${googleSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAdsData?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-red-500/10" },
-    { category: "Google Ads", metric: "CPC", cumulative: `€${googleCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAdsData?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-red-500/10" },
-    { category: "Google Ads", metric: "CTR", cumulative: `${googleCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(googleAdsData?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-red-500/10" },
-    { category: "Google Ads", metric: "Conversions", cumulative: googleConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAdsData?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "Impressions", cumulative: googleImpressions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAds?.performanceOverTime, d, 'impressions').toLocaleString()), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "Clicks", cumulative: googleClicks.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAds?.performanceOverTime, d, 'clicks').toLocaleString()), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "Spend", cumulative: `€${googleSpend.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAds?.performanceOverTime, d, 'spend').toLocaleString()}`), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "CPC", cumulative: `€${googleCPC.toFixed(2)}`, dailyValues: daysInRange.map(d => `€${getDailyValue(googleAds?.performanceOverTime, d, 'cpc').toFixed(2)}`), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "CTR", cumulative: `${googleCTR.toFixed(2)}%`, dailyValues: daysInRange.map(d => `${getDailyValue(googleAds?.performanceOverTime, d, 'ctr').toFixed(2)}%`), colorClass: "bg-red-500/10" },
+    { category: "Google Ads", metric: "Conversions", cumulative: googleConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAds?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-red-500/10" },
     { category: "Google Ads", metric: "CPA", cumulative: `€${googleCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-red-500/10" },
     
-    // Combined Marketing Section
-    { category: "Combined", metric: "Total Spend", cumulative: `€${totalSpend.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    // Combined Paid Channel Section
+    { category: "Combined Paid", metric: "Total Impressions", cumulative: totalImpressions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Total Clicks", cumulative: totalClicks.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Total Spend", cumulative: `€${totalSpend.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Combined CPC", cumulative: `€${combinedCPC.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Combined CTR", cumulative: `${combinedCTR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     
     // Subscriptions Section
-    { category: "Subscriptions", metric: "Total Subscriptions", cumulative: subscriptions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(subblyData?.subscriptionsOverTime, d, 'subscriptions').toLocaleString()), colorClass: "bg-purple-500/10" },
+    { category: "Subscriptions", metric: "Total Subscriptions", cumulative: subscriptions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(subbly?.subscriptionsOverTime, d, 'subscriptions').toLocaleString()), colorClass: "bg-purple-500/10" },
+    { category: "Subscriptions", metric: "Revenue", cumulative: `€${subscriptionRevenue.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(subbly?.subscriptionsOverTime, d, 'revenue').toLocaleString()}`), colorClass: "bg-purple-500/10" },
     { category: "Subscriptions", metric: "Cumulative CVR", cumulative: `${cumulativeCVR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-purple-500/10" },
     
     // Email Section
@@ -121,6 +156,12 @@ export function ConsolidatedMetricsSection({
     { category: "Email", metric: "Email Clicks", cumulative: emailClicks.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Open Rate", cumulative: `${openRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Click Rate", cumulative: `${clickRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
+
+    // E-Commerce / Shopify Section (Placeholder)
+    { category: "E-Commerce", metric: "Orders", cumulative: orders.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
+    { category: "E-Commerce", metric: "Revenue", cumulative: `€${shopifyRevenue.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
+    { category: "E-Commerce", metric: "Avg Order Value", cumulative: `€${averageOrderValue.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
+    { category: "E-Commerce", metric: "Conversion Rate", cumulative: `${shopifyConversionRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
   ];
 
   // Group rows by category for visual separation
@@ -129,10 +170,17 @@ export function ConsolidatedMetricsSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Consolidated Metrics</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {format(start, 'dd MMM yyyy')} - {format(end, 'dd MMM yyyy')}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Consolidated Metrics</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {format(start, 'dd MMM yyyy')} - {format(end, 'dd MMM yyyy')}
+            </p>
+          </div>
+          <Badge variant="outline" className="text-xs">
+            Shopify: Pending Integration
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
         <ScrollArea className="w-full whitespace-nowrap rounded-md border">
@@ -151,14 +199,19 @@ export function ConsolidatedMetricsSection({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {metricRows.map((row, idx) => {
+                {metricRows.map((row) => {
                   const showCategory = row.category !== currentCategory;
                   if (showCategory) currentCategory = row.category;
                   
                   return (
                     <TableRow key={`${row.category}-${row.metric}`} className={row.colorClass}>
                       <TableCell className="sticky left-0 z-10 bg-background font-medium">
-                        {showCategory ? row.category : ""}
+                        {showCategory ? (
+                          <div className="flex items-center gap-2">
+                            {row.category}
+                            {row.isPlaceholder && <Badge variant="secondary" className="text-xs">Soon</Badge>}
+                          </div>
+                        ) : ""}
                       </TableCell>
                       <TableCell className="sticky left-[120px] z-10 bg-background">
                         {row.metric}
