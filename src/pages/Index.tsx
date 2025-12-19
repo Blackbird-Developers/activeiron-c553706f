@@ -5,12 +5,13 @@ import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { SubblySection } from "@/components/sections/SubblySection";
 import { MailchimpSection } from "@/components/sections/MailchimpSection";
+import { ShopifySection } from "@/components/sections/ShopifySection";
 import { FunnelSection } from "@/components/sections/FunnelSection";
 import { Clock } from "lucide-react";
 import { subDays, format, formatDistanceToNow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, shopifyData } from "@/data/placeholderData";
 
 const CACHE_KEY = 'marketing_dashboard_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -25,6 +26,7 @@ interface CachedData {
     metaAds: typeof metaAdsData;
     subbly: typeof subblyData;
     mailchimp: typeof mailchimpData;
+    shopify: typeof shopifyData;
   };
 }
 
@@ -40,6 +42,7 @@ const Index = () => {
     metaAds: metaAdsData,
     subbly: subblyData,
     mailchimp: mailchimpData,
+    shopify: shopifyData,
   });
 
   const fetchMarketingData = useCallback(async (forceRefresh = false) => {
@@ -70,7 +73,7 @@ const Index = () => {
 
     setIsLoading(true);
     try {
-      const [ga4Response, metaAdsResponse, googleAdsResponse, subblyResponse, mailchimpResponse] = await Promise.all([
+      const [ga4Response, metaAdsResponse, googleAdsResponse, subblyResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
@@ -80,6 +83,8 @@ const Index = () => {
         supabase.functions.invoke('subbly-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('mailchimp-data', { body: { startDate: startDateStr, endDate: endDateStr } })
+          .catch(err => ({ data: null, error: err })),
+        supabase.functions.invoke('shopify-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err }))
       ]);
 
@@ -89,6 +94,7 @@ const Index = () => {
         metaAds: metaAdsResponse.data?.data || metaAdsData,
         subbly: subblyResponse.data?.data || subblyData,
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
+        shopify: shopifyResponse.data?.data || shopifyData,
       };
 
       setMarketingData(newData);
@@ -163,6 +169,7 @@ const Index = () => {
           data={marketingData.subbly} 
           totalAdSpend={marketingData.metaAds.overview.adSpend + marketingData.googleAds.overview.adSpend}
         />
+        <ShopifySection data={marketingData.shopify} />
         <MailchimpSection data={marketingData.mailchimp} />
         <FunnelSection 
           ga4Data={marketingData.ga4}
