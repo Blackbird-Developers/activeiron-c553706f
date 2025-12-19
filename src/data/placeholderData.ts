@@ -152,27 +152,14 @@ export const mailchimpData = {
 // Shopify placeholder data - to be replaced with live API data later
 export const shopifyData = {
   overview: {
-    orders: 0,
-    revenue: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
     averageOrderValue: 0,
-    totalCustomers: 0,
-    returningCustomers: 0,
-    conversionRate: 0,
+    totalProducts: 0,
   },
-  ordersOverTime: [],
-  countryBreakdown: [
-    { country: "Ireland", orders: 0, revenue: 0, customers: 0 },
-    { country: "United Kingdom", orders: 0, revenue: 0, customers: 0 },
-    { country: "United States", orders: 0, revenue: 0, customers: 0 },
-    { country: "Germany", orders: 0, revenue: 0, customers: 0 },
-  ],
-  topProducts: [],
-  cartAbandonment: {
-    rate: 0,
-    totalCarts: 0,
-    completedCarts: 0,
-    abandonedCarts: 0,
-  },
+  ordersOverTime: [] as Array<{ date: string; orders: number; revenue: number }>,
+  topProducts: [] as Array<{ name: string; quantity: number; revenue: number }>,
+  ordersByStatus: [] as Array<{ status: string; count: number; percentage: number }>,
 };
 
 export const funnelData = [

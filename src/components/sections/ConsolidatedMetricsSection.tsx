@@ -104,10 +104,10 @@ export function ConsolidatedMetricsSection({
   const clickRate = mailchimp?.overview?.clickThroughRate || 0;
 
   // Shopify placeholders (e-commerce)
-  const orders = shopify?.overview?.orders || 0;
-  const shopifyRevenue = shopify?.overview?.revenue || 0;
+  const orders = shopify?.overview?.totalOrders || 0;
+  const shopifyRevenue = shopify?.overview?.totalRevenue || 0;
   const averageOrderValue = shopify?.overview?.averageOrderValue || 0;
-  const shopifyConversionRate = shopify?.overview?.conversionRate || 0;
+  const shopifyConversionRate = 0; // Not available in current API
 
   // Generate metric rows matching Excel structure
   const metricRows: MetricRow[] = [
