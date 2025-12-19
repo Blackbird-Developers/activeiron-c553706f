@@ -56,6 +56,17 @@ export function ShopifySection({ data }: ShopifySectionProps) {
     }).format(value);
   };
 
+  // Handle undefined or null data
+  const overview = data?.overview ?? {
+    totalOrders: 0,
+    totalRevenue: 0,
+    averageOrderValue: 0,
+    totalProducts: 0,
+  };
+  const ordersOverTime = data?.ordersOverTime ?? [];
+  const topProducts = data?.topProducts ?? [];
+  const ordersByStatus = data?.ordersByStatus ?? [];
+
   return (
     <section className="space-y-6">
       <div className="flex items-center gap-3">
@@ -71,22 +82,22 @@ export function ShopifySection({ data }: ShopifySectionProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <ScoreCard
           title="Total Orders"
-          value={data.overview.totalOrders.toLocaleString()}
+          value={overview.totalOrders.toLocaleString()}
           icon={ShoppingCart}
         />
         <ScoreCard
           title="Total Revenue"
-          value={formatCurrency(data.overview.totalRevenue)}
+          value={formatCurrency(overview.totalRevenue)}
           icon={DollarSign}
         />
         <ScoreCard
           title="Avg Order Value"
-          value={formatCurrency(data.overview.averageOrderValue)}
+          value={formatCurrency(overview.averageOrderValue)}
           icon={TrendingUp}
         />
         <ScoreCard
           title="Total Products"
-          value={data.overview.totalProducts.toLocaleString()}
+          value={overview.totalProducts.toLocaleString()}
           icon={Package}
         />
       </div>
@@ -98,9 +109,9 @@ export function ShopifySection({ data }: ShopifySectionProps) {
             <CardTitle className="text-lg">Orders & Revenue Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.ordersOverTime.length > 0 ? (
+            {ordersOverTime.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data.ordersOverTime}>
+                <LineChart data={ordersOverTime}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     dataKey="date" 
@@ -161,9 +172,9 @@ export function ShopifySection({ data }: ShopifySectionProps) {
             <CardTitle className="text-lg">Top Products by Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.topProducts.length > 0 ? (
+            {topProducts.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.topProducts.slice(0, 5)} layout="vertical">
+                <BarChart data={topProducts.slice(0, 5)} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
                   <YAxis 
@@ -200,12 +211,12 @@ export function ShopifySection({ data }: ShopifySectionProps) {
             <CardTitle className="text-lg">Orders by Status</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.ordersByStatus.length > 0 ? (
+            {ordersByStatus.length > 0 ? (
               <div className="flex items-center gap-8">
                 <ResponsiveContainer width="50%" height={200}>
                   <PieChart>
                     <Pie
-                      data={data.ordersByStatus}
+                      data={ordersByStatus}
                       dataKey="count"
                       nameKey="status"
                       cx="50%"
@@ -213,7 +224,7 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                       outerRadius={80}
                       label={({ status, percentage }) => `${percentage}%`}
                     >
-                      {data.ordersByStatus.map((entry, index) => (
+                      {ordersByStatus.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -227,7 +238,7 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="space-y-2">
-                  {data.ordersByStatus.map((item, index) => (
+                  {ordersByStatus.map((item, index) => (
                     <div key={item.status} className="flex items-center gap-2">
                       <div 
                         className="w-3 h-3 rounded-full" 
@@ -252,9 +263,9 @@ export function ShopifySection({ data }: ShopifySectionProps) {
             <CardTitle className="text-lg">Product Sales Details</CardTitle>
           </CardHeader>
           <CardContent>
-            {data.topProducts.length > 0 ? (
+            {topProducts.length > 0 ? (
               <div className="space-y-3">
-                {data.topProducts.slice(0, 5).map((product, index) => (
+                {topProducts.slice(0, 5).map((product, index) => (
                   <div 
                     key={index}
                     className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
