@@ -101,7 +101,7 @@ serve(async (req) => {
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
         time_range: JSON.stringify({ since: startDate, until: endDate }),
-        fields: 'impressions,clicks,spend,cpc,ctr,conversions,cost_per_conversion,reach,frequency',
+        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency',
         level: 'account',
       }),
       {
@@ -323,22 +323,54 @@ serve(async (req) => {
     // Transform API response to match frontend expectations
     const accountMetrics = accountData.data?.[0] || {};
     
-    // Extract conversions from actions array
-    const conversions = accountMetrics.actions?.find((a: any) => 
-      a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
-    )?.value || 0;
+    // Define conversion action types to look for (in order of priority)
+    const conversionActionTypes = [
+      'purchase',
+      'offsite_conversion.fb_pixel_purchase',
+      'subscribe_website',
+      'subscribe_total',
+      'lead',
+      'complete_registration',
+      'offsite_conversion.fb_pixel_lead',
+      'offsite_conversion.fb_pixel_complete_registration',
+      'omni_purchase',
+      'onsite_conversion.purchase',
+    ];
     
-    const costPerConversion = accountMetrics.cost_per_conversion?.find((a: any) => 
-      a.action_type === 'subscribe_website' || a.action_type === 'subscribe_total'
-    )?.value || 0;
+    // Extract conversions from actions array - check multiple action types
+    let conversions = 0;
+    let costPerConversion = 0;
+    
+    if (accountMetrics.actions) {
+      for (const actionType of conversionActionTypes) {
+        const action = accountMetrics.actions.find((a: any) => a.action_type === actionType);
+        if (action) {
+          conversions = parseInt(action.value || 0);
+          break;
+        }
+      }
+    }
+    
+    if (accountMetrics.cost_per_action_type) {
+      for (const actionType of conversionActionTypes) {
+        const costAction = accountMetrics.cost_per_action_type.find((a: any) => a.action_type === actionType);
+        if (costAction) {
+          costPerConversion = parseFloat(costAction.value || 0);
+          break;
+        }
+      }
+    }
+    
+    console.log('Account metrics actions:', JSON.stringify(accountMetrics.actions?.slice(0, 10)));
+    console.log('Extracted conversions:', conversions, 'Cost per conversion:', costPerConversion);
 
     const processedData = {
       overview: {
         cpc: parseFloat(accountMetrics.cpc || 0),
         ctr: parseFloat(accountMetrics.ctr || 0),
-        conversions: parseInt(conversions),
+        conversions: conversions,
         adSpend: parseFloat(accountMetrics.spend || 0),
-        costPerConversion: parseFloat(costPerConversion),
+        costPerConversion: costPerConversion,
         impressions: parseInt(accountMetrics.impressions || 0),
         clicks: parseInt(accountMetrics.clicks || 0),
         reach: parseInt(accountMetrics.reach || 0),
