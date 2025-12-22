@@ -5,27 +5,37 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ShopifyOrder {
-  id: number;
-  created_at: string;
-  total_price: string;
-  financial_status: string;
-  fulfillment_status: string | null;
-  line_items: Array<{
-    title: string;
-    quantity: number;
-    price: string;
-  }>;
-}
-
 interface ShopifyProduct {
-  id: number;
+  id: string;
   title: string;
   status: string;
-  variants: Array<{
-    inventory_quantity: number;
-    price: string;
-  }>;
+  variants: {
+    edges: Array<{
+      node: {
+        inventoryQuantity: number;
+        price: string;
+      };
+    }>;
+  };
+}
+
+interface ShopifyQLColumn {
+  name: string;
+  dataType: string;
+  displayName: string;
+}
+
+interface ShopifyQLResponse {
+  data?: {
+    shopifyqlQuery: {
+      tableData: {
+        columns: ShopifyQLColumn[];
+        rows: string[][];
+      } | null;
+      parseErrors: string[] | null;
+    };
+  };
+  errors?: Array<{ message: string }>;
 }
 
 serve(async (req) => {
@@ -70,97 +80,243 @@ serve(async (req) => {
 
     console.log(`Fetching Shopify data for period: ${startDate} to ${endDate}`);
 
+    const graphqlEndpoint = `${baseUrl}/admin/api/2024-01/graphql.json`;
+    
     const headers = {
       'X-Shopify-Access-Token': shopifyAccessToken,
       'Content-Type': 'application/json',
     };
 
-    // Fetch orders within date range
-    const ordersUrl = `${baseUrl}/admin/api/2024-01/orders.json?status=any&created_at_min=${startDate}T00:00:00Z&created_at_max=${endDate}T23:59:59Z&limit=250`;
-    console.log('Fetching orders from:', ordersUrl);
-    
-    const ordersResponse = await fetch(ordersUrl, { headers });
-    
-    if (!ordersResponse.ok) {
-      const errorText = await ordersResponse.text();
-      console.error('Shopify orders API error:', ordersResponse.status, errorText);
-      throw new Error(`Shopify API error: ${ordersResponse.status}`);
-    }
+    // Helper function to execute ShopifyQL queries
+    async function executeShopifyQL(query: string): Promise<ShopifyQLResponse> {
+      const graphqlQuery = {
+        query: `query {
+          shopifyqlQuery(query: "${query.replace(/"/g, '\\"')}") {
+            tableData {
+              columns {
+                name
+                dataType
+                displayName
+              }
+              rows
+            }
+            parseErrors
+          }
+        }`
+      };
 
-    const ordersData = await ordersResponse.json();
-    const orders: ShopifyOrder[] = ordersData.orders || [];
-    console.log(`Retrieved ${orders.length} orders`);
-
-    // Fetch products
-    const productsUrl = `${baseUrl}/admin/api/2024-01/products.json?limit=250`;
-    const productsResponse = await fetch(productsUrl, { headers });
-    
-    let products: ShopifyProduct[] = [];
-    if (productsResponse.ok) {
-      const productsData = await productsResponse.json();
-      products = productsData.products || [];
-      console.log(`Retrieved ${products.length} products`);
-    } else {
-      console.error('Failed to fetch products:', productsResponse.status);
-    }
-
-    // Calculate overview metrics
-    const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total_price || '0'), 0);
-    const totalOrders = orders.length;
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-    // Group orders by date for time series
-    const ordersByDate: Record<string, { orders: number; revenue: number }> = {};
-    orders.forEach(order => {
-      const date = new Date(order.created_at);
-      const dateKey = `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
-      
-      if (!ordersByDate[dateKey]) {
-        ordersByDate[dateKey] = { orders: 0, revenue: 0 };
-      }
-      ordersByDate[dateKey].orders += 1;
-      ordersByDate[dateKey].revenue += parseFloat(order.total_price || '0');
-    });
-
-    const ordersOverTime = Object.entries(ordersByDate).map(([date, data]) => ({
-      date,
-      orders: data.orders,
-      revenue: Math.round(data.revenue * 100) / 100,
-    }));
-
-    // Calculate top products from orders
-    const productSales: Record<string, { title: string; quantity: number; revenue: number }> = {};
-    orders.forEach(order => {
-      order.line_items?.forEach(item => {
-        if (!productSales[item.title]) {
-          productSales[item.title] = { title: item.title, quantity: 0, revenue: 0 };
-        }
-        productSales[item.title].quantity += item.quantity;
-        productSales[item.title].revenue += parseFloat(item.price) * item.quantity;
+      console.log('Executing ShopifyQL:', query);
+      const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(graphqlQuery),
       });
-    });
 
-    const topProducts = Object.values(productSales)
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 10)
-      .map(p => ({
-        name: p.title,
-        quantity: p.quantity,
-        revenue: Math.round(p.revenue * 100) / 100,
-      }));
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('GraphQL request failed:', response.status, errorText);
+        throw new Error(`GraphQL request failed: ${response.status}`);
+      }
 
-    // Orders by status
-    const statusCounts: Record<string, number> = {};
-    orders.forEach(order => {
-      const status = order.financial_status || 'unknown';
-      statusCounts[status] = (statusCounts[status] || 0) + 1;
-    });
+      return await response.json();
+    }
 
-    const ordersByStatus = Object.entries(statusCounts).map(([status, count]) => ({
-      status: status.charAt(0).toUpperCase() + status.slice(1),
-      count,
-      percentage: totalOrders > 0 ? Math.round((count / totalOrders) * 100) : 0,
-    }));
+    // Fetch products using GraphQL
+    async function fetchProducts(): Promise<ShopifyProduct[]> {
+      const query = {
+        query: `{
+          products(first: 250) {
+            edges {
+              node {
+                id
+                title
+                status
+                variants(first: 10) {
+                  edges {
+                    node {
+                      inventoryQuantity
+                      price
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }`
+      };
+
+      const response = await fetch(graphqlEndpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(query),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch products:', response.status);
+        return [];
+      }
+
+      const data = await response.json();
+      return data.data?.products?.edges?.map((edge: { node: ShopifyProduct }) => edge.node) || [];
+    }
+
+    // Calculate date range for ShopifyQL (format: YYYY-MM-DD)
+    const sinceDate = startDate;
+    const untilDate = endDate;
+
+    // Fetch sales data using ShopifyQL
+    let totalRevenue = 0;
+    let totalOrders = 0;
+    const ordersOverTime: Array<{ date: string; orders: number; revenue: number }> = [];
+    const topProducts: Array<{ name: string; quantity: number; revenue: number }> = [];
+    const ordersByStatus: Array<{ status: string; count: number; percentage: number }> = [];
+
+    try {
+      // Query 1: Total sales and orders summary
+      const salesSummaryQuery = `FROM sales SHOW total_sales, order_count SINCE ${sinceDate} UNTIL ${untilDate}`;
+      const salesSummaryResponse = await executeShopifyQL(salesSummaryQuery);
+      
+      if (salesSummaryResponse.data?.shopifyqlQuery?.parseErrors?.length) {
+        console.error('ShopifyQL parse errors (sales summary):', salesSummaryResponse.data.shopifyqlQuery.parseErrors);
+      }
+      
+      if (salesSummaryResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
+        const columns = salesSummaryResponse.data.shopifyqlQuery.tableData.columns;
+        const row = salesSummaryResponse.data.shopifyqlQuery.tableData.rows[0];
+        
+        const salesIdx = columns.findIndex(c => c.name === 'total_sales');
+        const ordersIdx = columns.findIndex(c => c.name === 'order_count');
+        
+        if (salesIdx !== -1 && row[salesIdx]) {
+          totalRevenue = parseFloat(row[salesIdx]) || 0;
+        }
+        if (ordersIdx !== -1 && row[ordersIdx]) {
+          totalOrders = parseInt(row[ordersIdx]) || 0;
+        }
+        
+        console.log(`Sales summary - Revenue: ${totalRevenue}, Orders: ${totalOrders}`);
+      }
+    } catch (error) {
+      console.error('Error fetching sales summary:', error);
+    }
+
+    try {
+      // Query 2: Sales over time (by day)
+      const salesOverTimeQuery = `FROM sales SHOW total_sales, order_count GROUP BY day SINCE ${sinceDate} UNTIL ${untilDate} ORDER BY day`;
+      const salesOverTimeResponse = await executeShopifyQL(salesOverTimeQuery);
+      
+      if (salesOverTimeResponse.data?.shopifyqlQuery?.parseErrors?.length) {
+        console.error('ShopifyQL parse errors (sales over time):', salesOverTimeResponse.data.shopifyqlQuery.parseErrors);
+      }
+      
+      if (salesOverTimeResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
+        const columns = salesOverTimeResponse.data.shopifyqlQuery.tableData.columns;
+        const rows = salesOverTimeResponse.data.shopifyqlQuery.tableData.rows;
+        
+        const dayIdx = columns.findIndex(c => c.name === 'day');
+        const salesIdx = columns.findIndex(c => c.name === 'total_sales');
+        const ordersIdx = columns.findIndex(c => c.name === 'order_count');
+        
+        for (const row of rows) {
+          const dateStr = row[dayIdx] || '';
+          const revenue = parseFloat(row[salesIdx]) || 0;
+          const orders = parseInt(row[ordersIdx]) || 0;
+          
+          // Format date for display
+          const date = new Date(dateStr);
+          const formattedDate = `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
+          
+          ordersOverTime.push({
+            date: formattedDate,
+            orders,
+            revenue: Math.round(revenue * 100) / 100,
+          });
+        }
+        
+        console.log(`Sales over time - ${ordersOverTime.length} days of data`);
+      }
+    } catch (error) {
+      console.error('Error fetching sales over time:', error);
+    }
+
+    try {
+      // Query 3: Top products by sales
+      const topProductsQuery = `FROM sales SHOW product_title, total_sales, net_quantity GROUP BY product_title SINCE ${sinceDate} UNTIL ${untilDate} ORDER BY total_sales DESC LIMIT 10`;
+      const topProductsResponse = await executeShopifyQL(topProductsQuery);
+      
+      if (topProductsResponse.data?.shopifyqlQuery?.parseErrors?.length) {
+        console.error('ShopifyQL parse errors (top products):', topProductsResponse.data.shopifyqlQuery.parseErrors);
+      }
+      
+      if (topProductsResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
+        const columns = topProductsResponse.data.shopifyqlQuery.tableData.columns;
+        const rows = topProductsResponse.data.shopifyqlQuery.tableData.rows;
+        
+        const titleIdx = columns.findIndex(c => c.name === 'product_title');
+        const salesIdx = columns.findIndex(c => c.name === 'total_sales');
+        const qtyIdx = columns.findIndex(c => c.name === 'net_quantity');
+        
+        for (const row of rows) {
+          topProducts.push({
+            name: row[titleIdx] || 'Unknown',
+            quantity: parseInt(row[qtyIdx]) || 0,
+            revenue: Math.round((parseFloat(row[salesIdx]) || 0) * 100) / 100,
+          });
+        }
+        
+        console.log(`Top products - ${topProducts.length} products`);
+      }
+    } catch (error) {
+      console.error('Error fetching top products:', error);
+    }
+
+    try {
+      // Query 4: Orders by financial status
+      const orderStatusQuery = `FROM orders SHOW count GROUP BY financial_status SINCE ${sinceDate} UNTIL ${untilDate}`;
+      const orderStatusResponse = await executeShopifyQL(orderStatusQuery);
+      
+      if (orderStatusResponse.data?.shopifyqlQuery?.parseErrors?.length) {
+        console.error('ShopifyQL parse errors (order status):', orderStatusResponse.data.shopifyqlQuery.parseErrors);
+      }
+      
+      if (orderStatusResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
+        const columns = orderStatusResponse.data.shopifyqlQuery.tableData.columns;
+        const rows = orderStatusResponse.data.shopifyqlQuery.tableData.rows;
+        
+        const statusIdx = columns.findIndex(c => c.name === 'financial_status');
+        const countIdx = columns.findIndex(c => c.name === 'count');
+        
+        let totalStatusCount = 0;
+        const statusData: Array<{ status: string; count: number }> = [];
+        
+        for (const row of rows) {
+          const count = parseInt(row[countIdx]) || 0;
+          totalStatusCount += count;
+          statusData.push({
+            status: row[statusIdx] || 'Unknown',
+            count,
+          });
+        }
+        
+        for (const item of statusData) {
+          ordersByStatus.push({
+            status: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+            count: item.count,
+            percentage: totalStatusCount > 0 ? Math.round((item.count / totalStatusCount) * 100) : 0,
+          });
+        }
+        
+        console.log(`Orders by status - ${ordersByStatus.length} statuses`);
+      }
+    } catch (error) {
+      console.error('Error fetching order status:', error);
+    }
+
+    // Fetch products for total count
+    const products = await fetchProducts();
+    console.log(`Retrieved ${products.length} products`);
+
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
     const responseData = {
       data: {
@@ -176,7 +332,7 @@ serve(async (req) => {
       }
     };
 
-    console.log('Shopify data retrieved successfully');
+    console.log('Shopify data retrieved successfully:', JSON.stringify(responseData.data.overview));
 
     return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
