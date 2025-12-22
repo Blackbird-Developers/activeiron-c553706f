@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { DateFilter } from "@/components/DateFilter";
 import { GA4Section } from "@/components/sections/GA4Section";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
@@ -126,8 +126,15 @@ const Index = () => {
     }
   }, [startDate, endDate, toast]);
 
+  const didMountRef = useRef(false);
   useEffect(() => {
-    fetchMarketingData();
+    // First load: allow cache. Subsequent date changes: force refresh so UI always matches selected dates.
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      fetchMarketingData(false);
+      return;
+    }
+    fetchMarketingData(true);
   }, [fetchMarketingData]);
 
   const [, setTick] = useState(0);
