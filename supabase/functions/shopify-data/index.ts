@@ -102,7 +102,7 @@ serve(async (req) => {
             }
             parseErrors
           }
-        }`
+        }`,
       };
 
       console.log('Executing ShopifyQL:', query);
@@ -112,13 +112,23 @@ serve(async (req) => {
         body: JSON.stringify(graphqlQuery),
       });
 
+      const json = (await response.json()) as ShopifyQLResponse;
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('GraphQL request failed:', response.status, errorText);
+        console.error('GraphQL request failed:', response.status, JSON.stringify(json));
         throw new Error(`GraphQL request failed: ${response.status}`);
       }
 
-      return await response.json();
+      if (json.errors?.length) {
+        console.error('ShopifyQL GraphQL errors:', json.errors.map(e => e.message));
+      }
+
+      const parseErrors = json.data?.shopifyqlQuery?.parseErrors;
+      if (parseErrors?.length) {
+        console.error('ShopifyQL parseErrors:', parseErrors);
+      }
+
+      return json;
     }
 
     // Fetch products using GraphQL
@@ -160,9 +170,30 @@ serve(async (req) => {
       return data.data?.products?.edges?.map((edge: { node: ShopifyProduct }) => edge.node) || [];
     }
 
-    // Calculate date range for ShopifyQL (format: YYYY-MM-DD)
-    const sinceDate = startDate;
-    const untilDate = endDate;
+    // ShopifyQL prefers relative time ranges (e.g. SINCE -30d UNTIL today).
+    // Convert the selected start/end dates into offsets relative to today (UTC).
+    const todayUTC = new Date();
+    const utcMidnight = (d: Date) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const parseYmdUTC = (ymd: string) => {
+      const [y, m, day] = ymd.split('-').map(Number);
+      return new Date(Date.UTC(y, (m || 1) - 1, day || 1));
+    };
+    const daysDiffUTC = (a: Date, b: Date) => Math.round((utcMidnight(a).getTime() - utcMidnight(b).getTime()) / 86400000);
+
+    const start = parseYmdUTC(startDate);
+    const end = parseYmdUTC(endDate);
+
+    // endOffset: how many days ago the end date is from today (0 => today)
+    const endOffset = Math.max(0, daysDiffUTC(utcMidnight(todayUTC), end));
+    // rangeDays: at least 1 day
+    const rangeDays = Math.max(1, daysDiffUTC(end, start));
+    // startOffset: how many days ago the start date is from today
+    const startOffset = endOffset + rangeDays;
+
+    const sinceExpr = `-${startOffset}d`;
+    const untilExpr = endOffset === 0 ? 'today' : `-${endOffset}d`;
+
+    console.log('ShopifyQL time window:', { sinceExpr, untilExpr, startDate, endDate });
 
     // Fetch sales data using ShopifyQL
     let totalRevenue = 0;
@@ -173,28 +204,27 @@ serve(async (req) => {
 
     try {
       // Query 1: Total sales and orders summary
-      const salesSummaryQuery = `FROM sales SHOW total_sales, order_count SINCE ${sinceDate} UNTIL ${untilDate}`;
+      const salesSummaryQuery = `FROM sales SHOW total_sales, order_count SINCE ${sinceExpr} UNTIL ${untilExpr}`;
       const salesSummaryResponse = await executeShopifyQL(salesSummaryQuery);
-      
-      if (salesSummaryResponse.data?.shopifyqlQuery?.parseErrors?.length) {
-        console.error('ShopifyQL parse errors (sales summary):', salesSummaryResponse.data.shopifyqlQuery.parseErrors);
-      }
-      
-      if (salesSummaryResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
-        const columns = salesSummaryResponse.data.shopifyqlQuery.tableData.columns;
-        const row = salesSummaryResponse.data.shopifyqlQuery.tableData.rows[0];
-        
+
+      const tableData = salesSummaryResponse.data?.shopifyqlQuery?.tableData;
+      if (tableData?.rows?.length) {
+        const columns = tableData.columns;
+        const row = tableData.rows[0];
+
         const salesIdx = columns.findIndex(c => c.name === 'total_sales');
         const ordersIdx = columns.findIndex(c => c.name === 'order_count');
-        
+
         if (salesIdx !== -1 && row[salesIdx]) {
-          totalRevenue = parseFloat(row[salesIdx]) || 0;
+          totalRevenue = Number(String(row[salesIdx]).replace(/[^0-9.-]/g, '')) || 0;
         }
         if (ordersIdx !== -1 && row[ordersIdx]) {
-          totalOrders = parseInt(row[ordersIdx]) || 0;
+          totalOrders = parseInt(String(row[ordersIdx]).replace(/[^0-9-]/g, '')) || 0;
         }
-        
+
         console.log(`Sales summary - Revenue: ${totalRevenue}, Orders: ${totalOrders}`);
+      } else {
+        console.log('Sales summary returned no rows');
       }
     } catch (error) {
       console.error('Error fetching sales summary:', error);
@@ -202,38 +232,36 @@ serve(async (req) => {
 
     try {
       // Query 2: Sales over time (by day)
-      const salesOverTimeQuery = `FROM sales SHOW total_sales, order_count GROUP BY day SINCE ${sinceDate} UNTIL ${untilDate} ORDER BY day`;
+      const salesOverTimeQuery = `FROM sales SHOW total_sales, order_count BY day SINCE ${sinceExpr} UNTIL ${untilExpr} ORDER BY day`;
       const salesOverTimeResponse = await executeShopifyQL(salesOverTimeQuery);
-      
-      if (salesOverTimeResponse.data?.shopifyqlQuery?.parseErrors?.length) {
-        console.error('ShopifyQL parse errors (sales over time):', salesOverTimeResponse.data.shopifyqlQuery.parseErrors);
-      }
-      
-      if (salesOverTimeResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
-        const columns = salesOverTimeResponse.data.shopifyqlQuery.tableData.columns;
-        const rows = salesOverTimeResponse.data.shopifyqlQuery.tableData.rows;
-        
+
+      const tableData = salesOverTimeResponse.data?.shopifyqlQuery?.tableData;
+      if (tableData?.rows?.length) {
+        const columns = tableData.columns;
+        const rows = tableData.rows;
+
         const dayIdx = columns.findIndex(c => c.name === 'day');
         const salesIdx = columns.findIndex(c => c.name === 'total_sales');
         const ordersIdx = columns.findIndex(c => c.name === 'order_count');
-        
+
         for (const row of rows) {
           const dateStr = row[dayIdx] || '';
-          const revenue = parseFloat(row[salesIdx]) || 0;
-          const orders = parseInt(row[ordersIdx]) || 0;
-          
-          // Format date for display
+          const revenue = Number(String(row[salesIdx]).replace(/[^0-9.-]/g, '')) || 0;
+          const orders = parseInt(String(row[ordersIdx]).replace(/[^0-9-]/g, '')) || 0;
+
           const date = new Date(dateStr);
           const formattedDate = `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
-          
+
           ordersOverTime.push({
             date: formattedDate,
             orders,
             revenue: Math.round(revenue * 100) / 100,
           });
         }
-        
+
         console.log(`Sales over time - ${ordersOverTime.length} days of data`);
+      } else {
+        console.log('Sales over time returned no rows');
       }
     } catch (error) {
       console.error('Error fetching sales over time:', error);
@@ -241,30 +269,29 @@ serve(async (req) => {
 
     try {
       // Query 3: Top products by sales
-      const topProductsQuery = `FROM sales SHOW product_title, total_sales, net_quantity GROUP BY product_title SINCE ${sinceDate} UNTIL ${untilDate} ORDER BY total_sales DESC LIMIT 10`;
+      const topProductsQuery = `FROM sales SHOW total_sales, net_quantity BY product_title SINCE ${sinceExpr} UNTIL ${untilExpr} ORDER BY total_sales DESC LIMIT 10`;
       const topProductsResponse = await executeShopifyQL(topProductsQuery);
-      
-      if (topProductsResponse.data?.shopifyqlQuery?.parseErrors?.length) {
-        console.error('ShopifyQL parse errors (top products):', topProductsResponse.data.shopifyqlQuery.parseErrors);
-      }
-      
-      if (topProductsResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
-        const columns = topProductsResponse.data.shopifyqlQuery.tableData.columns;
-        const rows = topProductsResponse.data.shopifyqlQuery.tableData.rows;
-        
+
+      const tableData = topProductsResponse.data?.shopifyqlQuery?.tableData;
+      if (tableData?.rows?.length) {
+        const columns = tableData.columns;
+        const rows = tableData.rows;
+
         const titleIdx = columns.findIndex(c => c.name === 'product_title');
         const salesIdx = columns.findIndex(c => c.name === 'total_sales');
         const qtyIdx = columns.findIndex(c => c.name === 'net_quantity');
-        
+
         for (const row of rows) {
           topProducts.push({
             name: row[titleIdx] || 'Unknown',
-            quantity: parseInt(row[qtyIdx]) || 0,
-            revenue: Math.round((parseFloat(row[salesIdx]) || 0) * 100) / 100,
+            quantity: parseInt(String(row[qtyIdx]).replace(/[^0-9-]/g, '')) || 0,
+            revenue: Math.round((Number(String(row[salesIdx]).replace(/[^0-9.-]/g, '')) || 0) * 100) / 100,
           });
         }
-        
+
         console.log(`Top products - ${topProducts.length} products`);
+      } else {
+        console.log('Top products returned no rows');
       }
     } catch (error) {
       console.error('Error fetching top products:', error);
@@ -272,32 +299,29 @@ serve(async (req) => {
 
     try {
       // Query 4: Orders by financial status
-      const orderStatusQuery = `FROM orders SHOW count GROUP BY financial_status SINCE ${sinceDate} UNTIL ${untilDate}`;
+      const orderStatusQuery = `FROM orders SHOW count BY financial_status SINCE ${sinceExpr} UNTIL ${untilExpr}`;
       const orderStatusResponse = await executeShopifyQL(orderStatusQuery);
-      
-      if (orderStatusResponse.data?.shopifyqlQuery?.parseErrors?.length) {
-        console.error('ShopifyQL parse errors (order status):', orderStatusResponse.data.shopifyqlQuery.parseErrors);
-      }
-      
-      if (orderStatusResponse.data?.shopifyqlQuery?.tableData?.rows?.length) {
-        const columns = orderStatusResponse.data.shopifyqlQuery.tableData.columns;
-        const rows = orderStatusResponse.data.shopifyqlQuery.tableData.rows;
-        
+
+      const tableData = orderStatusResponse.data?.shopifyqlQuery?.tableData;
+      if (tableData?.rows?.length) {
+        const columns = tableData.columns;
+        const rows = tableData.rows;
+
         const statusIdx = columns.findIndex(c => c.name === 'financial_status');
         const countIdx = columns.findIndex(c => c.name === 'count');
-        
+
         let totalStatusCount = 0;
         const statusData: Array<{ status: string; count: number }> = [];
-        
+
         for (const row of rows) {
-          const count = parseInt(row[countIdx]) || 0;
+          const count = parseInt(String(row[countIdx]).replace(/[^0-9-]/g, '')) || 0;
           totalStatusCount += count;
           statusData.push({
             status: row[statusIdx] || 'Unknown',
             count,
           });
         }
-        
+
         for (const item of statusData) {
           ordersByStatus.push({
             status: item.status.charAt(0).toUpperCase() + item.status.slice(1),
@@ -305,8 +329,10 @@ serve(async (req) => {
             percentage: totalStatusCount > 0 ? Math.round((item.count / totalStatusCount) * 100) : 0,
           });
         }
-        
+
         console.log(`Orders by status - ${ordersByStatus.length} statuses`);
+      } else {
+        console.log('Orders by status returned no rows');
       }
     } catch (error) {
       console.error('Error fetching order status:', error);
