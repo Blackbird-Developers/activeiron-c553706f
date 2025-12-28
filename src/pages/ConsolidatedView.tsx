@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { DateFilter } from "@/components/DateFilter";
+import { PageHeader } from "@/components/PageHeader";
 import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMetricsSection";
-import { Clock } from "lucide-react";
-import { subDays, format, formatDistanceToNow } from "date-fns";
+import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
@@ -130,31 +129,19 @@ export default function ConsolidatedView() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Consolidated View</h1>
-          <p className="text-muted-foreground">All key metrics in one place</p>
-        </div>
-        <div className="flex items-center gap-4">
-          {lastRefresh && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>
-                {isLoading ? 'Updating...' : `Updated ${formatDistanceToNow(lastRefresh, { addSuffix: true })}`}
-              </span>
-            </div>
-          )}
-          <DateFilter
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-        </div>
-      </div>
+    <div className="space-y-6 lg:space-y-8">
+      <PageHeader
+        title="Consolidated View"
+        description="All key metrics in one place"
+        lastRefresh={lastRefresh}
+        isLoading={isLoading}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+      />
 
-      <ConsolidatedMetricsSection 
+      <ConsolidatedMetricsSection
         ga4Data={marketingData.ga4}
         metaAdsData={marketingData.metaAds}
         googleAdsData={marketingData.googleAds}
