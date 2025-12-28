@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings } from "lucide-react";
-import activeIronLogo from "@/assets/activeiron-logo.jpg";
+import activeIronLogo from "@/assets/activeiron-logo.png";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -17,11 +17,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
   return (
     <aside className="w-64 min-h-screen border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-20 items-center border-b border-sidebar-border px-6">
+      <div className="flex h-24 items-center justify-center border-b border-sidebar-border px-4">
         <img 
           src={activeIronLogo} 
           alt="Active Iron" 
-          className="h-10 w-auto"
+          className="h-16 w-auto"
         />
       </div>
       
