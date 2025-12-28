@@ -22,7 +22,7 @@ export function Sidebar({ onNavigate, collapsed = false, onCollapsedChange }: Si
 
   return (
     <aside className={cn(
-      "min-h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out flex flex-col",
+      "h-screen sticky top-0 border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out flex flex-col",
       collapsed ? "w-16" : "w-64"
     )}>
       {/* Logo */}
