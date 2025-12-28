@@ -10,13 +10,13 @@ interface MailchimpSectionProps {
 
 export function MailchimpSection({ data = placeholderData }: MailchimpSectionProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
-        <div className="h-1 w-12 rounded-full bg-mailchimp" />
-        <h2 className="text-2xl font-bold text-mailchimp-foreground">Email Campaigns (Mailchimp)</h2>
+        <div className="h-1 w-8 lg:w-12 rounded-full bg-mailchimp" />
+        <h2 className="text-xl lg:text-2xl font-bold text-mailchimp-foreground">Email Campaigns (Mailchimp)</h2>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <ScoreCard
           title="Email Opens"
           value={data.overview.emailOpens.toLocaleString()}
@@ -59,50 +59,52 @@ export function MailchimpSection({ data = placeholderData }: MailchimpSectionPro
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-mailchimp-foreground">Campaign Performance Over Time</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-mailchimp-foreground">Campaign Performance Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={data.campaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
-                <Legend />
-                <Line type="monotone" dataKey="opens" stroke="hsl(var(--mailchimp-primary))" strokeWidth={2} name="Opens" />
-                <Line type="monotone" dataKey="clicks" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Clicks" />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Line type="monotone" dataKey="opens" stroke="hsl(var(--mailchimp-primary))" strokeWidth={2} name="Opens" dot={false} />
+                <Line type="monotone" dataKey="clicks" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Clicks" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-mailchimp-foreground">Top Performing Campaigns</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-mailchimp-foreground">Top Performing Campaigns</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={data.topCampaigns}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
                 <Bar dataKey="opens" fill="hsl(var(--mailchimp-primary))" name="Opens" />
                 <Bar dataKey="clicks" fill="hsl(var(--chart-2))" name="Clicks" />
               </BarChart>
