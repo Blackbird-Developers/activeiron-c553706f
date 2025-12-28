@@ -1,5 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings } from "lucide-react";
+import activeIronLogo from "@/assets/activeiron-logo.jpg";
 
 export function Sidebar() {
   const navItems = [
@@ -11,16 +12,13 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-      <div className="flex h-16 items-center border-b px-6">
-        <div className="flex items-center gap-2">
-          <div className="rounded-lg bg-accent p-2">
-            <BarChart3 className="h-5 w-5 text-accent-foreground" />
-          </div>
-          <div>
-            <h2 className="font-bold text-sm">Marketing Hub</h2>
-          </div>
-        </div>
+    <aside className="w-64 border-r border-sidebar-border bg-sidebar">
+      <div className="flex h-20 items-center border-b border-sidebar-border px-6">
+        <img 
+          src={activeIronLogo} 
+          alt="Active Iron" 
+          className="h-10 w-auto"
+        />
       </div>
       
       <nav className="space-y-1 p-4">
@@ -29,8 +27,8 @@ export function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === "/"}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-            activeClassName="bg-accent text-accent-foreground font-medium"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            activeClassName="bg-sidebar-primary text-sidebar-primary-foreground font-medium"
           >
             <item.icon className="h-4 w-4" />
             {item.label}
