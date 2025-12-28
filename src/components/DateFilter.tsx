@@ -23,58 +23,62 @@ export function DateFilter({
   onEndDateChange,
 }: DateFilterProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-muted-foreground">Date Range:</span>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground hidden sm:inline">Date Range:</span>
       
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "justify-start text-left font-normal",
-              !startDate && "text-muted-foreground"
-            )}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            {startDate ? format(startDate, "dd MMM yyyy") : "Start date"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={startDate}
-            onSelect={onStartDateChange}
-            initialFocus
-            className="pointer-events-auto"
-          />
-        </PopoverContent>
-      </Popover>
+      <div className="flex items-center gap-2">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "justify-start text-left font-normal h-8 text-xs sm:text-sm px-2 sm:px-3",
+                !startDate && "text-muted-foreground"
+              )}
+            >
+              <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+              {startDate ? format(startDate, "dd MMM") : "Start"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <CalendarComponent
+              mode="single"
+              selected={startDate}
+              onSelect={onStartDateChange}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
 
-      <span className="text-sm text-muted-foreground">to</span>
+        <span className="text-xs text-muted-foreground">–</span>
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "justify-start text-left font-normal",
-              !endDate && "text-muted-foreground"
-            )}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            {endDate ? format(endDate, "dd MMM yyyy") : "End date"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={endDate}
-            onSelect={onEndDateChange}
-            initialFocus
-            className="pointer-events-auto"
-          />
-        </PopoverContent>
-      </Popover>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "justify-start text-left font-normal h-8 text-xs sm:text-sm px-2 sm:px-3",
+                !endDate && "text-muted-foreground"
+              )}
+            >
+              <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+              {endDate ? format(endDate, "dd MMM") : "End"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <CalendarComponent
+              mode="single"
+              selected={endDate}
+              onSelect={onEndDateChange}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

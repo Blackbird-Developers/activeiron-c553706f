@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { DateFilter } from "@/components/DateFilter";
+import { PageHeader } from "@/components/PageHeader";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { CampaignsTable } from "@/components/CampaignsTable";
 import { CreativeAnalysis } from "@/components/CreativeAnalysis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, LayoutList, Palette } from "lucide-react";
-import { subDays, format, formatDistanceToNow } from "date-fns";
+import { LayoutList, Palette } from "lucide-react";
+import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
@@ -110,29 +110,18 @@ export default function MetaPerformance() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-meta-foreground">Meta Ads Performance</h1>
-          <p className="text-muted-foreground">Comprehensive overview of all Meta advertising campaigns</p>
-        </div>
-        <div className="flex items-center gap-4">
-          {lastRefresh && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>
-                {isLoading ? 'Updating...' : `Updated ${formatDistanceToNow(lastRefresh, { addSuffix: true })}`}
-              </span>
-            </div>
-          )}
-          <DateFilter
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-        </div>
-      </div>
+    <div className="space-y-6 lg:space-y-8">
+      <PageHeader
+        title="Meta Ads Performance"
+        titleClassName="text-meta-foreground"
+        description="Comprehensive overview of all Meta advertising campaigns"
+        lastRefresh={lastRefresh}
+        isLoading={isLoading}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+      />
 
       <MetaAdsSection data={metaData} />
 

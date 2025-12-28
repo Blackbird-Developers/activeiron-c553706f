@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { DateFilter } from "@/components/DateFilter";
+import { PageHeader } from "@/components/PageHeader";
 import { GA4Section } from "@/components/sections/GA4Section";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
@@ -7,8 +7,7 @@ import { SubblySection } from "@/components/sections/SubblySection";
 import { MailchimpSection } from "@/components/sections/MailchimpSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 import { FunnelSection } from "@/components/sections/FunnelSection";
-import { Clock } from "lucide-react";
-import { subDays, format, formatDistanceToNow } from "date-fns";
+import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, shopifyData } from "@/data/placeholderData";
@@ -145,28 +144,16 @@ const Index = () => {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl lg:text-3xl font-bold truncate">Marketing Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Multi-source analytics across all channels</p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          {lastRefresh && (
-            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span>
-                {isLoading ? 'Updating...' : `Updated ${formatDistanceToNow(lastRefresh, { addSuffix: true })}`}
-              </span>
-            </div>
-          )}
-          <DateFilter
-            startDate={startDate}
-            endDate={endDate}
-            onStartDateChange={setStartDate}
-            onEndDateChange={setEndDate}
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Marketing Dashboard"
+        description="Multi-source analytics across all channels"
+        lastRefresh={lastRefresh}
+        isLoading={isLoading}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+      />
 
       <div className="space-y-12">
         <GA4Section data={marketingData.ga4} />

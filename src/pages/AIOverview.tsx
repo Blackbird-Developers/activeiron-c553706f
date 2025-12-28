@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 import { Sparkles, TrendingUp, Users, DollarSign, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -177,66 +178,68 @@ export default function AIOverview() {
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Sparkles className="h-8 w-8 text-accent-foreground" />
-          <div>
-            <h1 className="text-3xl font-bold">AI-Powered Insights</h1>
-            <p className="text-muted-foreground">Data-driven recommendations across all marketing channels</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={fetchMarketingData} 
-            variant="outline"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            Refresh Data
-          </Button>
-          <Button 
-            onClick={generateInsights}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4 mr-2" />
-            )}
-            Generate AI Insights
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6 lg:space-y-8">
+      <PageHeader
+        title="AI-Powered Insights"
+        description="Data-driven recommendations across all marketing channels"
+        showDateFilter={false}
+        actions={
+          <>
+            <Button 
+              onClick={fetchMarketingData} 
+              variant="outline"
+              size="sm"
+              disabled={isLoading}
+              className="h-8 text-xs sm:text-sm"
+            >
+              {isLoading ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              )}
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+            <Button 
+              onClick={generateInsights}
+              disabled={isLoading}
+              size="sm"
+              className="h-8 text-xs sm:text-sm"
+            >
+              {isLoading ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              )}
+              <span className="hidden sm:inline">Generate</span> AI
+            </Button>
+          </>
+        }
+      />
 
       {/* Key Metrics Summary */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card className="border-ga4/20 bg-ga4-light/50">
-          <CardContent className="p-6">
-            <div className="text-sm font-medium text-ga4-foreground opacity-80">Total Users</div>
-            <div className="text-2xl font-bold text-ga4-foreground">{marketingData.ga4?.overview?.totalUsers?.toLocaleString() || 'N/A'}</div>
+          <CardContent className="p-4 lg:p-6">
+            <div className="text-xs lg:text-sm font-medium text-ga4-foreground opacity-80">Total Users</div>
+            <div className="text-lg lg:text-2xl font-bold text-ga4-foreground">{marketingData.ga4?.overview?.totalUsers?.toLocaleString() || 'N/A'}</div>
           </CardContent>
         </Card>
         <Card className="border-meta/20 bg-meta-light/50">
-          <CardContent className="p-6">
-            <div className="text-sm font-medium text-meta-foreground opacity-80">Total Conversions</div>
-            <div className="text-2xl font-bold text-meta-foreground">{totalConversions.toLocaleString()}</div>
+          <CardContent className="p-4 lg:p-6">
+            <div className="text-xs lg:text-sm font-medium text-meta-foreground opacity-80">Total Conversions</div>
+            <div className="text-lg lg:text-2xl font-bold text-meta-foreground">{totalConversions.toLocaleString()}</div>
           </CardContent>
         </Card>
         <Card className="border-subbly/20 bg-subbly-light/50">
-          <CardContent className="p-6">
-            <div className="text-sm font-medium text-subbly-foreground opacity-80">Active Subscriptions</div>
-            <div className="text-2xl font-bold text-subbly-foreground">{marketingData.subbly?.overview?.subscriptions || 'N/A'}</div>
+          <CardContent className="p-4 lg:p-6">
+            <div className="text-xs lg:text-sm font-medium text-subbly-foreground opacity-80">Active Subscriptions</div>
+            <div className="text-lg lg:text-2xl font-bold text-subbly-foreground">{marketingData.subbly?.overview?.subscriptions || 'N/A'}</div>
           </CardContent>
         </Card>
         <Card className="border-mailchimp/20 bg-mailchimp-light/50">
-          <CardContent className="p-6">
-            <div className="text-sm font-medium text-mailchimp-foreground opacity-80">Combined ROAS</div>
-            <div className="text-2xl font-bold text-mailchimp-foreground">{roas}</div>
+          <CardContent className="p-4 lg:p-6">
+            <div className="text-xs lg:text-sm font-medium text-mailchimp-foreground opacity-80">Combined ROAS</div>
+            <div className="text-lg lg:text-2xl font-bold text-mailchimp-foreground">{roas}</div>
           </CardContent>
         </Card>
       </div>
