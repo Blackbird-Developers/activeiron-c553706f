@@ -28,13 +28,13 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
     : [{ plan: 'No Data', subscribers: 1, percentage: 100 }];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
-        <div className="h-1 w-12 rounded-full bg-subbly" />
-        <h2 className="text-2xl font-bold text-subbly-foreground">Subscriptions (Subbly)</h2>
+        <div className="h-1 w-8 lg:w-12 rounded-full bg-subbly" />
+        <h2 className="text-xl lg:text-2xl font-bold text-subbly-foreground">Subscriptions (Subbly)</h2>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <ScoreCard
           title="Subscriptions"
           value={data.overview.subscriptions.toLocaleString()}
@@ -69,14 +69,14 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-subbly-foreground">Subscriptions Over Time</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-subbly-foreground">Subscriptions Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 lg:px-6">
             {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
@@ -134,11 +134,11 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-subbly-foreground">Plan Distribution</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-subbly-foreground">Plan Distribution</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={pieData}
