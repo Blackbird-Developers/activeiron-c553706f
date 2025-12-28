@@ -18,12 +18,35 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    // Check if we're on a tablet-sized screen initially
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024 && window.innerWidth < 1280;
+    }
+    return false;
+  });
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       document.documentElement.classList.add('dark');
     }
+  }, []);
+
+  // Auto-collapse on tablet screens
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      // Auto-collapse on tablet (lg) screens, expand on xl+ screens
+      if (width >= 1024 && width < 1280) {
+        setSidebarCollapsed(true);
+      } else if (width >= 1280) {
+        setSidebarCollapsed(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
@@ -51,13 +74,20 @@ const App = () => {
               />
             )}
 
-            {/* Sidebar */}
+            {/* Mobile Sidebar */}
             <div className={`
-              fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out
-              lg:relative lg:translate-x-0
+              fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:hidden
               ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
               <Sidebar onNavigate={() => setSidebarOpen(false)} />
+            </div>
+
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block shrink-0">
+              <Sidebar 
+                collapsed={sidebarCollapsed} 
+                onCollapsedChange={setSidebarCollapsed}
+              />
             </div>
 
             <main className="flex-1 overflow-auto w-full">
