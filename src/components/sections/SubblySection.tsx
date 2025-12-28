@@ -34,7 +34,7 @@ export function SubblySection({ data = placeholderData, totalAdSpend = 0 }: Subb
         <h2 className="text-xl lg:text-2xl font-bold text-subbly-foreground">Subscriptions (Subbly)</h2>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <ScoreCard
           title="Subscriptions"
           value={data.overview.subscriptions.toLocaleString()}

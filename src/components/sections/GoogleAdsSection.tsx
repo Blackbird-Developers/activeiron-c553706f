@@ -10,18 +10,18 @@ interface GoogleAdsSectionProps {
 
 export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionProps) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 lg:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-center gap-3">
-          <div className="h-1 w-12 rounded-full bg-google-ads" />
-          <h2 className="text-2xl font-bold text-google-ads-foreground">Google Ads Performance</h2>
+          <div className="h-1 w-8 lg:w-12 rounded-full bg-google-ads" />
+          <h2 className="text-xl lg:text-2xl font-bold text-google-ads-foreground">Google Ads Performance</h2>
         </div>
-        <div className="px-4 py-2 rounded-lg bg-muted/50 border border-border">
-          <span className="text-sm font-medium text-muted-foreground">Work in Progress</span>
+        <div className="px-3 py-1.5 rounded-lg bg-muted/50 border border-border">
+          <span className="text-xs font-medium text-muted-foreground">Work in Progress</span>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <ScoreCard
           title="CPC"
           value={`€${data.overview.cpc}`}
@@ -64,50 +64,52 @@ export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionPro
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-google-ads-foreground">Performance Over Time</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-google-ads-foreground">Performance Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={data.performanceOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
-                <Legend />
-                <Line type="monotone" dataKey="conversions" stroke="hsl(var(--google-ads-primary))" strokeWidth={2} name="Conversions" />
-                <Line type="monotone" dataKey="ctr" stroke="hsl(var(--chart-4))" strokeWidth={2} name="CTR %" />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Line type="monotone" dataKey="conversions" stroke="hsl(var(--google-ads-primary))" strokeWidth={2} name="Conversions" dot={false} />
+                <Line type="monotone" dataKey="ctr" stroke="hsl(var(--chart-4))" strokeWidth={2} name="CTR %" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-google-ads-foreground">Campaign Performance</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-google-ads-foreground">Campaign Performance</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={data.campaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="campaign" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="campaign" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
                 <Bar dataKey="conversions" fill="hsl(var(--google-ads-primary))" name="Conversions" />
                 <Bar dataKey="roas" fill="hsl(var(--chart-2))" name="ROAS" />
               </BarChart>

@@ -18,7 +18,7 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
         <h2 className="text-xl lg:text-2xl font-bold text-ga4-foreground">Traffic Analytics (GA4)</h2>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <ScoreCard
           title="Total Users"
           value={data.overview.totalUsers.toLocaleString()}
