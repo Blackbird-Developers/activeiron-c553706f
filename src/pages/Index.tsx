@@ -144,16 +144,16 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Marketing Dashboard</h1>
-          <p className="text-muted-foreground">Multi-source analytics across all channels</p>
+    <div className="space-y-6 lg:space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl lg:text-3xl font-bold truncate">Marketing Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Multi-source analytics across all channels</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           {lastRefresh && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
               <span>
                 {isLoading ? 'Updating...' : `Updated ${formatDistanceToNow(lastRefresh, { addSuffix: true })}`}
               </span>

@@ -12,13 +12,13 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
-        <div className="h-1 w-12 rounded-full bg-ga4" />
-        <h2 className="text-2xl font-bold text-ga4-foreground">Traffic Analytics (GA4)</h2>
+        <div className="h-1 w-8 lg:w-12 rounded-full bg-ga4" />
+        <h2 className="text-xl lg:text-2xl font-bold text-ga4-foreground">Traffic Analytics (GA4)</h2>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <ScoreCard
           title="Total Users"
           value={data.overview.totalUsers.toLocaleString()}
@@ -53,38 +53,39 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-ga4-foreground">User Trends</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-ga4-foreground">User Trends</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={data.trendsOverTime}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
-                <Legend />
-                <Line type="monotone" dataKey="users" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Total Users" />
-                <Line type="monotone" dataKey="newUsers" stroke="hsl(var(--chart-2))" strokeWidth={2} name="New Users" />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Line type="monotone" dataKey="users" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Total Users" dot={false} />
+                <Line type="monotone" dataKey="newUsers" stroke="hsl(var(--chart-2))" strokeWidth={2} name="New Users" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-ga4-foreground">Traffic by Source</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg text-ga4-foreground">Traffic by Source</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={data.trafficBySource}
@@ -92,7 +93,7 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percentage }) => `${name}: ${percentage}%`}
-                  outerRadius={100}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="users"
                 >
@@ -104,7 +105,8 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
                   contentStyle={{ 
                     backgroundColor: "hsl(var(--card))", 
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)"
+                    borderRadius: "var(--radius)",
+                    fontSize: "12px"
                   }} 
                 />
               </PieChart>

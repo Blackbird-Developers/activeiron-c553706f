@@ -68,18 +68,18 @@ export function ShopifySection({ data }: ShopifySectionProps) {
   const ordersByStatus = data?.ordersByStatus ?? [];
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
           <ShoppingCart className="h-5 w-5 text-green-500" />
         </div>
         <div>
-          <h2 className="text-2xl font-semibold">Shopify Store</h2>
-          <p className="text-sm text-muted-foreground">E-commerce performance</p>
+          <h2 className="text-xl lg:text-2xl font-semibold">Shopify Store</h2>
+          <p className="text-xs lg:text-sm text-muted-foreground">E-commerce performance</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <ScoreCard
           title="Total Orders"
           value={overview.totalOrders.toLocaleString()}
@@ -102,15 +102,15 @@ export function ShopifySection({ data }: ShopifySectionProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         {/* Orders Over Time */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Orders & Revenue Over Time</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg">Orders & Revenue Over Time</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 lg:px-6">
             {ordersOverTime.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={ordersOverTime}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
@@ -159,7 +159,7 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[250px] flex items-center justify-center text-muted-foreground">
                 No order data available
               </div>
             )}
@@ -168,27 +168,28 @@ export function ShopifySection({ data }: ShopifySectionProps) {
 
         {/* Top Products */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Top Products by Revenue</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg">Top Products by Revenue</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 lg:px-6">
             {topProducts.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={topProducts.slice(0, 5)} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis 
                     dataKey="name" 
                     type="category" 
-                    width={120}
-                    tick={{ fontSize: 11 }}
-                    tickFormatter={(value) => value.length > 15 ? `${value.slice(0, 15)}...` : value}
+                    width={100}
+                    tick={{ fontSize: 10 }}
+                    tickFormatter={(value) => value.length > 12 ? `${value.slice(0, 12)}...` : value}
                   />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'hsl(var(--card))', 
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      fontSize: '12px'
                     }}
                     formatter={(value: number) => [formatCurrency(value), 'Revenue']}
                   />
@@ -196,7 +197,7 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[250px] flex items-center justify-center text-muted-foreground">
                 No product data available
               </div>
             )}
@@ -204,16 +205,16 @@ export function ShopifySection({ data }: ShopifySectionProps) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         {/* Orders by Status */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Orders by Status</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg">Orders by Status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 lg:px-6">
             {ordersByStatus.length > 0 ? (
-              <div className="flex items-center gap-8">
-                <ResponsiveContainer width="50%" height={200}>
+              <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-8">
+                <ResponsiveContainer width="100%" height={180} className="sm:w-1/2">
                   <PieChart>
                     <Pie
                       data={ordersByStatus}
@@ -221,8 +222,8 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                       nameKey="status"
                       cx="50%"
                       cy="50%"
-                      outerRadius={80}
-                      label={({ status, percentage }) => `${percentage}%`}
+                      outerRadius={70}
+                      label={({ percentage }) => `${percentage}%`}
                     >
                       {ordersByStatus.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -232,7 +233,8 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))', 
                         border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
+                        borderRadius: '8px',
+                        fontSize: '12px'
                       }}
                     />
                   </PieChart>
@@ -241,16 +243,16 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                   {ordersByStatus.map((item, index) => (
                     <div key={item.status} className="flex items-center gap-2">
                       <div 
-                        className="w-3 h-3 rounded-full" 
+                        className="w-3 h-3 rounded-full shrink-0" 
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       />
-                      <span className="text-sm">{item.status}: {item.count}</span>
+                      <span className="text-xs lg:text-sm">{item.status}: {item.count}</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[180px] flex items-center justify-center text-muted-foreground">
                 No status data available
               </div>
             )}
@@ -259,25 +261,25 @@ export function ShopifySection({ data }: ShopifySectionProps) {
 
         {/* Top Products Table */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Product Sales Details</CardTitle>
+          <CardHeader className="pb-2 lg:pb-6">
+            <CardTitle className="text-base lg:text-lg">Product Sales Details</CardTitle>
           </CardHeader>
           <CardContent>
             {topProducts.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2 lg:space-y-3">
                 {topProducts.slice(0, 5).map((product, index) => (
                   <div 
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                    className="flex items-center justify-between p-2 lg:p-3 rounded-lg bg-muted/50"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm font-medium truncate">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {product.quantity} sold
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-green-500">
+                    <div className="text-right shrink-0 ml-2">
+                      <p className="text-sm font-semibold text-green-500">
                         {formatCurrency(product.revenue)}
                       </p>
                     </div>
@@ -285,7 +287,7 @@ export function ShopifySection({ data }: ShopifySectionProps) {
                 ))}
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[180px] flex items-center justify-center text-muted-foreground">
                 No product sales data available
               </div>
             )}
