@@ -55,6 +55,7 @@ serve(async (req) => {
     
     const developerToken = Deno.env.get('GOOGLE_ADS_DEVELOPER_TOKEN');
     const customerId = Deno.env.get('GOOGLE_ADS_CUSTOMER_ID');
+    const loginCustomerId = Deno.env.get('GOOGLE_ADS_LOGIN_CUSTOMER_ID');
 
     if (!developerToken || !customerId) {
       console.log('Google Ads API credentials not configured - returning placeholder data');
@@ -81,13 +82,17 @@ serve(async (req) => {
     const formattedStartDate = startDate;
     const formattedEndDate = endDate;
 
+    // Format login customer ID (remove dashes if present)
+    const formattedLoginCustomerId = loginCustomerId ? loginCustomerId.replace(/-/g, '') : null;
+
     // Fetch account-level metrics
     const accountMetrics = await fetchAccountMetrics(
       accessToken, 
       developerToken, 
       formattedCustomerId, 
       formattedStartDate, 
-      formattedEndDate
+      formattedEndDate,
+      formattedLoginCustomerId
     );
 
     // Fetch daily performance data
@@ -96,7 +101,8 @@ serve(async (req) => {
       developerToken, 
       formattedCustomerId, 
       formattedStartDate, 
-      formattedEndDate
+      formattedEndDate,
+      formattedLoginCustomerId
     );
 
     // Fetch campaign performance
@@ -105,7 +111,8 @@ serve(async (req) => {
       developerToken, 
       formattedCustomerId, 
       formattedStartDate, 
-      formattedEndDate
+      formattedEndDate,
+      formattedLoginCustomerId
     );
 
     // Fetch country breakdown
@@ -114,7 +121,8 @@ serve(async (req) => {
       developerToken, 
       formattedCustomerId, 
       formattedStartDate, 
-      formattedEndDate
+      formattedEndDate,
+      formattedLoginCustomerId
     );
 
     const data = {
@@ -146,7 +154,8 @@ async function fetchAccountMetrics(
   developerToken: string, 
   customerId: string, 
   startDate: string, 
-  endDate: string
+  endDate: string,
+  loginCustomerId: string | null
 ) {
   const query = `
     SELECT
@@ -162,15 +171,21 @@ async function fetchAccountMetrics(
   `;
 
   try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    
+    if (loginCustomerId) {
+      headers['login-customer-id'] = loginCustomerId;
+    }
+
     const response = await fetch(
       `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'developer-token': developerToken,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ query }),
       }
     );
@@ -230,7 +245,8 @@ async function fetchDailyPerformance(
   developerToken: string, 
   customerId: string, 
   startDate: string, 
-  endDate: string
+  endDate: string,
+  loginCustomerId: string | null
 ) {
   const query = `
     SELECT
@@ -246,15 +262,21 @@ async function fetchDailyPerformance(
   `;
 
   try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    
+    if (loginCustomerId) {
+      headers['login-customer-id'] = loginCustomerId;
+    }
+
     const response = await fetch(
       `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'developer-token': developerToken,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ query }),
       }
     );
@@ -318,7 +340,8 @@ async function fetchCampaignPerformance(
   developerToken: string, 
   customerId: string, 
   startDate: string, 
-  endDate: string
+  endDate: string,
+  loginCustomerId: string | null
 ) {
   const query = `
     SELECT
@@ -336,15 +359,21 @@ async function fetchCampaignPerformance(
   `;
 
   try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    
+    if (loginCustomerId) {
+      headers['login-customer-id'] = loginCustomerId;
+    }
+
     const response = await fetch(
       `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'developer-token': developerToken,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ query }),
       }
     );
@@ -414,7 +443,8 @@ async function fetchCountryBreakdown(
   developerToken: string, 
   customerId: string, 
   startDate: string, 
-  endDate: string
+  endDate: string,
+  loginCustomerId: string | null
 ) {
   const query = `
     SELECT
@@ -428,15 +458,21 @@ async function fetchCountryBreakdown(
   `;
 
   try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    
+    if (loginCustomerId) {
+      headers['login-customer-id'] = loginCustomerId;
+    }
+
     const response = await fetch(
       `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'developer-token': developerToken,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ query }),
       }
     );
