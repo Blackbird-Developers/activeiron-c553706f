@@ -75,8 +75,31 @@ serve(async (req) => {
 
     // Remove dashes from customer ID for API calls
     const formattedCustomerId = customerId.replace(/-/g, '');
+    const formattedLoginCustomerId = loginCustomerId ? loginCustomerId.replace(/-/g, '') : null;
     
-    console.log('Fetching Google Ads data for period:', { startDate, endDate, customerId: formattedCustomerId });
+    console.log('=== Google Ads Debug Info ===');
+    console.log('Developer Token (first 10 chars):', developerToken.substring(0, 10) + '...');
+    console.log('Customer ID:', formattedCustomerId);
+    console.log('Login Customer ID (MCC):', formattedLoginCustomerId || 'Not set');
+    console.log('Access Token obtained:', accessToken ? 'Yes' : 'No');
+    console.log('Date range:', { startDate, endDate });
+
+    // Test a simple API call to check token validity
+    const testResponse = await fetch(
+      `https://googleads.googleapis.com/v17/customers/${formattedCustomerId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'developer-token': developerToken,
+          ...(formattedLoginCustomerId ? { 'login-customer-id': formattedLoginCustomerId } : {}),
+        },
+      }
+    );
+    
+    console.log('Test API call status:', testResponse.status);
+    const testResponseText = await testResponse.text();
+    console.log('Test API response:', testResponseText.substring(0, 500));
 
     // First, list accessible customers to verify credentials
     const accessibleCustomers = await listAccessibleCustomers(accessToken, developerToken);
@@ -85,9 +108,6 @@ serve(async (req) => {
     // Format dates for Google Ads API (YYYY-MM-DD)
     const formattedStartDate = startDate;
     const formattedEndDate = endDate;
-
-    // Format login customer ID (remove dashes if present)
-    const formattedLoginCustomerId = loginCustomerId ? loginCustomerId.replace(/-/g, '') : null;
 
     // Fetch account-level metrics
     const accountMetrics = await fetchAccountMetrics(
