@@ -111,10 +111,12 @@ serve(async (req) => {
       throw new Error('GA4_PROPERTY_ID not configured');
     }
 
-    console.log('Fetching GA4 data for period:', { startDate, endDate });
-
     // Parse service account JSON
     const serviceAccount = JSON.parse(GA4_SERVICE_ACCOUNT);
+    
+    console.log('Fetching GA4 data for period:', { startDate, endDate });
+    console.log('Using service account:', serviceAccount.client_email);
+    console.log('GA4 Property ID:', GA4_PROPERTY_ID);
     
     // Get OAuth access token
     const accessToken = await getAccessToken(serviceAccount);
