@@ -163,7 +163,7 @@ async function fetchAccountMetrics(
 
   try {
     const response = await fetch(
-      `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers: {
@@ -247,7 +247,7 @@ async function fetchDailyPerformance(
 
   try {
     const response = await fetch(
-      `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers: {
@@ -337,7 +337,7 @@ async function fetchCampaignPerformance(
 
   try {
     const response = await fetch(
-      `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers: {
@@ -429,7 +429,7 @@ async function fetchCountryBreakdown(
 
   try {
     const response = await fetch(
-      `https://googleads.googleapis.com/v18/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v17/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers: {
