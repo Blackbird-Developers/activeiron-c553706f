@@ -70,6 +70,11 @@ const Index = () => {
       }
     }
 
+    // Clear old cache to ensure fresh data when force refreshing
+    if (forceRefresh) {
+      localStorage.removeItem(CACHE_KEY);
+    }
+    
     setIsLoading(true);
     try {
       const [ga4Response, metaAdsResponse, googleAdsResponse, subblyResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
@@ -77,7 +82,7 @@ const Index = () => {
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
-        supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr, customerId: '1234567890' } })
+        supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('subbly-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
@@ -87,6 +92,8 @@ const Index = () => {
           .catch(err => ({ data: null, error: err }))
       ]);
 
+      console.log('Google Ads Response:', googleAdsResponse);
+
       const newData = {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
@@ -95,6 +102,8 @@ const Index = () => {
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
         shopify: shopifyResponse.data?.data || shopifyData,
       };
+
+      console.log('Google Ads Data being set:', newData.googleAds);
 
       setMarketingData(newData);
 
