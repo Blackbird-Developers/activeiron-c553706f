@@ -78,6 +78,10 @@ serve(async (req) => {
     
     console.log('Fetching Google Ads data for period:', { startDate, endDate, customerId: formattedCustomerId });
 
+    // First, list accessible customers to verify credentials
+    const accessibleCustomers = await listAccessibleCustomers(accessToken, developerToken);
+    console.log('Accessible customers:', accessibleCustomers);
+
     // Format dates for Google Ads API (YYYY-MM-DD)
     const formattedStartDate = startDate;
     const formattedEndDate = endDate;
@@ -136,7 +140,35 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ data }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+});
+
+// List accessible customers to verify credentials and find correct customer IDs
+async function listAccessibleCustomers(accessToken: string, developerToken: string): Promise<string[]> {
+  try {
+    const response = await fetch(
+      'https://googleads.googleapis.com/v17/customers:listAccessibleCustomers',
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'developer-token': developerToken,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to list accessible customers:', errorText);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.resourceNames || [];
+  } catch (error) {
+    console.error('Error listing accessible customers:', error);
+    return [];
+  }
+}
   } catch (error) {
     console.error('Error in google-ads-data function:', error);
     return new Response(
