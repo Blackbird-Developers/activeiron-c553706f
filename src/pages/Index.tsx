@@ -3,15 +3,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { GA4Section } from "@/components/sections/GA4Section";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
-import { SubblySection } from "@/components/sections/SubblySection";
 import { MailchimpSection } from "@/components/sections/MailchimpSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 import { FunnelSection } from "@/components/sections/FunnelSection";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, shopifyData } from "@/data/placeholderData";
-import { CountryCode, filterCampaignsByCountry, aggregateCampaignMetrics, parseCountryFromCampaignName } from "@/components/CountryFilter";
+import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
+import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 
 const CACHE_KEY = 'marketing_dashboard_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -24,7 +23,6 @@ interface CachedData {
     ga4: typeof ga4Data;
     googleAds: typeof googleAdsData;
     metaAds: typeof metaAdsData;
-    subbly: typeof subblyData;
     mailchimp: typeof mailchimpData;
     shopify: typeof shopifyData;
   };
@@ -41,7 +39,6 @@ const Index = () => {
     ga4: ga4Data,
     googleAds: googleAdsData,
     metaAds: metaAdsData,
-    subbly: subblyData,
     mailchimp: mailchimpData,
     shopify: shopifyData,
   });
@@ -79,14 +76,12 @@ const Index = () => {
     
     setIsLoading(true);
     try {
-      const [ga4Response, metaAdsResponse, googleAdsResponse, subblyResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
+      const [ga4Response, metaAdsResponse, googleAdsResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
-          .catch(err => ({ data: null, error: err })),
-        supabase.functions.invoke('subbly-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('mailchimp-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
@@ -100,7 +95,6 @@ const Index = () => {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
-        subbly: subblyResponse.data?.data || subblyData,
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
         shopify: shopifyResponse.data?.data || shopifyData,
       };
@@ -268,17 +262,12 @@ const Index = () => {
         <GA4Section data={filteredData.ga4} />
         <GoogleAdsSection data={filteredData.googleAds} />
         <MetaAdsSection data={filteredData.metaAds} />
-        <SubblySection 
-          data={filteredData.subbly} 
-          totalAdSpend={filteredData.metaAds.overview.adSpend + filteredData.googleAds.overview.adSpend}
-        />
         <ShopifySection data={filteredData.shopify} />
         <MailchimpSection data={filteredData.mailchimp} />
         <FunnelSection 
           ga4Data={filteredData.ga4}
           metaAdsData={filteredData.metaAds}
           googleAdsData={filteredData.googleAds}
-          subblyData={filteredData.subbly}
           mailchimpData={filteredData.mailchimp}
         />
       </div>
