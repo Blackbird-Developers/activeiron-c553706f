@@ -102,28 +102,6 @@ export const metaAdsData = {
   ],
 };
 
-export const subblyData = {
-  overview: {
-    subscriptions: 987,
-    churnRate: 3.2,
-    revenue: 29610,
-  },
-  subscriptionsOverTime: [
-    { date: "Jan 1", subscriptions: 125, revenue: 3750 },
-    { date: "Jan 8", subscriptions: 135, revenue: 4050 },
-    { date: "Jan 15", subscriptions: 142, revenue: 4260 },
-    { date: "Jan 22", subscriptions: 148, revenue: 4440 },
-    { date: "Jan 29", subscriptions: 152, revenue: 4560 },
-    { date: "Feb 5", subscriptions: 145, revenue: 4350 },
-    { date: "Feb 12", subscriptions: 140, revenue: 4200 },
-  ],
-  planDistribution: [
-    { plan: "Basic", subscribers: 345, percentage: 35 },
-    { plan: "Premium", subscribers: 432, percentage: 43.8 },
-    { plan: "Enterprise", subscribers: 210, percentage: 21.2 },
-  ],
-};
-
 export const mailchimpData = {
   overview: {
     emailOpens: 8765,
