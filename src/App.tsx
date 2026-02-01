@@ -13,6 +13,7 @@ import ConsolidatedView from "./pages/ConsolidatedView";
 import MetaPerformance from "./pages/MetaPerformance";
 import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
+import ShopifyPerformance from "./pages/ShopifyPerformance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,7 @@ const App = () => {
                   <Route path="/consolidated-view" element={<ConsolidatedView />} />
                   <Route path="/meta-performance" element={<MetaPerformance />} />
                   <Route path="/google-ads" element={<GoogleAdsPerformance />} />
+                  <Route path="/shopify" element={<ShopifyPerformance />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
