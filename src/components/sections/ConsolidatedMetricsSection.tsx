@@ -2,8 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
 import { format, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
+import { Download, FileSpreadsheet, Table2, Copy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 
 interface ConsolidatedMetricsSectionProps {
   ga4Data?: typeof ga4Data;
@@ -33,6 +43,7 @@ export function ConsolidatedMetricsSection({
   startDate,
   endDate,
 }: ConsolidatedMetricsSectionProps) {
+  const { toast } = useToast();
   
   // Generate days for the current month or selected range
   const start = startDate || startOfMonth(new Date());
@@ -179,22 +190,127 @@ export function ConsolidatedMetricsSection({
     { category: "Email", metric: "Click Rate", cumulative: `${clickRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
   ];
 
+  // Generate export data array
+  const generateExportData = () => {
+    const headers = ["Category", "Metric", "MTD", ...daysInRange.map(d => format(d, 'dd MMM'))];
+    const rows = metricRows.map(row => [
+      row.category,
+      row.metric,
+      row.cumulative,
+      ...row.dailyValues
+    ]);
+    return { headers, rows };
+  };
+
+  // Export to CSV
+  const exportToCSV = () => {
+    const { headers, rows } = generateExportData();
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `consolidated-metrics-${format(start, 'yyyy-MM-dd')}-to-${format(end, 'yyyy-MM-dd')}.csv`;
+    link.click();
+    
+    toast({
+      title: "Export Successful",
+      description: "CSV file downloaded successfully.",
+    });
+  };
+
+  // Export to Excel (XLSX)
+  const exportToExcel = () => {
+    const { headers, rows } = generateExportData();
+    const worksheetData = [headers, ...rows];
+    
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Consolidated Metrics");
+    
+    // Auto-size columns
+    const colWidths = headers.map((_, i) => ({
+      wch: Math.max(
+        headers[i].length,
+        ...rows.map(row => String(row[i]).length)
+      ) + 2
+    }));
+    worksheet["!cols"] = colWidths;
+    
+    XLSX.writeFile(workbook, `consolidated-metrics-${format(start, 'yyyy-MM-dd')}-to-${format(end, 'yyyy-MM-dd')}.xlsx`);
+    
+    toast({
+      title: "Export Successful",
+      description: "Excel file downloaded successfully.",
+    });
+  };
+
+  // Copy to clipboard (for Google Sheets paste)
+  const copyToClipboard = async () => {
+    const { headers, rows } = generateExportData();
+    const tsvContent = [
+      headers.join("\t"),
+      ...rows.map(row => row.join("\t"))
+    ].join("\n");
+    
+    try {
+      await navigator.clipboard.writeText(tsvContent);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Data copied! Paste directly into Google Sheets.",
+      });
+    } catch {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Group rows by category for visual separation
   let currentCategory = "";
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <CardTitle>Consolidated Metrics</CardTitle>
             <p className="text-sm text-muted-foreground">
               {format(start, 'dd MMM yyyy')} - {format(end, 'dd MMM yyyy')}
             </p>
           </div>
-          <Badge variant="default" className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
-            Shopify: Live
-          </Badge>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToCSV} className="gap-2 cursor-pointer">
+                  <Table2 className="h-4 w-4" />
+                  Download CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToExcel} className="gap-2 cursor-pointer">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={copyToClipboard} className="gap-2 cursor-pointer">
+                  <Copy className="h-4 w-4" />
+                  Copy for Google Sheets
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Badge variant="default" className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+              Shopify: Live
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
