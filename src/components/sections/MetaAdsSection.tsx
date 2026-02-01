@@ -19,7 +19,7 @@ export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <ScoreCard
           title="CPC"
-          value={`€${data.overview.cpc}`}
+          value={`€${Number(data.overview.cpc).toFixed(2)}`}
           change="-5.2% vs last period"
           changeType="positive"
           icon={MousePointer}
@@ -27,7 +27,7 @@ export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) 
         />
         <ScoreCard
           title="CTR"
-          value={`${data.overview.ctr}%`}
+          value={`${Number(data.overview.ctr).toFixed(2)}%`}
           change="+0.8% vs last period"
           changeType="positive"
           icon={Target}
@@ -43,7 +43,7 @@ export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) 
         />
         <ScoreCard
           title="Ad Spend"
-          value={`€${data.overview.adSpend.toLocaleString()}`}
+          value={`€${Number(data.overview.adSpend).toFixed(2)}`}
           change="+8.1% vs last period"
           changeType="neutral"
           icon={DollarSign}
@@ -51,7 +51,7 @@ export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) 
         />
         <ScoreCard
           title="Cost per Conversion"
-          value={`€${data.overview.costPerConversion}`}
+          value={`€${Number(data.overview.costPerConversion).toFixed(2)}`}
           change="-7.5% vs last period"
           changeType="positive"
           icon={DollarSign}
