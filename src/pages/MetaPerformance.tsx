@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { CampaignsTable } from "@/components/CampaignsTable";
@@ -9,6 +9,7 @@ import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
+import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 
 const CACHE_KEY = 'meta_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -27,6 +28,7 @@ export default function MetaPerformance() {
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [metaData, setMetaData] = useState<any>(placeholderData);
   const [campaigns, setCampaigns] = useState<any[]>([]);
 
@@ -109,6 +111,48 @@ export default function MetaPerformance() {
     return () => clearInterval(interval);
   }, []);
 
+  // Filter data based on selected country
+  const filteredData = useMemo(() => {
+    if (selectedCountry === 'all') {
+      return { metaData, campaigns };
+    }
+
+    // Filter campaigns by country in name
+    const filteredCampaigns = campaigns.filter((campaign: any) => {
+      const country = parseCountryFromCampaignName(campaign.name || '');
+      return country === selectedCountry;
+    });
+
+    // Aggregate metrics from filtered campaigns
+    const agg = filteredCampaigns.reduce(
+      (acc: any, c: any) => ({
+        spend: acc.spend + (c.spend || 0),
+        clicks: acc.clicks + (c.clicks || 0),
+        impressions: acc.impressions + (c.impressions || 0),
+        conversions: acc.conversions + (c.conversions || 0),
+      }),
+      { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
+    );
+
+    return {
+      metaData: {
+        ...metaData,
+        overview: {
+          ...metaData.overview,
+          adSpend: agg.spend,
+          clicks: agg.clicks,
+          impressions: agg.impressions,
+          conversions: agg.conversions,
+          cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
+          ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
+          costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
+        },
+        campaigns: filteredCampaigns,
+      },
+      campaigns: filteredCampaigns,
+    };
+  }, [metaData, campaigns, selectedCountry]);
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <PageHeader
@@ -121,9 +165,11 @@ export default function MetaPerformance() {
         endDate={endDate}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
+        selectedCountry={selectedCountry}
+        onCountryChange={setSelectedCountry}
       />
 
-      <MetaAdsSection data={metaData} />
+      <MetaAdsSection data={filteredData.metaData} />
 
       <Tabs defaultValue="campaigns" className="w-full">
         <TabsList>
@@ -138,7 +184,7 @@ export default function MetaPerformance() {
         </TabsList>
         
         <TabsContent value="campaigns" className="mt-6">
-          {!isLoading && <CampaignsTable campaigns={campaigns} />}
+          {!isLoading && <CampaignsTable campaigns={filteredData.campaigns} />}
         </TabsContent>
         
         <TabsContent value="creatives" className="mt-6">
