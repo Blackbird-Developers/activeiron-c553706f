@@ -4,7 +4,7 @@ import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMe
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ga4Data, googleAdsData, metaAdsData, mailchimpData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 
 const CACHE_KEY = 'consolidated_view_cache';
@@ -19,6 +19,7 @@ interface CachedData {
     googleAds: typeof googleAdsData;
     metaAds: typeof metaAdsData;
     mailchimp: typeof mailchimpData;
+    shopify: typeof shopifyData;
   };
 }
 
@@ -34,6 +35,7 @@ export default function ConsolidatedView() {
     googleAds: googleAdsData,
     metaAds: metaAdsData,
     mailchimp: mailchimpData,
+    shopify: shopifyData,
   });
 
   const fetchMarketingData = useCallback(async (forceRefresh = false) => {
@@ -66,7 +68,7 @@ export default function ConsolidatedView() {
 
     setIsLoading(true);
     try {
-      const [ga4Response, metaAdsResponse, googleAdsResponse, mailchimpResponse] = await Promise.all([
+      const [ga4Response, metaAdsResponse, googleAdsResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
@@ -74,6 +76,8 @@ export default function ConsolidatedView() {
         supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('mailchimp-data', { body: { startDate: startDateStr, endDate: endDateStr } })
+          .catch(err => ({ data: null, error: err })),
+        supabase.functions.invoke('shopify-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err }))
       ]);
 
@@ -82,6 +86,7 @@ export default function ConsolidatedView() {
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
+        shopify: shopifyResponse.data?.data || shopifyData,
       };
 
       setMarketingData(newData);
@@ -178,6 +183,16 @@ export default function ConsolidatedView() {
       )
     );
 
+    // Filter Shopify by country breakdown
+    const shopifyCountryCodeMap: Record<CountryCode, string[]> = {
+      'IE': ['IE'],
+      'UK': ['GB', 'UK'],
+      'all': [],
+    };
+    const shopifyCountryData = (marketingData.shopify as any)?.countryBreakdown?.find(
+      (c: any) => shopifyCountryCodeMap[selectedCountry]?.includes(c.countryCode?.toUpperCase())
+    );
+
     return {
       ...marketingData,
       ga4: {
@@ -218,6 +233,18 @@ export default function ConsolidatedView() {
         },
         campaigns: filteredMetaCampaigns,
       } as any,
+      shopify: shopifyCountryData ? {
+        overview: {
+          totalOrders: shopifyCountryData.totalOrders || 0,
+          totalRevenue: shopifyCountryData.totalRevenue || 0,
+          averageOrderValue: shopifyCountryData.averageOrderValue || 0,
+          totalProducts: marketingData.shopify.overview?.totalProducts || 0,
+        },
+        ordersOverTime: shopifyCountryData.ordersOverTime || [],
+        topProducts: shopifyCountryData.topProducts || [],
+        ordersByStatus: shopifyCountryData.ordersByStatus || [],
+        countryBreakdown: (marketingData.shopify as any)?.countryBreakdown,
+      } : marketingData.shopify,
     };
   }, [marketingData, selectedCountry]);
 
@@ -241,6 +268,7 @@ export default function ConsolidatedView() {
         metaAdsData={filteredData.metaAds}
         googleAdsData={filteredData.googleAds}
         mailchimpData={filteredData.mailchimp}
+        shopifyData={filteredData.shopify}
         startDate={startDate}
         endDate={endDate}
       />
