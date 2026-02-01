@@ -127,7 +127,6 @@ export const mailchimpData = {
   ],
 };
 
-// Shopify placeholder data - to be replaced with live API data later
 export const shopifyData = {
   overview: {
     totalOrders: 0,
