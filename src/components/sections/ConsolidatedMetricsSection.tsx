@@ -99,11 +99,34 @@ export function ConsolidatedMetricsSection({
   const openRate = mailchimp?.overview?.openRate || 0;
   const clickRate = mailchimp?.overview?.clickThroughRate || 0;
 
-  // Shopify placeholders (e-commerce)
-  const orders = shopify?.overview?.totalOrders || 0;
+  // Shopify / E-commerce metrics
+  const shopifyOrders = shopify?.overview?.totalOrders || 0;
   const shopifyRevenue = shopify?.overview?.totalRevenue || 0;
   const averageOrderValue = shopify?.overview?.averageOrderValue || 0;
-  const shopifyConversionRate = 0; // Not available in current API
+  
+  // Blended CAC = Total Ad Spend / Shopify Orders
+  const blendedCAC = shopifyOrders > 0 ? totalSpend / shopifyOrders : 0;
+  
+  // E-commerce conversion rate (orders / total users)
+  const ecommerceConversionRate = totalUsers > 0 ? (shopifyOrders / totalUsers) * 100 : 0;
+  
+  // ROAS = Revenue / Spend
+  const roas = totalSpend > 0 ? shopifyRevenue / totalSpend : 0;
+  
+  // Get daily Shopify values
+  const getShopifyDailyValue = (date: Date, field: 'orders' | 'revenue') => {
+    if (!shopify?.ordersOverTime || shopify.ordersOverTime.length === 0) return 0;
+    
+    const formats = [
+      `${date.getDate()} ${format(date, 'MMM')}`,
+      format(date, 'd MMM'),
+    ];
+    
+    const dayData = shopify.ordersOverTime.find((d: any) => 
+      formats.some(f => d.date === f)
+    );
+    return dayData?.[field] || 0;
+  };
 
   // Generate metric rows matching Excel structure
   const metricRows: MetricRow[] = [
@@ -133,6 +156,12 @@ export function ConsolidatedMetricsSection({
     { category: "Google Ads", metric: "Conversions", cumulative: googleConversions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(googleAds?.performanceOverTime, d, 'conversions').toLocaleString()), colorClass: "bg-red-500/10" },
     { category: "Google Ads", metric: "CPA", cumulative: `€${googleCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-red-500/10" },
     
+    // Shopify / E-Commerce Section
+    { category: "Shopify", metric: "Orders", cumulative: shopifyOrders.toLocaleString(), dailyValues: daysInRange.map(d => getShopifyDailyValue(d, 'orders').toLocaleString()), colorClass: "bg-emerald-500/10" },
+    { category: "Shopify", metric: "Revenue", cumulative: `€${shopifyRevenue.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getShopifyDailyValue(d, 'revenue').toLocaleString()}`), colorClass: "bg-emerald-500/10" },
+    { category: "Shopify", metric: "Avg Order Value", cumulative: `€${averageOrderValue.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-emerald-500/10" },
+    { category: "Shopify", metric: "E-Commerce CVR", cumulative: `${ecommerceConversionRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-emerald-500/10" },
+    
     // Combined Paid Channel Section
     { category: "Combined Paid", metric: "Total Impressions", cumulative: totalImpressions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Total Clicks", cumulative: totalClicks.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
@@ -141,19 +170,14 @@ export function ConsolidatedMetricsSection({
     { category: "Combined Paid", metric: "Combined CTR", cumulative: `${combinedCTR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined Paid", metric: "Cumulative CVR", cumulative: `${cumulativeCVR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
+    { category: "Combined Paid", metric: "Blended CAC", cumulative: `€${blendedCAC.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-purple-500/10" },
+    { category: "Combined Paid", metric: "ROAS", cumulative: `${roas.toFixed(2)}x`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     
     // Email Section
     { category: "Email", metric: "Email Opens", cumulative: emailOpens.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Email Clicks", cumulative: emailClicks.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Open Rate", cumulative: `${openRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Click Rate", cumulative: `${clickRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
-
-    // E-Commerce / Shopify Section (Placeholder)
-    { category: "E-Commerce", metric: "Orders", cumulative: orders.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
-    { category: "E-Commerce", metric: "Revenue", cumulative: `€${shopifyRevenue.toLocaleString()}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
-    { category: "E-Commerce", metric: "Avg Order Value", cumulative: `€${averageOrderValue.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
-    { category: "E-Commerce", metric: "Conversion Rate", cumulative: `${shopifyConversionRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-teal-500/10", isPlaceholder: true },
   ];
 
   // Group rows by category for visual separation
@@ -169,8 +193,8 @@ export function ConsolidatedMetricsSection({
               {format(start, 'dd MMM yyyy')} - {format(end, 'dd MMM yyyy')}
             </p>
           </div>
-          <Badge variant="outline" className="text-xs">
-            Shopify: Pending Integration
+          <Badge variant="default" className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+            Shopify: Live
           </Badge>
         </div>
       </CardHeader>
