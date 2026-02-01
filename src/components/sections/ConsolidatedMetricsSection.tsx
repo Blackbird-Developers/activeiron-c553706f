@@ -104,8 +104,8 @@ export function ConsolidatedMetricsSection({
   const shopifyRevenue = shopify?.overview?.totalRevenue || 0;
   const averageOrderValue = shopify?.overview?.averageOrderValue || 0;
   
-  // Blended CAC = Total Ad Spend / Shopify Orders
-  const blendedCAC = shopifyOrders > 0 ? totalSpend / shopifyOrders : 0;
+  // Blended CPA = Total Ad Spend / Shopify Orders
+  const blendedCPA = shopifyOrders > 0 ? totalSpend / shopifyOrders : 0;
   
   // E-commerce conversion rate (orders / total users)
   const ecommerceConversionRate = totalUsers > 0 ? (shopifyOrders / totalUsers) * 100 : 0;
@@ -169,8 +169,7 @@ export function ConsolidatedMetricsSection({
     { category: "Combined Paid", metric: "Combined CPC", cumulative: `€${combinedCPC.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Combined CTR", cumulative: `${combinedCTR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined Paid", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    { category: "Combined Paid", metric: "Blended CAC", cumulative: `€${blendedCAC.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-purple-500/10" },
+    { category: "Combined Paid", metric: "Blended CPA", cumulative: `€${blendedCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-purple-500/10" },
     { category: "Combined Paid", metric: "ROAS", cumulative: `${roas.toFixed(2)}x`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     
     // Email Section
