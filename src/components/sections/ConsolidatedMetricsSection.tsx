@@ -2,14 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, shopifyData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
 import { format, eachDayOfInterval, startOfMonth, endOfMonth } from "date-fns";
 
 interface ConsolidatedMetricsSectionProps {
   ga4Data?: typeof ga4Data;
   metaAdsData?: typeof metaAdsData;
   googleAdsData?: typeof googleAdsData;
-  subblyData?: typeof subblyData;
   mailchimpData?: typeof mailchimpData;
   shopifyData?: typeof shopifyData;
   startDate?: Date;
@@ -29,7 +28,6 @@ export function ConsolidatedMetricsSection({
   ga4Data: ga4,
   metaAdsData: metaAds,
   googleAdsData: googleAds,
-  subblyData: subbly,
   mailchimpData: mailchimp,
   shopifyData: shopify,
   startDate,
@@ -92,10 +90,8 @@ export function ConsolidatedMetricsSection({
   const combinedCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
   const cumulativeCPA = totalConversions > 0 ? totalSpend / totalConversions : 0;
   
-  // Subscriptions
-  const subscriptions = subbly?.overview?.subscriptions || 0;
-  const subscriptionRevenue = subbly?.overview?.revenue || 0;
-  const cumulativeCVR = totalUsers > 0 ? (subscriptions / totalUsers) * 100 : 0;
+  // Conversion rate (conversions / users)
+  const cumulativeCVR = totalUsers > 0 ? (totalConversions / totalUsers) * 100 : 0;
   
   // Email metrics
   const emailOpens = mailchimp?.overview?.emailOpens || 0;
@@ -145,11 +141,7 @@ export function ConsolidatedMetricsSection({
     { category: "Combined Paid", metric: "Combined CTR", cumulative: `${combinedCTR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Total Conversions", cumulative: totalConversions.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     { category: "Combined Paid", metric: "Cumulative CPA", cumulative: `€${cumulativeCPA.toFixed(2)}`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
-    
-    // Subscriptions Section
-    { category: "Subscriptions", metric: "Total Subscriptions", cumulative: subscriptions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(subbly?.subscriptionsOverTime, d, 'subscriptions').toLocaleString()), colorClass: "bg-purple-500/10" },
-    { category: "Subscriptions", metric: "Revenue", cumulative: `€${subscriptionRevenue.toLocaleString()}`, dailyValues: daysInRange.map(d => `€${getDailyValue(subbly?.subscriptionsOverTime, d, 'revenue').toLocaleString()}`), colorClass: "bg-purple-500/10" },
-    { category: "Subscriptions", metric: "Cumulative CVR", cumulative: `${cumulativeCVR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-purple-500/10" },
+    { category: "Combined Paid", metric: "Cumulative CVR", cumulative: `${cumulativeCVR.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-slate-500/10" },
     
     // Email Section
     { category: "Email", metric: "Email Opens", cumulative: emailOpens.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },

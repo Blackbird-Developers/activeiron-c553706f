@@ -1,12 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { funnelData, ga4Data as placeholderGa4, googleAdsData as placeholderGoogleAds, metaAdsData as placeholderMeta, subblyData as placeholderSubbly, mailchimpData as placeholderMailchimp } from "@/data/placeholderData";
+import { ga4Data as placeholderGa4, googleAdsData as placeholderGoogleAds, metaAdsData as placeholderMeta, mailchimpData as placeholderMailchimp } from "@/data/placeholderData";
 import { ArrowDown } from "lucide-react";
 
 interface FunnelSectionProps {
   ga4Data?: typeof placeholderGa4;
   googleAdsData?: typeof placeholderGoogleAds;
   metaAdsData?: typeof placeholderMeta;
-  subblyData?: typeof placeholderSubbly;
   mailchimpData?: typeof placeholderMailchimp;
 }
 
@@ -14,17 +13,17 @@ export function FunnelSection({
   ga4Data = placeholderGa4,
   googleAdsData = placeholderGoogleAds,
   metaAdsData = placeholderMeta,
-  subblyData = placeholderSubbly,
   mailchimpData = placeholderMailchimp
 }: FunnelSectionProps) {
-  const calculateROAS = () => {
-    const revenue = subblyData.overview.revenue;
-    const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;
-    return (revenue / totalAdSpend).toFixed(2);
-  };
-
   const totalConversions = googleAdsData.overview.conversions + metaAdsData.overview.conversions;
   const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;
+
+  // Build funnel data dynamically from props
+  const funnelData = [
+    { stage: "Total Users", value: ga4Data.overview.totalUsers, percentage: 100, color: "hsl(var(--ga4-primary))" },
+    { stage: "Total Conversions", value: totalConversions, percentage: ga4Data.overview.totalUsers > 0 ? ((totalConversions / ga4Data.overview.totalUsers) * 100) : 0, color: "hsl(var(--chart-2))" },
+    { stage: "Email Clicks", value: mailchimpData.overview.emailClicks, percentage: ga4Data.overview.totalUsers > 0 ? ((mailchimpData.overview.emailClicks / ga4Data.overview.totalUsers) * 100) : 0, color: "hsl(var(--mailchimp-primary))" },
+  ];
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -52,7 +51,7 @@ export function FunnelSection({
                     <div className="min-w-0">
                       <h3 className="text-sm lg:text-lg font-semibold truncate">{stage.stage}</h3>
                       <p className="text-xs lg:text-sm opacity-90">
-                        {stage.value.toLocaleString()} ({stage.percentage}%)
+                        {stage.value.toLocaleString()} ({stage.percentage.toFixed(2)}%)
                       </p>
                     </div>
                     <div className="text-right shrink-0">
@@ -73,10 +72,10 @@ export function FunnelSection({
             <div className="rounded-lg border bg-card p-3 lg:p-4">
               <p className="text-xs lg:text-sm font-medium text-muted-foreground">Conversion Rate</p>
               <p className="mt-1 lg:mt-2 text-xl lg:text-2xl font-bold">
-                {((subblyData.overview.subscriptions / ga4Data.overview.totalUsers) * 100).toFixed(2)}%
+                {ga4Data.overview.totalUsers > 0 ? ((totalConversions / ga4Data.overview.totalUsers) * 100).toFixed(2) : 0}%
               </p>
               <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">
-                {subblyData.overview.subscriptions} / {ga4Data.overview.totalUsers} users
+                {totalConversions.toLocaleString()} / {ga4Data.overview.totalUsers.toLocaleString()} users
               </p>
             </div>
 
@@ -89,10 +88,12 @@ export function FunnelSection({
             </div>
 
             <div className="rounded-lg border bg-card p-3 lg:p-4">
-              <p className="text-xs lg:text-sm font-medium text-muted-foreground">Combined ROAS</p>
-              <p className="mt-1 lg:mt-2 text-xl lg:text-2xl font-bold">{calculateROAS()}x</p>
+              <p className="text-xs lg:text-sm font-medium text-muted-foreground">Cost per Conversion</p>
+              <p className="mt-1 lg:mt-2 text-xl lg:text-2xl font-bold">
+                €{totalConversions > 0 ? (totalAdSpend / totalConversions).toFixed(2) : '0.00'}
+              </p>
               <p className="text-[10px] lg:text-xs text-muted-foreground mt-1">
-                €{subblyData.overview.revenue.toLocaleString()} / €{totalAdSpend.toLocaleString()}
+                €{totalAdSpend.toLocaleString()} / {totalConversions.toLocaleString()} conversions
               </p>
             </div>
           </div>
