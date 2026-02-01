@@ -14,10 +14,10 @@ interface CountryFilterProps {
   onChange: (value: CountryCode) => void;
 }
 
-const countryOptions: { value: CountryCode; label: string; flag: string }[] = [
-  { value: "all", label: "All Countries", flag: "🌍" },
-  { value: "IE", label: "Ireland", flag: "🇮🇪" },
-  { value: "UK", label: "United Kingdom", flag: "🇬🇧" },
+const countryOptions: { value: CountryCode; label: string }[] = [
+  { value: "all", label: "All Markets" },
+  { value: "IE", label: "Ireland" },
+  { value: "UK", label: "United Kingdom" },
 ];
 
 export function CountryFilter({ value, onChange }: CountryFilterProps) {
@@ -30,12 +30,9 @@ export function CountryFilter({ value, onChange }: CountryFilterProps) {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {countryOptions.map((option) => (
+        {countryOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <span className="flex items-center gap-2">
-                <span>{option.flag}</span>
-                <span>{option.label}</span>
-              </span>
+              {option.label}
             </SelectItem>
           ))}
         </SelectContent>
