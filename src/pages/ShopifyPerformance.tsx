@@ -45,6 +45,15 @@ interface ShopifyData {
     count: number;
     percentage: number;
   }>;
+  countryBreakdown?: Array<{
+    countryCode: string;
+    totalOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number;
+    ordersOverTime: Array<{ date: string; orders: number; revenue: number }>;
+    topProducts: Array<{ name: string; quantity: number; revenue: number }>;
+    ordersByStatus: Array<{ status: string; count: number; percentage: number }>;
+  }>;
 }
 
 interface CachedData {
@@ -158,9 +167,51 @@ export default function ShopifyPerformance() {
     return () => clearInterval(interval);
   }, []);
 
-  // Calculate additional insights
+  // Filter data based on selected country
+  const filteredData = useMemo((): ShopifyData => {
+    if (selectedCountry === 'all') {
+      return shopifyData;
+    }
+
+    // Map CountryCode to Shopify country codes
+    const countryCodeMap: Record<CountryCode, string[]> = {
+      'IE': ['IE'],
+      'UK': ['GB', 'UK'],
+      'all': [],
+    };
+
+    const targetCodes = countryCodeMap[selectedCountry];
+    const countryData = shopifyData.countryBreakdown?.find(
+      c => targetCodes.includes(c.countryCode.toUpperCase())
+    );
+
+    if (!countryData) {
+      return {
+        ...shopifyData,
+        overview: { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0, totalProducts: shopifyData.overview.totalProducts },
+        ordersOverTime: [],
+        topProducts: [],
+        ordersByStatus: [],
+      };
+    }
+
+    return {
+      overview: {
+        totalOrders: countryData.totalOrders,
+        totalRevenue: countryData.totalRevenue,
+        averageOrderValue: countryData.averageOrderValue,
+        totalProducts: shopifyData.overview.totalProducts,
+      },
+      ordersOverTime: countryData.ordersOverTime,
+      topProducts: countryData.topProducts,
+      ordersByStatus: countryData.ordersByStatus,
+      countryBreakdown: shopifyData.countryBreakdown,
+    };
+  }, [shopifyData, selectedCountry]);
+
+  // Calculate additional insights from filtered data
   const insights = useMemo(() => {
-    const { ordersOverTime, topProducts, ordersByStatus } = shopifyData;
+    const { ordersOverTime, topProducts, ordersByStatus } = filteredData;
     
     // Calculate conversion trends
     const revenueGrowth = ordersOverTime.length >= 2
@@ -185,7 +236,7 @@ export default function ShopifyPerformance() {
       totalUnitsSold,
       paidPercentage,
     };
-  }, [shopifyData]);
+  }, [filteredData]);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -203,7 +254,7 @@ export default function ShopifyPerformance() {
         onCountryChange={setSelectedCountry}
       />
 
-      <ShopifySection data={shopifyData} />
+      <ShopifySection data={filteredData} />
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList>
@@ -227,7 +278,7 @@ export default function ShopifyPerformance() {
               <CardTitle className="text-lg">Product Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              {shopifyData.topProducts.length > 0 ? (
+              {filteredData.topProducts.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -238,7 +289,7 @@ export default function ShopifyPerformance() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {shopifyData.topProducts.map((product, index) => (
+                    {filteredData.topProducts.map((product, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{product.name}</TableCell>
                         <TableCell className="text-right">{product.quantity}</TableCell>
@@ -254,7 +305,7 @@ export default function ShopifyPerformance() {
                 </Table>
               ) : (
                 <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                  No product data available for selected period
+                  No product data available for selected period{selectedCountry !== 'all' ? ` and market` : ''}
                 </div>
               )}
             </CardContent>
@@ -267,9 +318,9 @@ export default function ShopifyPerformance() {
               <CardTitle className="text-lg">Daily Revenue Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              {shopifyData.ordersOverTime.length > 0 ? (
+              {filteredData.ordersOverTime.length > 0 ? (
                 <ResponsiveContainer width="100%" height={350}>
-                  <AreaChart data={shopifyData.ordersOverTime}>
+                  <AreaChart data={filteredData.ordersOverTime}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
@@ -307,7 +358,7 @@ export default function ShopifyPerformance() {
                 </ResponsiveContainer>
               ) : (
                 <div className="h-[350px] flex items-center justify-center text-muted-foreground">
-                  No trend data available for selected period
+                  No trend data available for selected period{selectedCountry !== 'all' ? ` and market` : ''}
                 </div>
               )}
             </CardContent>
@@ -341,7 +392,7 @@ export default function ShopifyPerformance() {
               <CardContent>
                 <p className="text-2xl font-bold">{insights.totalUnitsSold.toLocaleString()}</p>
                 <p className="text-sm text-muted-foreground">
-                  Across {shopifyData.topProducts.length} products
+                  Across {filteredData.topProducts.length} products
                 </p>
               </CardContent>
             </Card>
@@ -364,15 +415,19 @@ export default function ShopifyPerformance() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {shopifyData.ordersByStatus.map((status, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm">{status.status}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{status.count}</span>
-                        <Badge variant="outline" className="text-xs">{status.percentage}%</Badge>
+                  {filteredData.ordersByStatus.length > 0 ? (
+                    filteredData.ordersByStatus.map((status, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm">{status.status}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{status.count}</span>
+                          <Badge variant="outline" className="text-xs">{status.percentage}%</Badge>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No order status data</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -383,8 +438,8 @@ export default function ShopifyPerformance() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {shopifyData.topProducts.slice(0, 5).map((product, index) => {
-                    const maxRevenue = Math.max(...shopifyData.topProducts.map(p => p.revenue));
+                  {filteredData.topProducts.slice(0, 5).map((product, index) => {
+                    const maxRevenue = Math.max(...filteredData.topProducts.map(p => p.revenue), 1);
                     const widthPercent = maxRevenue > 0 ? (product.revenue / maxRevenue) * 100 : 0;
                     
                     return (
@@ -404,6 +459,9 @@ export default function ShopifyPerformance() {
                       </div>
                     );
                   })}
+                  {filteredData.topProducts.length === 0 && (
+                    <p className="text-muted-foreground text-sm">No product data available</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -12,6 +12,14 @@ interface ShopifyOrder {
   subtotal_price: string;
   financial_status: string;
   fulfillment_status: string | null;
+  shipping_address?: {
+    country: string;
+    country_code: string;
+  };
+  billing_address?: {
+    country: string;
+    country_code: string;
+  };
   line_items: Array<{
     id: number;
     title: string;
@@ -191,7 +199,36 @@ serve(async (req) => {
 
     console.log(`Total orders fetched: ${orders.length}, Products: ${products.length}`);
 
-    // Calculate metrics from orders
+    // Helper to get country code from order
+    function getOrderCountry(order: ShopifyOrder): string {
+      const countryCode = order.shipping_address?.country_code || order.billing_address?.country_code || '';
+      return countryCode.toUpperCase();
+    }
+
+    // Build country breakdown map
+    const countryDataMap: Map<string, {
+      orders: number;
+      revenue: number;
+      productSales: Map<string, { name: string; quantity: number; revenue: number }>;
+      ordersOverTime: Map<string, { orders: number; revenue: number }>;
+      statusCount: Map<string, number>;
+    }> = new Map();
+
+    // Initialize aggregators
+    function getCountryData(countryCode: string) {
+      if (!countryDataMap.has(countryCode)) {
+        countryDataMap.set(countryCode, {
+          orders: 0,
+          revenue: 0,
+          productSales: new Map(),
+          ordersOverTime: new Map(),
+          statusCount: new Map(),
+        });
+      }
+      return countryDataMap.get(countryCode)!;
+    }
+
+    // Calculate metrics from orders (also for "all" aggregate)
     let totalRevenue = 0;
     let totalOrders = orders.length;
     
@@ -200,18 +237,31 @@ serve(async (req) => {
     const statusCountMap: Map<string, number> = new Map();
 
     for (const order of orders) {
+      const countryCode = getOrderCountry(order);
+      const countryData = getCountryData(countryCode);
+
       // Revenue (use subtotal_price for net revenue, or total_price for gross)
       const orderRevenue = parseFloat(order.total_price) || 0;
       totalRevenue += orderRevenue;
+      countryData.orders += 1;
+      countryData.revenue += orderRevenue;
 
       // Orders over time (group by date)
       const orderDate = new Date(order.created_at);
       const dateKey = orderDate.toISOString().split('T')[0];
       
+      // Global aggregate
       const existing = ordersOverTimeMap.get(dateKey) || { orders: 0, revenue: 0 };
       ordersOverTimeMap.set(dateKey, {
         orders: existing.orders + 1,
         revenue: existing.revenue + orderRevenue,
+      });
+      
+      // Per-country aggregate
+      const countryExisting = countryData.ordersOverTime.get(dateKey) || { orders: 0, revenue: 0 };
+      countryData.ordersOverTime.set(dateKey, {
+        orders: countryExisting.orders + 1,
+        revenue: countryExisting.revenue + orderRevenue,
       });
 
       // Product sales
@@ -219,6 +269,7 @@ serve(async (req) => {
         const productKey = item.product_id?.toString() || item.title;
         const itemRevenue = parseFloat(item.price) * item.quantity;
         
+        // Global aggregate
         const existingProduct = productSalesMap.get(productKey) || { 
           name: item.title, 
           quantity: 0, 
@@ -229,11 +280,26 @@ serve(async (req) => {
           quantity: existingProduct.quantity + item.quantity,
           revenue: existingProduct.revenue + itemRevenue,
         });
+
+        // Per-country aggregate
+        const countryProduct = countryData.productSales.get(productKey) || { 
+          name: item.title, 
+          quantity: 0, 
+          revenue: 0 
+        };
+        countryData.productSales.set(productKey, {
+          name: item.title,
+          quantity: countryProduct.quantity + item.quantity,
+          revenue: countryProduct.revenue + itemRevenue,
+        });
       }
 
-      // Financial status
+      // Financial status - global
       const status = order.financial_status || 'unknown';
       statusCountMap.set(status, (statusCountMap.get(status) || 0) + 1);
+      
+      // Per-country status
+      countryData.statusCount.set(status, (countryData.statusCount.get(status) || 0) + 1);
     }
 
     // Format orders over time (sorted by date)
@@ -271,6 +337,56 @@ serve(async (req) => {
 
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
+    // Build per-country breakdown
+    const countryBreakdown: Array<{
+      countryCode: string;
+      totalOrders: number;
+      totalRevenue: number;
+      averageOrderValue: number;
+      ordersOverTime: Array<{ date: string; orders: number; revenue: number }>;
+      topProducts: Array<{ name: string; quantity: number; revenue: number }>;
+      ordersByStatus: Array<{ status: string; count: number; percentage: number }>;
+    }> = [];
+
+    for (const [countryCode, data] of countryDataMap.entries()) {
+      if (!countryCode) continue; // Skip orders without country
+
+      const countryOrdersOverTime = Array.from(data.ordersOverTime.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([dateStr, d]) => {
+          const date = new Date(dateStr);
+          const formattedDate = `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
+          return { date: formattedDate, orders: d.orders, revenue: Math.round(d.revenue * 100) / 100 };
+        });
+
+      const countryTopProducts = Array.from(data.productSales.values())
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 10)
+        .map(p => ({ name: p.name, quantity: p.quantity, revenue: Math.round(p.revenue * 100) / 100 }));
+
+      const countryTotalStatus = Array.from(data.statusCount.values()).reduce((a, b) => a + b, 0);
+      const countryOrdersByStatus = Array.from(data.statusCount.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([status, count]) => ({
+          status: status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' '),
+          count,
+          percentage: countryTotalStatus > 0 ? Math.round((count / countryTotalStatus) * 100) : 0,
+        }));
+
+      countryBreakdown.push({
+        countryCode,
+        totalOrders: data.orders,
+        totalRevenue: Math.round(data.revenue * 100) / 100,
+        averageOrderValue: data.orders > 0 ? Math.round((data.revenue / data.orders) * 100) / 100 : 0,
+        ordersOverTime: countryOrdersOverTime,
+        topProducts: countryTopProducts,
+        ordersByStatus: countryOrdersByStatus,
+      });
+    }
+
+    // Sort by revenue descending
+    countryBreakdown.sort((a, b) => b.totalRevenue - a.totalRevenue);
+
     const responseData = {
       data: {
         overview: {
@@ -282,10 +398,11 @@ serve(async (req) => {
         ordersOverTime,
         topProducts,
         ordersByStatus,
+        countryBreakdown,
       }
     };
 
-    console.log('Shopify data retrieved successfully:', JSON.stringify(responseData.data.overview));
+    console.log('Shopify data retrieved successfully:', JSON.stringify(responseData.data.overview), 'Countries:', countryBreakdown.map(c => c.countryCode));
 
     return new Response(JSON.stringify(responseData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
