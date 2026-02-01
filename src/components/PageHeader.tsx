@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { DateFilter } from "@/components/DateFilter";
+import { CountryFilter, CountryCode } from "@/components/CountryFilter";
 import { ReactNode } from "react";
 
 interface PageHeaderProps {
@@ -14,6 +15,9 @@ interface PageHeaderProps {
   onStartDateChange?: (date: Date | undefined) => void;
   onEndDateChange?: (date: Date | undefined) => void;
   showDateFilter?: boolean;
+  selectedCountry?: CountryCode;
+  onCountryChange?: (country: CountryCode) => void;
+  showCountryFilter?: boolean;
   actions?: ReactNode;
 }
 
@@ -28,6 +32,9 @@ export function PageHeader({
   onStartDateChange,
   onEndDateChange,
   showDateFilter = true,
+  selectedCountry,
+  onCountryChange,
+  showCountryFilter = true,
   actions,
 }: PageHeaderProps) {
   return (
@@ -50,17 +57,26 @@ export function PageHeader({
         )}
       </div>
 
-      {/* Row 2: Date Filter and Last Updated */}
-      {(showDateFilter || lastRefresh) && (
+      {/* Row 2: Date Filter, Country Filter, and Last Updated */}
+      {(showDateFilter || showCountryFilter || lastRefresh) && (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-border/50 pt-4">
-          {showDateFilter && onStartDateChange && onEndDateChange && (
-            <DateFilter
-              startDate={startDate}
-              endDate={endDate}
-              onStartDateChange={onStartDateChange}
-              onEndDateChange={onEndDateChange}
-            />
-          )}
+          <div className="flex flex-wrap items-center gap-4">
+            {showDateFilter && onStartDateChange && onEndDateChange && (
+              <DateFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={onStartDateChange}
+                onEndDateChange={onEndDateChange}
+              />
+            )}
+            
+            {showCountryFilter && selectedCountry && onCountryChange && (
+              <CountryFilter
+                value={selectedCountry}
+                onChange={onCountryChange}
+              />
+            )}
+          </div>
           
           {lastRefresh && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
