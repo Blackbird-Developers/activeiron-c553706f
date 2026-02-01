@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMetricsSection";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
+import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 
 const CACHE_KEY = 'consolidated_view_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -28,6 +29,7 @@ export default function ConsolidatedView() {
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,
@@ -128,6 +130,102 @@ export default function ConsolidatedView() {
     return () => clearInterval(interval);
   }, []);
 
+  // Filter data based on selected country
+  const filteredData = useMemo(() => {
+    if (selectedCountry === 'all') {
+      return marketingData;
+    }
+
+    // Filter Google Ads campaigns by country in name
+    const filteredGoogleCampaigns = (marketingData.googleAds.campaignPerformance || []).filter(
+      (campaign: any) => {
+        const country = parseCountryFromCampaignName(campaign.campaign || '');
+        return country === selectedCountry;
+      }
+    );
+    const googleAdsAgg = filteredGoogleCampaigns.reduce(
+      (acc: any, c: any) => ({
+        spend: acc.spend + (c.spend || 0),
+        clicks: acc.clicks + (c.clicks || 0),
+        impressions: acc.impressions + (c.impressions || 0),
+        conversions: acc.conversions + (c.conversions || 0),
+      }),
+      { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
+    );
+
+    // Filter Meta Ads campaigns by country in name
+    const metaCampaigns = (marketingData.metaAds as any).campaigns || [];
+    const filteredMetaCampaigns = metaCampaigns.filter(
+      (campaign: any) => {
+        const country = parseCountryFromCampaignName(campaign.name || '');
+        return country === selectedCountry;
+      }
+    );
+    const metaAdsAgg = filteredMetaCampaigns.reduce(
+      (acc: any, c: any) => ({
+        spend: acc.spend + (c.spend || 0),
+        clicks: acc.clicks + (c.clicks || 0),
+        impressions: acc.impressions + (c.impressions || 0),
+        conversions: acc.conversions + (c.conversions || 0),
+      }),
+      { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
+    );
+
+    // Filter GA4 country breakdown
+    const countryNameMap: Record<CountryCode, string[]> = {
+      'IE': ['Ireland'],
+      'UK': ['United Kingdom', 'Great Britain'],
+      'all': [],
+    };
+    const ga4CountryData = marketingData.ga4.countryBreakdown?.find(
+      (c: any) => countryNameMap[selectedCountry]?.some(name => 
+        c.country?.toLowerCase() === name.toLowerCase()
+      )
+    );
+
+    return {
+      ...marketingData,
+      ga4: {
+        ...marketingData.ga4,
+        overview: ga4CountryData ? {
+          ...marketingData.ga4.overview,
+          totalUsers: ga4CountryData.users || 0,
+          sessions: ga4CountryData.sessions || 0,
+          pageViews: ga4CountryData.pageViews || 0,
+          engagementRate: ga4CountryData.engagementRate || 0,
+        } : marketingData.ga4.overview,
+      },
+      googleAds: {
+        ...marketingData.googleAds,
+        overview: {
+          ...marketingData.googleAds.overview,
+          adSpend: googleAdsAgg.spend,
+          clicks: googleAdsAgg.clicks,
+          impressions: googleAdsAgg.impressions,
+          conversions: googleAdsAgg.conversions,
+          cpc: googleAdsAgg.clicks > 0 ? googleAdsAgg.spend / googleAdsAgg.clicks : 0,
+          ctr: googleAdsAgg.impressions > 0 ? (googleAdsAgg.clicks / googleAdsAgg.impressions) * 100 : 0,
+          costPerConversion: googleAdsAgg.conversions > 0 ? googleAdsAgg.spend / googleAdsAgg.conversions : 0,
+        },
+        campaignPerformance: filteredGoogleCampaigns,
+      },
+      metaAds: {
+        ...marketingData.metaAds,
+        overview: {
+          ...marketingData.metaAds.overview,
+          adSpend: metaAdsAgg.spend,
+          clicks: metaAdsAgg.clicks,
+          impressions: metaAdsAgg.impressions,
+          conversions: metaAdsAgg.conversions,
+          cpc: metaAdsAgg.clicks > 0 ? metaAdsAgg.spend / metaAdsAgg.clicks : 0,
+          ctr: metaAdsAgg.impressions > 0 ? (metaAdsAgg.clicks / metaAdsAgg.impressions) * 100 : 0,
+          costPerConversion: metaAdsAgg.conversions > 0 ? metaAdsAgg.spend / metaAdsAgg.conversions : 0,
+        },
+        campaigns: filteredMetaCampaigns,
+      } as any,
+    };
+  }, [marketingData, selectedCountry]);
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <PageHeader
@@ -139,14 +237,16 @@ export default function ConsolidatedView() {
         endDate={endDate}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
+        selectedCountry={selectedCountry}
+        onCountryChange={setSelectedCountry}
       />
 
       <ConsolidatedMetricsSection
-        ga4Data={marketingData.ga4}
-        metaAdsData={marketingData.metaAds}
-        googleAdsData={marketingData.googleAds}
-        subblyData={marketingData.subbly}
-        mailchimpData={marketingData.mailchimp}
+        ga4Data={filteredData.ga4}
+        metaAdsData={filteredData.metaAds}
+        googleAdsData={filteredData.googleAds}
+        subblyData={filteredData.subbly}
+        mailchimpData={filteredData.mailchimp}
         startDate={startDate}
         endDate={endDate}
       />
