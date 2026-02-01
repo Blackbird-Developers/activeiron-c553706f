@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Sparkles, TrendingUp, Users, DollarSign, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailchimpData } from "@/data/placeholderData";
 
 export default function AIOverview() {
   const { toast } = useToast();
@@ -15,14 +15,11 @@ export default function AIOverview() {
     ga4: ga4Data,
     googleAds: googleAdsData,
     metaAds: metaAdsData,
-    subbly: subblyData,
     mailchimp: mailchimpData,
   });
 
   const totalAdSpend = (marketingData.googleAds?.overview?.adSpend || 0) + (marketingData.metaAds?.overview?.adSpend || 0);
   const totalConversions = (marketingData.googleAds?.overview?.conversions || 0) + (marketingData.metaAds?.overview?.conversions || 0);
-  const revenue = marketingData.subbly?.overview?.revenue || 0;
-  const roas = totalAdSpend > 0 ? (revenue / totalAdSpend).toFixed(2) : '0.00';
 
   const fetchMarketingData = async () => {
     setIsLoading(true);
@@ -58,11 +55,6 @@ export default function AIOverview() {
         return { data: null, error: err };
       });
 
-      const subblyResponse = await supabase.functions.invoke('subbly-data', { body: { startDate, endDate } })
-        .catch(err => {
-          console.error('Subbly API error (skipping for now):', err);
-          return { data: null, error: err };
-        });
 
       const mailchimpResponse = await supabase.functions.invoke('mailchimp-data', { body: { startDate, endDate } })
         .catch(err => {
@@ -75,7 +67,6 @@ export default function AIOverview() {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
-        subbly: subblyResponse.data?.data || subblyData,
         mailchimp: mailchimpResponse.data?.data || mailchimpData,
       });
 
@@ -118,7 +109,6 @@ export default function AIOverview() {
           ga4Data: marketingData.ga4,
           googleAdsData: marketingData.googleAds,
           metaAdsData: marketingData.metaAds,
-          subblyData: marketingData.subbly,
           mailchimpData: marketingData.mailchimp,
         },
       });
@@ -158,15 +148,8 @@ export default function AIOverview() {
       title: "Ad Spend Efficiency",
       icon: DollarSign,
       color: "text-meta-foreground",
-      insight: `Combined ad spend across Google Ads (€${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads (€${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals €${totalAdSpend.toLocaleString()}. Your overall ROAS is ${roas}, generating ${totalConversions.toLocaleString()} conversions.`,
+      insight: `Combined ad spend across Google Ads (€${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads (€${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals €${totalAdSpend.toLocaleString()}, generating ${totalConversions.toLocaleString()} conversions.`,
       recommendation: "Google Ads shows higher CPC but better conversion rates. Consider reallocating 15% of Meta budget to Google Ads.",
-    },
-    {
-      title: "Subscription Funnel",
-      icon: TrendingUp,
-      color: "text-subbly-foreground",
-      insight: `You have ${marketingData.subbly?.overview?.subscriptions || 'N/A'} active subscriptions generating €${marketingData.subbly?.overview?.revenue?.toLocaleString() || 'N/A'} in revenue. Your churn rate is ${marketingData.subbly?.overview?.churnRate || 'N/A'}% which is within healthy ranges.`,
-      recommendation: "Conversion rate from ad clicks to subscriptions is strong. Test increasing ad spend by 20% to scale subscriptions.",
     },
     {
       title: "Email Engagement",
@@ -230,16 +213,10 @@ export default function AIOverview() {
             <div className="text-lg lg:text-2xl font-bold text-meta-foreground">{totalConversions.toLocaleString()}</div>
           </CardContent>
         </Card>
-        <Card className="border-subbly/20 bg-subbly-light/50">
-          <CardContent className="p-4 lg:p-6">
-            <div className="text-xs lg:text-sm font-medium text-subbly-foreground opacity-80">Active Subscriptions</div>
-            <div className="text-lg lg:text-2xl font-bold text-subbly-foreground">{marketingData.subbly?.overview?.subscriptions || 'N/A'}</div>
-          </CardContent>
-        </Card>
         <Card className="border-mailchimp/20 bg-mailchimp-light/50">
           <CardContent className="p-4 lg:p-6">
-            <div className="text-xs lg:text-sm font-medium text-mailchimp-foreground opacity-80">Combined ROAS</div>
-            <div className="text-lg lg:text-2xl font-bold text-mailchimp-foreground">{roas}</div>
+            <div className="text-xs lg:text-sm font-medium text-mailchimp-foreground opacity-80">Total Ad Spend</div>
+            <div className="text-lg lg:text-2xl font-bold text-mailchimp-foreground">€{totalAdSpend.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
