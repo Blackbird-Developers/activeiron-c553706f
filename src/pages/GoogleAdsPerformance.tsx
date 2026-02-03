@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +28,7 @@ export default function GoogleAdsPerformance() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [googleAdsData, setGoogleAdsData] = useState<any>(placeholderData);
+  const [showActiveOnly, setShowActiveOnly] = useState(true);
 
   const fetchGoogleAdsData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -101,22 +104,29 @@ export default function GoogleAdsPerformance() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter data based on selected country
+  // Filter data based on selected country and active status
   const filteredData = useMemo(() => {
-    if (selectedCountry === 'all') {
-      return googleAdsData;
+    let campaigns = googleAdsData.campaignPerformance || [];
+
+    // Filter by active status if enabled
+    if (showActiveOnly) {
+      campaigns = campaigns.filter(
+        (campaign: any) => campaign.status === 'ENABLED'
+      );
     }
 
-    // Filter campaigns by country in name
-    const filteredCampaigns = (googleAdsData.campaignPerformance || []).filter(
-      (campaign: any) => {
-        const country = parseCountryFromCampaignName(campaign.campaign || '');
-        return country === selectedCountry;
-      }
-    );
+    // Filter by country if selected
+    if (selectedCountry !== 'all') {
+      campaigns = campaigns.filter(
+        (campaign: any) => {
+          const country = parseCountryFromCampaignName(campaign.campaign || '');
+          return country === selectedCountry;
+        }
+      );
+    }
 
     // Aggregate metrics from filtered campaigns
-    const agg = filteredCampaigns.reduce(
+    const agg = campaigns.reduce(
       (acc: any, c: any) => ({
         spend: acc.spend + (c.spend || 0),
         clicks: acc.clicks + (c.clicks || 0),
@@ -125,6 +135,14 @@ export default function GoogleAdsPerformance() {
       }),
       { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
     );
+
+    // If all countries selected and no active filter, return raw overview
+    if (selectedCountry === 'all' && !showActiveOnly) {
+      return {
+        ...googleAdsData,
+        campaignPerformance: campaigns,
+      };
+    }
 
     return {
       ...googleAdsData,
@@ -138,9 +156,9 @@ export default function GoogleAdsPerformance() {
         ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
         costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
       },
-      campaignPerformance: filteredCampaigns,
+      campaignPerformance: campaigns,
     };
-  }, [googleAdsData, selectedCountry]);
+  }, [googleAdsData, selectedCountry, showActiveOnly]);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -161,8 +179,18 @@ export default function GoogleAdsPerformance() {
       <GoogleAdsSection data={filteredData} />
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-google-ads-foreground">Campaign Performance</CardTitle>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="active-only"
+              checked={showActiveOnly}
+              onCheckedChange={setShowActiveOnly}
+            />
+            <Label htmlFor="active-only" className="text-sm text-muted-foreground cursor-pointer">
+              Active only
+            </Label>
+          </div>
         </CardHeader>
         <CardContent>
           {filteredData.campaignPerformance?.length > 0 ? (
