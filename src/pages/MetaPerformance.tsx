@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const CACHE_KEY = 'meta_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -29,6 +31,7 @@ export default function MetaPerformance() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
+  const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [metaData, setMetaData] = useState<any>(placeholderData);
   const [campaigns, setCampaigns] = useState<any[]>([]);
 
@@ -111,17 +114,30 @@ export default function MetaPerformance() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter data based on selected country
+  // Filter data based on selected country and active status
   const filteredData = useMemo(() => {
-    if (selectedCountry === 'all') {
-      return { metaData, campaigns };
+    // Start with all campaigns
+    let filteredCampaigns = [...campaigns];
+
+    // Filter by active status if enabled
+    if (showActiveOnly) {
+      filteredCampaigns = filteredCampaigns.filter((campaign: any) => 
+        campaign.status === 'ACTIVE'
+      );
     }
 
-    // Filter campaigns by country in name
-    const filteredCampaigns = campaigns.filter((campaign: any) => {
-      const country = parseCountryFromCampaignName(campaign.name || '');
-      return country === selectedCountry;
-    });
+    // Filter by country if selected
+    if (selectedCountry !== 'all') {
+      filteredCampaigns = filteredCampaigns.filter((campaign: any) => {
+        const country = parseCountryFromCampaignName(campaign.name || '');
+        return country === selectedCountry;
+      });
+    }
+
+    // If no filters applied and showing all, return original data
+    if (!showActiveOnly && selectedCountry === 'all') {
+      return { metaData, campaigns };
+    }
 
     // Aggregate metrics from filtered campaigns
     const agg = filteredCampaigns.reduce(
@@ -151,7 +167,7 @@ export default function MetaPerformance() {
       },
       campaigns: filteredCampaigns,
     };
-  }, [metaData, campaigns, selectedCountry]);
+  }, [metaData, campaigns, selectedCountry, showActiveOnly]);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -172,16 +188,28 @@ export default function MetaPerformance() {
       <MetaAdsSection data={filteredData.metaData} />
 
       <Tabs defaultValue="campaigns" className="w-full">
-        <TabsList>
-          <TabsTrigger value="campaigns" className="gap-2">
-            <LayoutList className="h-4 w-4" />
-            Campaigns
-          </TabsTrigger>
-          <TabsTrigger value="creatives" className="gap-2">
-            <Palette className="h-4 w-4" />
-            Creative Analysis
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="campaigns" className="gap-2">
+              <LayoutList className="h-4 w-4" />
+              Campaigns
+            </TabsTrigger>
+            <TabsTrigger value="creatives" className="gap-2">
+              <Palette className="h-4 w-4" />
+              Creative Analysis
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="active-only-meta"
+              checked={showActiveOnly}
+              onCheckedChange={setShowActiveOnly}
+            />
+            <Label htmlFor="active-only-meta" className="text-sm text-muted-foreground">
+              Active only
+            </Label>
+          </div>
+        </div>
         
         <TabsContent value="campaigns" className="mt-6">
           {!isLoading && <CampaignsTable campaigns={filteredData.campaigns} />}
