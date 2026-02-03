@@ -45,8 +45,12 @@ serve(async (req) => {
     console.log('Fetching MailerLite data for period:', { startDate, endDate });
 
     // Fetch campaigns from MailerLite API v2
+    // Note: MailerLite's date filter doesn't work reliably, so we fetch all sent campaigns
+    // and filter by date client-side
+    const campaignsUrl = `https://connect.mailerlite.com/api/campaigns?filter[status]=sent&limit=100`;
+    
     const campaignsResponse = await fetch(
-      `https://connect.mailerlite.com/api/campaigns?filter[status]=sent&filter[date_from]=${startDate}&filter[date_to]=${endDate}`,
+      campaignsUrl,
       {
         method: 'GET',
         headers: {
@@ -64,7 +68,12 @@ serve(async (req) => {
     }
 
     const campaignsData = await campaignsResponse.json();
-    console.log('MailerLite campaigns retrieved successfully');
+    console.log('MailerLite campaigns retrieved:', campaignsData.data?.length || 0);
+    
+    // Parse date range for filtering
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    endDateObj.setHours(23, 59, 59, 999); // Include full end day
 
     // Fetch subscriber stats
     let totalSubscribers = 0;
@@ -92,8 +101,17 @@ serve(async (req) => {
       console.error('Error fetching subscriber stats:', e);
     }
 
-    // Process campaign data
-    const campaigns = campaignsData.data || [];
+    // Process campaign data - filter by date range
+    const allCampaignsRaw = campaignsData.data || [];
+    const campaigns = allCampaignsRaw.filter((campaign: any) => {
+      const sentAt = campaign.finished_at || campaign.scheduled_for;
+      if (!sentAt) return false;
+      const campaignDate = new Date(sentAt);
+      return campaignDate >= startDateObj && campaignDate <= endDateObj;
+    });
+    
+    console.log('Campaigns after date filter:', campaigns.length);
+    
     let totalOpens = 0;
     let totalClicks = 0;
     let totalSent = 0;
