@@ -75,11 +75,12 @@ serve(async (req) => {
     const endDateObj = new Date(endDate);
     endDateObj.setHours(23, 59, 59, 999); // Include full end day
 
-    // Fetch subscriber stats
+    // Fetch subscriber stats - these are account-wide totals, not date-filtered
     let totalSubscribers = 0;
     let activeSubscribers = 0;
     
     try {
+      // Fetch total subscribers count
       const subscribersResponse = await fetch(
         'https://connect.mailerlite.com/api/subscribers?limit=0',
         {
@@ -95,7 +96,26 @@ serve(async (req) => {
       if (subscribersResponse.ok) {
         const subscribersData = await subscribersResponse.json();
         totalSubscribers = subscribersData.meta?.total || 0;
-        activeSubscribers = subscribersData.meta?.total || 0; // MailerLite returns active by default
+        console.log('Total subscribers from API:', totalSubscribers);
+      }
+      
+      // Fetch active subscribers count (status=active filter)
+      const activeSubscribersResponse = await fetch(
+        'https://connect.mailerlite.com/api/subscribers?filter[status]=active&limit=0',
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }
+      );
+      
+      if (activeSubscribersResponse.ok) {
+        const activeSubscribersData = await activeSubscribersResponse.json();
+        activeSubscribers = activeSubscribersData.meta?.total || 0;
+        console.log('Active subscribers from API:', activeSubscribers);
       }
     } catch (e) {
       console.error('Error fetching subscriber stats:', e);
