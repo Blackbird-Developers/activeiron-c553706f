@@ -146,8 +146,8 @@ export function ConsolidatedMetricsSection({
     { category: "Website", metric: "New Users", cumulative: newUsers.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'newUsers').toLocaleString()), colorClass: "bg-blue-500/10" },
     { category: "Website", metric: "Sessions", cumulative: sessions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'sessions').toLocaleString()), colorClass: "bg-blue-500/10" },
     { category: "Website", metric: "Page Views", cumulative: pageViews.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(ga4?.trendsOverTime, d, 'pageViews').toLocaleString()), colorClass: "bg-blue-500/10" },
-    { category: "Website", metric: "Engagement Rate", cumulative: `${engagementRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
-    { category: "Website", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Engagement Rate", cumulative: `${engagementRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
+    { category: "Website", metric: "Bounce Rate", cumulative: `${bounceRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-blue-500/10" },
     
     // Meta Ads Section
     { category: "Meta Ads", metric: "Impressions", cumulative: metaImpressions.toLocaleString(), dailyValues: daysInRange.map(d => getDailyValue(metaAds?.performanceOverTime, d, 'impressions').toLocaleString()), colorClass: "bg-green-500/10" },
@@ -186,8 +186,8 @@ export function ConsolidatedMetricsSection({
     // Email Section
     { category: "Email", metric: "Email Opens", cumulative: emailOpens.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
     { category: "Email", metric: "Email Clicks", cumulative: emailClicks.toLocaleString(), dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
-    { category: "Email", metric: "Open Rate", cumulative: `${openRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
-    { category: "Email", metric: "Click Rate", cumulative: `${clickRate.toFixed(1)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
+    { category: "Email", metric: "Open Rate", cumulative: `${openRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
+    { category: "Email", metric: "Click Rate", cumulative: `${clickRate.toFixed(2)}%`, dailyValues: daysInRange.map(() => "-"), colorClass: "bg-orange-500/10" },
   ];
 
   // Generate export data array
