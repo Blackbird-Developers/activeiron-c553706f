@@ -100,16 +100,40 @@ serve(async (req) => {
     
     const topCampaigns: any[] = [];
     const campaignPerformance: any[] = [];
+    const allCampaigns: any[] = [];
     
     campaigns.forEach((campaign: any) => {
       const stats = campaign.stats || {};
       const sent = stats.sent || 0;
       const opens = stats.opens_count || stats.unique_opens_count || 0;
       const clicks = stats.clicks_count || stats.unique_clicks_count || 0;
+      const bounced = stats.hard_bounces_count || 0;
+      const unsubscribed = stats.unsubscribes_count || 0;
       
       totalOpens += opens;
       totalClicks += clicks;
       totalSent += sent;
+      
+      const openRate = sent > 0 ? Math.round((opens / sent) * 1000) / 10 : 0;
+      const clickRate = sent > 0 ? Math.round((clicks / sent) * 1000) / 10 : 0;
+      const clickToOpenRate = opens > 0 ? Math.round((clicks / opens) * 1000) / 10 : 0;
+      
+      // Add to all campaigns for detailed view
+      allCampaigns.push({
+        id: campaign.id,
+        name: campaign.name || 'Untitled',
+        subject: campaign.emails?.[0]?.subject || campaign.name || 'No subject',
+        status: campaign.status || 'sent',
+        sentAt: campaign.finished_at || campaign.scheduled_for || null,
+        sent: sent,
+        opens: opens,
+        clicks: clicks,
+        bounced: bounced,
+        unsubscribed: unsubscribed,
+        openRate: openRate,
+        clickRate: clickRate,
+        clickToOpenRate: clickToOpenRate,
+      });
       
       // Add to top campaigns (limit to 4)
       if (topCampaigns.length < 4) {
@@ -117,7 +141,7 @@ serve(async (req) => {
           name: campaign.name || 'Untitled',
           opens: opens,
           clicks: clicks,
-          openRate: sent > 0 ? Math.round((opens / sent) * 1000) / 10 : 0,
+          openRate: openRate,
         });
       }
       
@@ -128,8 +152,8 @@ serve(async (req) => {
           date: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
           opens: opens,
           clicks: clicks,
-          openRate: sent > 0 ? Math.round((opens / sent) * 1000) / 10 : 0,
-          ctr: sent > 0 ? Math.round((clicks / sent) * 1000) / 10 : 0,
+          openRate: openRate,
+          ctr: clickRate,
         });
       }
     });
@@ -142,6 +166,13 @@ serve(async (req) => {
     const clickThroughRate = totalSent > 0 ? (totalClicks / totalSent * 100) : 0;
     const clickToOpenRate = totalOpens > 0 ? (totalClicks / totalOpens * 100) : 0;
     
+    // Sort all campaigns by sent date (most recent first)
+    allCampaigns.sort((a, b) => {
+      if (!a.sentAt) return 1;
+      if (!b.sentAt) return -1;
+      return new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime();
+    });
+    
     const processedData = {
       overview: {
         emailOpens: totalOpens,
@@ -151,9 +182,11 @@ serve(async (req) => {
         clickToOpenRate: Math.round(clickToOpenRate * 10) / 10,
         totalSubscribers,
         activeSubscribers,
+        totalSent,
       },
       campaignPerformance: campaignPerformance.slice(0, 7), // Last 7 data points
       topCampaigns: topCampaigns.slice(0, 4),
+      campaigns: allCampaigns,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {

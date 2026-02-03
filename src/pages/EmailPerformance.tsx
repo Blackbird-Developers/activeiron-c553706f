@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmailCampaignsTable } from "@/components/EmailCampaignsTable";
 import { ScoreCard } from "@/components/ScoreCard";
-import { Users, UserCheck } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, UserCheck, LayoutList, BarChart3 } from "lucide-react";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -101,6 +102,8 @@ export default function EmailPerformance() {
     return () => clearInterval(interval);
   }, []);
 
+  const campaigns = mailerliteData.campaigns || [];
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <PageHeader
@@ -142,7 +145,26 @@ export default function EmailPerformance() {
         </div>
       </div>
 
-      <MailerLiteSection data={mailerliteData} />
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList>
+          <TabsTrigger value="overview" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="campaigns" className="gap-2">
+            <LayoutList className="h-4 w-4" />
+            Campaigns
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="mt-6">
+          <MailerLiteSection data={mailerliteData} />
+        </TabsContent>
+        
+        <TabsContent value="campaigns" className="mt-6">
+          <EmailCampaignsTable campaigns={campaigns} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
