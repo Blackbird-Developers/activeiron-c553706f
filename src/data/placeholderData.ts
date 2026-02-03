@@ -109,6 +109,9 @@ export const mailerliteData = {
     openRate: 28.5,
     clickThroughRate: 8.3,
     clickToOpenRate: 29.0,
+    totalSubscribers: 15420,
+    activeSubscribers: 14850,
+    totalSent: 30750,
   },
   campaignPerformance: [
     { date: "Jan 1", opens: 1100, clicks: 320, openRate: 27.5, ctr: 8.0 },
@@ -124,6 +127,13 @@ export const mailerliteData = {
     { name: "Product Launch", opens: 1850, clicks: 555, openRate: 31.0 },
     { name: "Weekly Digest", opens: 1650, clicks: 495, openRate: 27.5 },
     { name: "Special Offer", opens: 1900, clicks: 475, openRate: 31.7 },
+  ],
+  campaigns: [
+    { id: "1", name: "Newsletter #45", subject: "Your Weekly Iron Insights", status: "sent", sentAt: "2024-02-12T10:00:00Z", sent: 6000, opens: 2100, clicks: 630, bounced: 45, unsubscribed: 12, openRate: 35.0, clickRate: 10.5, clickToOpenRate: 30.0 },
+    { id: "2", name: "Product Launch", subject: "Introducing Active Iron Plus", status: "sent", sentAt: "2024-02-08T09:00:00Z", sent: 5970, opens: 1850, clicks: 555, bounced: 38, unsubscribed: 8, openRate: 31.0, clickRate: 9.3, clickToOpenRate: 30.0 },
+    { id: "3", name: "Weekly Digest", subject: "This Week in Wellness", status: "sent", sentAt: "2024-02-05T10:00:00Z", sent: 6000, opens: 1650, clicks: 495, bounced: 52, unsubscribed: 15, openRate: 27.5, clickRate: 8.3, clickToOpenRate: 30.0 },
+    { id: "4", name: "Special Offer", subject: "Exclusive 20% Off This Weekend", status: "sent", sentAt: "2024-02-01T14:00:00Z", sent: 6000, opens: 1900, clicks: 475, bounced: 41, unsubscribed: 22, openRate: 31.7, clickRate: 7.9, clickToOpenRate: 25.0 },
+    { id: "5", name: "January Recap", subject: "Your January Health Journey", status: "sent", sentAt: "2024-01-29T10:00:00Z", sent: 5800, opens: 1450, clicks: 380, bounced: 35, unsubscribed: 10, openRate: 25.0, clickRate: 6.6, clickToOpenRate: 26.2 },
   ],
 };
 
