@@ -6,6 +6,7 @@ import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 import { FunnelSection } from "@/components/sections/FunnelSection";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -243,8 +244,10 @@ const Index = () => {
   }, [marketingData, selectedCountry]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Marketing Dashboard"
         description="Multi-source analytics across all channels"
         lastRefresh={lastRefresh}
@@ -269,8 +272,9 @@ const Index = () => {
           googleAdsData={filteredData.googleAds}
           mailchimpData={filteredData.mailerlite}
         />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

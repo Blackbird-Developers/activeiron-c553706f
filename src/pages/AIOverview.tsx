@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Sparkles, TrendingUp, Users, DollarSign, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,8 +162,10 @@ export default function AIOverview() {
   ];
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="AI-Powered Insights"
         description="Data-driven recommendations across all marketing channels"
         showDateFilter={false}
@@ -264,6 +267,7 @@ export default function AIOverview() {
           </Card>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

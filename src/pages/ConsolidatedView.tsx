@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMetricsSection";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -249,8 +250,10 @@ export default function ConsolidatedView() {
   }, [marketingData, selectedCountry]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Consolidated View"
         description="All key metrics in one place"
         lastRefresh={lastRefresh}
@@ -272,6 +275,7 @@ export default function ConsolidatedView() {
         startDate={startDate}
         endDate={endDate}
       />
-    </div>
+      </div>
+    </>
   );
 }

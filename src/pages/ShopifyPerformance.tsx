@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ShopifySection } from "@/components/sections/ShopifySection";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -239,8 +240,10 @@ export default function ShopifyPerformance() {
   }, [filteredData]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} colorScheme="shopify" />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Shopify Performance"
         titleClassName="text-green-600 dark:text-green-400"
         description="E-commerce sales, orders, and product performance analytics"
@@ -469,5 +472,6 @@ export default function ShopifyPerformance() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 }
