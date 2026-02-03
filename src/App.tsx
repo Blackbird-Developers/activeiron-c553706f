@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import AIOverview from "./pages/AIOverview";
 import ConsolidatedView from "./pages/ConsolidatedView";
 import MetaPerformance from "./pages/MetaPerformance";
+import EmailPerformance from "./pages/EmailPerformance";
 import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import ShopifyPerformance from "./pages/ShopifyPerformance";
@@ -99,6 +100,7 @@ const App = () => {
                   <Route path="/ai-overview" element={<AIOverview />} />
                   <Route path="/consolidated-view" element={<ConsolidatedView />} />
                   <Route path="/meta-performance" element={<MetaPerformance />} />
+                  <Route path="/email" element={<EmailPerformance />} />
                   <Route path="/google-ads" element={<GoogleAdsPerformance />} />
                   <Route path="/shopify" element={<ShopifyPerformance />} />
                   <Route path="/settings" element={<Settings />} />
