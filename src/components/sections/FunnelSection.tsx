@@ -1,19 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ga4Data as placeholderGa4, googleAdsData as placeholderGoogleAds, metaAdsData as placeholderMeta, mailchimpData as placeholderMailchimp } from "@/data/placeholderData";
+import { ga4Data as placeholderGa4, googleAdsData as placeholderGoogleAds, metaAdsData as placeholderMeta, mailerliteData as placeholderMailerlite } from "@/data/placeholderData";
 import { ArrowDown } from "lucide-react";
 
 interface FunnelSectionProps {
   ga4Data?: typeof placeholderGa4;
   googleAdsData?: typeof placeholderGoogleAds;
   metaAdsData?: typeof placeholderMeta;
-  mailchimpData?: typeof placeholderMailchimp;
+  mailchimpData?: typeof placeholderMailerlite;
 }
 
 export function FunnelSection({ 
   ga4Data = placeholderGa4,
   googleAdsData = placeholderGoogleAds,
   metaAdsData = placeholderMeta,
-  mailchimpData = placeholderMailchimp
+  mailchimpData = placeholderMailerlite
 }: FunnelSectionProps) {
   const totalConversions = googleAdsData.overview.conversions + metaAdsData.overview.conversions;
   const totalAdSpend = googleAdsData.overview.adSpend + metaAdsData.overview.adSpend;

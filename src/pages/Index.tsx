@@ -3,15 +3,14 @@ import { PageHeader } from "@/components/PageHeader";
 import { GA4Section } from "@/components/sections/GA4Section";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
-import { MailchimpSection } from "@/components/sections/MailchimpSection";
+import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 import { FunnelSection } from "@/components/sections/FunnelSection";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailerliteData, shopifyData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
-
 const CACHE_KEY = 'marketing_dashboard_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
@@ -23,7 +22,7 @@ interface CachedData {
     ga4: typeof ga4Data;
     googleAds: typeof googleAdsData;
     metaAds: typeof metaAdsData;
-    mailchimp: typeof mailchimpData;
+    mailerlite: typeof mailerliteData;
     shopify: typeof shopifyData;
   };
 }
@@ -39,7 +38,7 @@ const Index = () => {
     ga4: ga4Data,
     googleAds: googleAdsData,
     metaAds: metaAdsData,
-    mailchimp: mailchimpData,
+    mailerlite: mailerliteData,
     shopify: shopifyData,
   });
 
@@ -76,14 +75,14 @@ const Index = () => {
     
     setIsLoading(true);
     try {
-      const [ga4Response, metaAdsResponse, googleAdsResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
+      const [ga4Response, metaAdsResponse, googleAdsResponse, mailerliteResponse, shopifyResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
-        supabase.functions.invoke('mailchimp-data', { body: { startDate: startDateStr, endDate: endDateStr } })
+        supabase.functions.invoke('mailerlite-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('shopify-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err }))
@@ -95,7 +94,7 @@ const Index = () => {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
-        mailchimp: mailchimpResponse.data?.data || mailchimpData,
+        mailerlite: mailerliteResponse.data?.data || mailerliteData,
         shopify: shopifyResponse.data?.data || shopifyData,
       };
 
@@ -263,12 +262,12 @@ const Index = () => {
         <GoogleAdsSection data={filteredData.googleAds} />
         <MetaAdsSection data={filteredData.metaAds} />
         <ShopifySection data={filteredData.shopify} />
-        <MailchimpSection data={filteredData.mailchimp} />
+        <MailerLiteSection data={filteredData.mailerlite} />
         <FunnelSection 
           ga4Data={filteredData.ga4}
           metaAdsData={filteredData.metaAds}
           googleAdsData={filteredData.googleAds}
-          mailchimpData={filteredData.mailchimp}
+          mailchimpData={filteredData.mailerlite}
         />
       </div>
     </div>

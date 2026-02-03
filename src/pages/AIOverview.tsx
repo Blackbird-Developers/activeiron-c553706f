@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Sparkles, TrendingUp, Users, DollarSign, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ga4Data, googleAdsData, metaAdsData, mailchimpData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailerliteData } from "@/data/placeholderData";
 
 export default function AIOverview() {
   const { toast } = useToast();
@@ -15,7 +15,7 @@ export default function AIOverview() {
     ga4: ga4Data,
     googleAds: googleAdsData,
     metaAds: metaAdsData,
-    mailchimp: mailchimpData,
+    mailerlite: mailerliteData,
   });
 
   const totalAdSpend = (marketingData.googleAds?.overview?.adSpend || 0) + (marketingData.metaAds?.overview?.adSpend || 0);
@@ -56,9 +56,9 @@ export default function AIOverview() {
       });
 
 
-      const mailchimpResponse = await supabase.functions.invoke('mailchimp-data', { body: { startDate, endDate } })
+      const mailerliteResponse = await supabase.functions.invoke('mailerlite-data', { body: { startDate, endDate } })
         .catch(err => {
-          console.error('Mailchimp API error:', err);
+          console.error('MailerLite API error:', err);
           return { data: null, error: err };
         });
 
@@ -67,14 +67,14 @@ export default function AIOverview() {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
-        mailchimp: mailchimpResponse.data?.data || mailchimpData,
+        mailerlite: mailerliteResponse.data?.data || mailerliteData,
       });
 
       const errors = [
         ga4Response.error && 'GA4',
         metaAdsResponse.error && 'Meta Ads',
         googleAdsResponse.error && 'Google Ads',
-        mailchimpResponse.error && 'Mailchimp'
+        mailerliteResponse.error && 'MailerLite'
       ].filter(Boolean);
 
       if (errors.length > 0) {
@@ -109,7 +109,7 @@ export default function AIOverview() {
           ga4Data: marketingData.ga4,
           googleAdsData: marketingData.googleAds,
           metaAdsData: marketingData.metaAds,
-          mailchimpData: marketingData.mailchimp,
+          mailerliteData: marketingData.mailerlite,
         },
       });
 
@@ -155,7 +155,7 @@ export default function AIOverview() {
       title: "Email Engagement",
       icon: Mail,
       color: "text-mailchimp-foreground",
-      insight: `Email campaigns show ${marketingData.mailchimp?.overview?.openRate || 'N/A'}% open rate and ${marketingData.mailchimp?.overview?.clickThroughRate || 'N/A'}% CTR. Your click-to-open rate of ${marketingData.mailchimp?.overview?.clickToOpenRate || 'N/A'}% indicates good content relevance.`,
+      insight: `Email campaigns show ${marketingData.mailerlite?.overview?.openRate || 'N/A'}% open rate and ${marketingData.mailerlite?.overview?.clickThroughRate || 'N/A'}% CTR. Your click-to-open rate of ${marketingData.mailerlite?.overview?.clickToOpenRate || 'N/A'}% indicates good content relevance.`,
       recommendation: "Newsletter #45 performed 35% open rate. Analyse its subject line and content for replication in future campaigns.",
     },
   ];

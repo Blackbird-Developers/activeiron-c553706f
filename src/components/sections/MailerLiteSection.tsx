@@ -2,18 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Mail, MousePointer, TrendingUp, Percent } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { mailchimpData as placeholderData } from "@/data/placeholderData";
+import { mailerliteData as placeholderData } from "@/data/placeholderData";
 
-interface MailchimpSectionProps {
+interface MailerLiteSectionProps {
   data?: typeof placeholderData;
 }
 
-export function MailchimpSection({ data = placeholderData }: MailchimpSectionProps) {
+export function MailerLiteSection({ data = placeholderData }: MailerLiteSectionProps) {
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-1 w-8 lg:w-12 rounded-full bg-mailchimp" />
-        <h2 className="text-xl lg:text-2xl font-bold text-mailchimp-foreground">Email Campaigns (Mailchimp)</h2>
+        <h2 className="text-xl lg:text-2xl font-bold text-mailchimp-foreground">Email Campaigns (MailerLite)</h2>
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">

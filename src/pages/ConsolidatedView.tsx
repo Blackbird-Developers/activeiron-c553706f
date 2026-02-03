@@ -4,7 +4,7 @@ import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMe
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ga4Data, googleAdsData, metaAdsData, mailchimpData, shopifyData } from "@/data/placeholderData";
+import { ga4Data, googleAdsData, metaAdsData, mailerliteData, shopifyData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 
 const CACHE_KEY = 'consolidated_view_cache';
@@ -18,7 +18,7 @@ interface CachedData {
     ga4: typeof ga4Data;
     googleAds: typeof googleAdsData;
     metaAds: typeof metaAdsData;
-    mailchimp: typeof mailchimpData;
+    mailerlite: typeof mailerliteData;
     shopify: typeof shopifyData;
   };
 }
@@ -34,7 +34,7 @@ export default function ConsolidatedView() {
     ga4: ga4Data,
     googleAds: googleAdsData,
     metaAds: metaAdsData,
-    mailchimp: mailchimpData,
+    mailerlite: mailerliteData,
     shopify: shopifyData,
   });
 
@@ -68,14 +68,14 @@ export default function ConsolidatedView() {
 
     setIsLoading(true);
     try {
-      const [ga4Response, metaAdsResponse, googleAdsResponse, mailchimpResponse, shopifyResponse] = await Promise.all([
+      const [ga4Response, metaAdsResponse, googleAdsResponse, mailerliteResponse, shopifyResponse] = await Promise.all([
         supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('google-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
-        supabase.functions.invoke('mailchimp-data', { body: { startDate: startDateStr, endDate: endDateStr } })
+        supabase.functions.invoke('mailerlite-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('shopify-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err }))
@@ -85,7 +85,7 @@ export default function ConsolidatedView() {
         ga4: ga4Response.data?.data || ga4Data,
         googleAds: googleAdsResponse.data?.data || googleAdsData,
         metaAds: metaAdsResponse.data?.data || metaAdsData,
-        mailchimp: mailchimpResponse.data?.data || mailchimpData,
+        mailerlite: mailerliteResponse.data?.data || mailerliteData,
         shopify: shopifyResponse.data?.data || shopifyData,
       };
 
@@ -267,7 +267,7 @@ export default function ConsolidatedView() {
         ga4Data={filteredData.ga4}
         metaAdsData={filteredData.metaAds}
         googleAdsData={filteredData.googleAds}
-        mailchimpData={filteredData.mailchimp}
+        mailchimpData={filteredData.mailerlite}
         shopifyData={filteredData.shopify}
         startDate={startDate}
         endDate={endDate}
