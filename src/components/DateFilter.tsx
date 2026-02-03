@@ -46,6 +46,7 @@ export function DateFilter({
               mode="single"
               selected={startDate}
               onSelect={onStartDateChange}
+              defaultMonth={startDate}
               initialFocus
               className="pointer-events-auto"
             />
@@ -73,6 +74,7 @@ export function DateFilter({
               mode="single"
               selected={endDate}
               onSelect={onEndDateChange}
+              defaultMonth={endDate}
               initialFocus
               className="pointer-events-auto"
             />
