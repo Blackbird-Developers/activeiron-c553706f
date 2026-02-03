@@ -1,4 +1,5 @@
 import { Calendar } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -8,12 +9,13 @@ import {
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 type PresetKey = "7d" | "30d" | "thisMonth" | "lastMonth";
 
 const presets: { key: PresetKey; label: string }[] = [
-  { key: "7d", label: "7D" },
-  { key: "30d", label: "30D" },
+  { key: "7d", label: "Last 7 Days" },
+  { key: "30d", label: "Last 30 Days" },
   { key: "thisMonth", label: "This Month" },
   { key: "lastMonth", label: "Last Month" },
 ];
@@ -46,88 +48,75 @@ export function DateFilter({
   onStartDateChange,
   onEndDateChange,
 }: DateFilterProps) {
+  const [open, setOpen] = useState(false);
+
   const handlePresetClick = (key: PresetKey) => {
     const { start, end } = getPresetDates(key);
     onStartDateChange(start);
     onEndDateChange(end);
+    setOpen(false);
+  };
+
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    onStartDateChange(range?.from);
+    onEndDateChange(range?.to);
+  };
+
+  const formatDateRange = () => {
+    if (startDate && endDate) {
+      return `${format(startDate, "dd MMM")} – ${format(endDate, "dd MMM yyyy")}`;
+    }
+    if (startDate) {
+      return `${format(startDate, "dd MMM yyyy")} – ...`;
+    }
+    return "Select date range";
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {/* Preset buttons */}
-      <div className="flex items-center gap-1">
-        {presets.map((preset) => (
-          <Button
-            key={preset.key}
-            variant="ghost"
-            size="sm"
-            onClick={() => handlePresetClick(preset.key)}
-            className="h-7 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-          >
-            {preset.label}
-          </Button>
-        ))}
-      </div>
-
-      <span className="text-muted-foreground hidden sm:inline">|</span>
-      
-      <span className="text-xs font-medium text-muted-foreground hidden sm:inline">Custom:</span>
-      
-      <div className="flex items-center gap-2">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "justify-start text-left font-normal h-8 text-xs sm:text-sm px-2 sm:px-3",
-                !startDate && "text-muted-foreground"
-              )}
-            >
-              <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-              {startDate ? format(startDate, "dd MMM") : "Start"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent
-              mode="single"
-              selected={startDate}
-              onSelect={onStartDateChange}
-              defaultMonth={startDate}
-              initialFocus
-              className="pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
-
-        <span className="text-xs text-muted-foreground">–</span>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn(
-                "justify-start text-left font-normal h-8 text-xs sm:text-sm px-2 sm:px-3",
-                !endDate && "text-muted-foreground"
-              )}
-            >
-              <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-              {endDate ? format(endDate, "dd MMM") : "End"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent
-              mode="single"
-              selected={endDate}
-              onSelect={onEndDateChange}
-              defaultMonth={endDate}
-              initialFocus
-              className="pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "justify-start text-left font-normal h-8 text-xs sm:text-sm px-2 sm:px-3",
+            !startDate && "text-muted-foreground"
+          )}
+        >
+          <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+          {formatDateRange()}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <div className="flex">
+          {/* Presets sidebar */}
+          <div className="flex flex-col gap-1 p-3 border-r border-border">
+            <span className="text-xs font-medium text-muted-foreground mb-1">Quick Select</span>
+            {presets.map((preset) => (
+              <Button
+                key={preset.key}
+                variant="ghost"
+                size="sm"
+                onClick={() => handlePresetClick(preset.key)}
+                className="justify-start h-8 px-2 text-xs font-normal hover:bg-accent"
+              >
+                {preset.label}
+              </Button>
+            ))}
+          </div>
+          
+          {/* Calendar */}
+          <CalendarComponent
+            mode="range"
+            selected={{ from: startDate, to: endDate }}
+            onSelect={handleRangeSelect}
+            defaultMonth={startDate}
+            numberOfMonths={2}
+            initialFocus
+            className="p-3 pointer-events-auto"
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
