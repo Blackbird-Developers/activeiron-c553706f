@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { CampaignsTable } from "@/components/CampaignsTable";
 import { CreativeAnalysis } from "@/components/CreativeAnalysis";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutList, Palette } from "lucide-react";
 import { subDays, format } from "date-fns";
@@ -170,8 +171,10 @@ export default function MetaPerformance() {
   }, [metaData, campaigns, selectedCountry, showActiveOnly]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} colorScheme="meta" />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Meta Ads Performance"
         titleClassName="text-meta-foreground"
         description="Comprehensive overview of all Meta advertising campaigns"
@@ -219,6 +222,7 @@ export default function MetaPerformance() {
           <CreativeAnalysis startDate={startDate} endDate={endDate} />
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   );
 }
