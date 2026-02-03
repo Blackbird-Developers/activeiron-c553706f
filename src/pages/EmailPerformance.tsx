@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { EmailCampaignsTable } from "@/components/EmailCampaignsTable";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -105,8 +106,10 @@ export default function EmailPerformance() {
   const campaigns = mailerliteData.campaigns || [];
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} colorScheme="mailchimp" />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Email Performance"
         titleClassName="text-mailchimp-foreground"
         description="Comprehensive overview of MailerLite email campaigns and subscriber metrics"
@@ -165,6 +168,7 @@ export default function EmailPerformance() {
           <EmailCampaignsTable campaigns={campaigns} />
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   );
 }

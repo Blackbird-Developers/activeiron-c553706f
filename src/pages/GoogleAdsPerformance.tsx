@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
+import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -161,8 +162,10 @@ export default function GoogleAdsPerformance() {
   }, [googleAdsData, selectedCountry, showActiveOnly]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <PageHeader
+    <>
+      <LoadingOverlay isLoading={isLoading} colorScheme="google" />
+      <div className="space-y-6 lg:space-y-8">
+        <PageHeader
         title="Google Ads Performance"
         titleClassName="text-google-ads-foreground"
         description="Comprehensive overview of all Google Ads campaigns"
@@ -235,6 +238,7 @@ export default function GoogleAdsPerformance() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
