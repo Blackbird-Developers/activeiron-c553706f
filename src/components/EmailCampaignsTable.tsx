@@ -123,13 +123,13 @@ export function EmailCampaignsTable({ campaigns }: EmailCampaignsTableProps) {
                       <TableCell className="text-right">{campaign.opens.toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <span className={campaign.openRate >= 25 ? "text-green-600" : campaign.openRate >= 15 ? "text-yellow-600" : "text-red-600"}>
-                          {campaign.openRate.toFixed(1)}%
+                          {campaign.openRate.toFixed(2)}%
                         </span>
                       </TableCell>
                       <TableCell className="text-right">{campaign.clicks.toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <span className={campaign.clickRate >= 5 ? "text-green-600" : campaign.clickRate >= 2 ? "text-yellow-600" : "text-red-600"}>
-                          {campaign.clickRate.toFixed(1)}%
+                          {campaign.clickRate.toFixed(2)}%
                         </span>
                       </TableCell>
                       <TableCell className="text-center">
@@ -220,7 +220,7 @@ export function EmailCampaignsTable({ campaigns }: EmailCampaignsTableProps) {
                     Opens
                   </div>
                   <div className="text-2xl font-bold">{selectedCampaign.opens.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">{selectedCampaign.openRate.toFixed(1)}% open rate</div>
+                  <div className="text-sm text-muted-foreground">{selectedCampaign.openRate.toFixed(2)}% open rate</div>
                 </div>
                 
                 <div className="p-4 rounded-lg bg-muted/50">
@@ -229,7 +229,7 @@ export function EmailCampaignsTable({ campaigns }: EmailCampaignsTableProps) {
                     Clicks
                   </div>
                   <div className="text-2xl font-bold">{selectedCampaign.clicks.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">{selectedCampaign.clickRate.toFixed(1)}% CTR</div>
+                  <div className="text-sm text-muted-foreground">{selectedCampaign.clickRate.toFixed(2)}% CTR</div>
                 </div>
                 
                 <div className="p-4 rounded-lg bg-muted/50">
@@ -237,7 +237,7 @@ export function EmailCampaignsTable({ campaigns }: EmailCampaignsTableProps) {
                     <MousePointer className="h-4 w-4" />
                     Click-to-Open
                   </div>
-                  <div className="text-2xl font-bold">{selectedCampaign.clickToOpenRate.toFixed(1)}%</div>
+                  <div className="text-2xl font-bold">{selectedCampaign.clickToOpenRate.toFixed(2)}%</div>
                   <div className="text-sm text-muted-foreground">of openers clicked</div>
                 </div>
                 
