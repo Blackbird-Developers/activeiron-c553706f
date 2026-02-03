@@ -3,9 +3,6 @@ project_id = "bjwmcmmxqsuiclabmxtm"
 [functions.ga4-data]
 verify_jwt = false
 
-[functions.mailchimp-data]
-verify_jwt = false
-
 [functions.mailerlite-data]
 verify_jwt = false
 
