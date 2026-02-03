@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.mailchimp-data]
 verify_jwt = false
 
+[functions.mailerlite-data]
+verify_jwt = false
+
 [functions.meta-ads-data]
 verify_jwt = false
 

@@ -102,7 +102,7 @@ export const metaAdsData = {
   ],
 };
 
-export const mailchimpData = {
+export const mailerliteData = {
   overview: {
     emailOpens: 8765,
     emailClicks: 2543,
@@ -126,6 +126,9 @@ export const mailchimpData = {
     { name: "Special Offer", opens: 1900, clicks: 475, openRate: 31.7 },
   ],
 };
+
+// Keep mailchimpData as alias for backward compatibility during transition
+export const mailchimpData = mailerliteData;
 
 export const shopifyData = {
   overview: {
