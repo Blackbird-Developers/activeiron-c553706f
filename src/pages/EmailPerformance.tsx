@@ -6,7 +6,7 @@ import { EmailCampaignsTable } from "@/components/EmailCampaignsTable";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserCheck, LayoutList, BarChart3 } from "lucide-react";
-import { subDays, format } from "date-fns";
+import { subMonths, startOfMonth, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { mailerliteData as placeholderData } from "@/data/placeholderData";
@@ -23,7 +23,7 @@ interface CachedData {
 
 export default function EmailPerformance() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
+  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(subMonths(new Date(), 1)));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
