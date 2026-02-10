@@ -1,6 +1,7 @@
+import { useRef, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { Activity, Clock, MousePointerClick, BarChart3 } from "lucide-react";
+import { Users, UserPlus, Activity, TrendingDown, Clock, MousePointerClick, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { ga4Data as placeholderData } from "@/data/placeholderData";
 
@@ -10,11 +11,41 @@ interface GA4SectionProps {
 
 export function GA4Section({ data = placeholderData }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.round(seconds % 60);
     return `${mins}m ${secs.toString().padStart(2, '0')}s`;
+  };
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = 220;
+    el.scrollBy({ left: direction === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
   };
 
   return (
@@ -24,39 +55,50 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
         <h2 className="text-xl lg:text-2xl font-bold text-ga4-foreground">Traffic Analytics (GA4)</h2>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <ScoreCard
-          title="Sessions"
-          value={data.overview.sessions.toLocaleString()}
-          change=""
-          changeType="positive"
-          icon={BarChart3}
-          colorScheme="ga4"
-        />
-        <ScoreCard
-          title="Engaged Sessions"
-          value={(data.overview.engagedSessions || 0).toLocaleString()}
-          change=""
-          changeType="positive"
-          icon={MousePointerClick}
-          colorScheme="ga4"
-        />
-        <ScoreCard
-          title="Engagement Rate"
-          value={`${data.overview.engagementRate}%`}
-          change=""
-          changeType="positive"
-          icon={Activity}
-          colorScheme="ga4"
-        />
-        <ScoreCard
-          title="Avg Engagement Time"
-          value={formatDuration(data.overview.avgSessionDuration)}
-          change=""
-          changeType="positive"
-          icon={Clock}
-          colorScheme="ga4"
-        />
+      <div className="relative">
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-full p-1.5 shadow-md hover:bg-accent transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
+        )}
+        {canScrollRight && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm border border-border rounded-full p-1.5 shadow-md hover:bg-accent transition-colors"
+          >
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        )}
+        <div
+          ref={scrollRef}
+          className="flex gap-3 sm:gap-4 overflow-x-auto pb-1"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Total Users" value={data.overview.totalUsers.toLocaleString()} change="" changeType="positive" icon={Users} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="New Users" value={data.overview.newUsers.toLocaleString()} change="" changeType="positive" icon={UserPlus} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Sessions" value={data.overview.sessions.toLocaleString()} change="" changeType="positive" icon={BarChart3} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Engaged Sessions" value={(data.overview.engagedSessions || 0).toLocaleString()} change="" changeType="positive" icon={MousePointerClick} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Engagement Rate" value={`${data.overview.engagementRate}%`} change="" changeType="positive" icon={Activity} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Bounce Rate" value={`${data.overview.bounceRate}%`} change="" changeType="positive" icon={TrendingDown} colorScheme="ga4" />
+          </div>
+          <div className="min-w-[200px] flex-shrink-0 flex-1">
+            <ScoreCard title="Avg Engagement Time" value={formatDuration(data.overview.avgSessionDuration)} change="" changeType="positive" icon={Clock} colorScheme="ga4" />
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
