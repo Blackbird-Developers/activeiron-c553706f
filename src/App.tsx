@@ -15,6 +15,7 @@ import EmailPerformance from "./pages/EmailPerformance";
 import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import ShopifyPerformance from "./pages/ShopifyPerformance";
+import TrafficAnalysis from "./pages/TrafficAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -97,6 +98,7 @@ const App = () => {
               <div className="px-4 py-6 pt-16 lg:pt-6 lg:px-6 xl:px-8 max-w-[1600px] mx-auto">
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/traffic-analysis" element={<TrafficAnalysis />} />
                   <Route path="/ai-overview" element={<AIOverview />} />
                   <Route path="/consolidated-view" element={<ConsolidatedView />} />
                   <Route path="/meta-performance" element={<MetaPerformance />} />

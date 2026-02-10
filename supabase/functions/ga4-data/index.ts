@@ -221,6 +221,41 @@ serve(async (req) => {
       }
     );
 
+    // FIFTH API CALL: Get source/medium breakdown
+    const sourceMediumResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [
+            { name: 'sessionSource' },
+            { name: 'sessionMedium' },
+          ],
+          metrics: [
+            { name: 'sessions' },
+            { name: 'activeUsers' },
+            { name: 'newUsers' },
+            { name: 'engagementRate' },
+            { name: 'averageSessionDuration' },
+            { name: 'bounceRate' },
+            { name: 'screenPageViews' },
+          ],
+          orderBys: [
+            {
+              metric: { metricName: 'sessions' },
+              desc: true,
+            },
+          ],
+          limit: 50,
+        }),
+      }
+    );
+
     if (!totalsResponse.ok || !channelsResponse.ok || !trendsResponse.ok) {
       const errorText = !totalsResponse.ok ? await totalsResponse.text() : await channelsResponse.text();
       console.error('GA4 API error:', errorText);
@@ -231,6 +266,7 @@ serve(async (req) => {
     const channelsData = await channelsResponse.json();
     const trendsData = await trendsResponse.json();
     const countryData = countryResponse.ok ? await countryResponse.json() : { rows: [] };
+    const sourceMediumData = sourceMediumResponse.ok ? await sourceMediumResponse.json() : { rows: [] };
     
     console.log('Totals response (no dimensions):', JSON.stringify(totalsData, null, 2));
 
@@ -317,6 +353,23 @@ serve(async (req) => {
     console.log('Traffic by source:', trafficBySource);
     console.log('Trends over time:', trendsOverTime);
     console.log('Country breakdown:', countryBreakdown);
+
+    // Build source/medium breakdown
+    const sourceMediumBreakdown = sourceMediumData.rows?.map((row: any) => {
+      return {
+        source: row.dimensionValues[0].value,
+        medium: row.dimensionValues[1].value,
+        sessions: parseInt(row.metricValues[0].value),
+        users: parseInt(row.metricValues[1].value),
+        newUsers: parseInt(row.metricValues[2].value),
+        engagementRate: Math.round(parseFloat(row.metricValues[3].value) * 1000) / 10,
+        avgSessionDuration: Math.round(parseFloat(row.metricValues[4].value)),
+        bounceRate: Math.round(parseFloat(row.metricValues[5].value) * 1000) / 10,
+        pageViews: parseInt(row.metricValues[6].value),
+      };
+    }) || [];
+
+    console.log('Source/Medium breakdown entries:', sourceMediumBreakdown.length);
     console.log('GA4 data retrieved successfully');
     
     // Create processed data structure
@@ -334,6 +387,7 @@ serve(async (req) => {
       trafficBySource: trafficBySource.slice(0, 5),
       trendsOverTime: trendsOverTime,
       countryBreakdown: countryBreakdown,
+      sourceMediumBreakdown: sourceMediumBreakdown,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {
@@ -357,6 +411,7 @@ serve(async (req) => {
       trafficBySource: [],
       trendsOverTime: [],
       countryBreakdown: [],
+      sourceMediumBreakdown: [],
     };
     
     return new Response(
