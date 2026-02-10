@@ -9,6 +9,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { CountryCode } from "@/components/CountryFilter";
 
 interface SourceMediumEntry {
   source: string;
@@ -42,6 +43,7 @@ export default function TrafficAnalysis() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [data, setData] = useState<SourceMediumEntry[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [sortField, setSortField] = useState<keyof SourceMediumEntry>("sessions");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -50,7 +52,7 @@ export default function TrafficAnalysis() {
     setIsLoading(true);
     try {
       const res = await supabase.functions.invoke("ga4-data", {
-        body: { startDate: format(startDate, "yyyy-MM-dd"), endDate: format(endDate, "yyyy-MM-dd") },
+        body: { startDate: format(startDate, "yyyy-MM-dd"), endDate: format(endDate, "yyyy-MM-dd"), country: selectedCountry },
       });
       const sourceMedium = res.data?.data?.sourceMediumBreakdown || [];
       setData(sourceMedium);
@@ -61,7 +63,7 @@ export default function TrafficAnalysis() {
     } finally {
       setIsLoading(false);
     }
-  }, [startDate, endDate, toast]);
+  }, [startDate, endDate, selectedCountry, toast]);
 
   const didMount = useRef(false);
   useEffect(() => {
@@ -123,6 +125,8 @@ export default function TrafficAnalysis() {
           endDate={endDate}
           onStartDateChange={setStartDate}
           onEndDateChange={setEndDate}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
         />
 
         {/* Overview scorecards */}
