@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { Users, UserPlus, Activity, TrendingDown } from "lucide-react";
+import { Activity, Clock, MousePointerClick, BarChart3 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { ga4Data as placeholderData } from "@/data/placeholderData";
 
@@ -11,6 +11,12 @@ interface GA4SectionProps {
 export function GA4Section({ data = placeholderData }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${mins}m ${secs.toString().padStart(2, '0')}s`;
+  };
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
@@ -20,35 +26,35 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <ScoreCard
-          title="Total Users"
-          value={data.overview.totalUsers.toLocaleString()}
-          change="+12.5% vs last period"
+          title="Sessions"
+          value={data.overview.sessions.toLocaleString()}
+          change=""
           changeType="positive"
-          icon={Users}
+          icon={BarChart3}
           colorScheme="ga4"
         />
         <ScoreCard
-          title="New Users"
-          value={data.overview.newUsers.toLocaleString()}
-          change="+8.3% vs last period"
+          title="Engaged Sessions"
+          value={(data.overview.engagedSessions || 0).toLocaleString()}
+          change=""
           changeType="positive"
-          icon={UserPlus}
+          icon={MousePointerClick}
           colorScheme="ga4"
         />
         <ScoreCard
           title="Engagement Rate"
           value={`${data.overview.engagementRate}%`}
-          change="+2.1% vs last period"
+          change=""
           changeType="positive"
           icon={Activity}
           colorScheme="ga4"
         />
         <ScoreCard
-          title="Bounce Rate"
-          value={`${data.overview.bounceRate}%`}
-          change="-1.8% vs last period"
+          title="Avg Engagement Time"
+          value={formatDuration(data.overview.avgSessionDuration)}
+          change=""
           changeType="positive"
-          icon={TrendingDown}
+          icon={Clock}
           colorScheme="ga4"
         />
       </div>

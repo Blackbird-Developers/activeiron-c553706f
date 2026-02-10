@@ -9,6 +9,7 @@ export const ga4Data = {
     sessions: 58000,
     pageViews: 125000,
     avgSessionDuration: 185,
+    engagedSessions: 36250,
   },
   trafficBySource: [
     { name: "Organic Search", users: 18500, percentage: 40.5 },
