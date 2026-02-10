@@ -7,11 +7,13 @@ import { Sparkles, TrendingUp, Users, DollarSign, Mail, RefreshCw, Loader2 } fro
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ga4Data, googleAdsData, metaAdsData, mailerliteData } from "@/data/placeholderData";
+import { CountryCode } from "@/components/CountryFilter";
 
 export default function AIOverview() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [insights, setInsights] = useState<string>("");
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,
@@ -21,6 +23,7 @@ export default function AIOverview() {
 
   const totalAdSpend = (marketingData.googleAds?.overview?.adSpend || 0) + (marketingData.metaAds?.overview?.adSpend || 0);
   const totalConversions = (marketingData.googleAds?.overview?.conversions || 0) + (marketingData.metaAds?.overview?.conversions || 0);
+  const currencySymbol = selectedCountry === 'UK' ? '£' : '€';
 
   const fetchMarketingData = async () => {
     setIsLoading(true);
@@ -111,6 +114,7 @@ export default function AIOverview() {
           googleAdsData: marketingData.googleAds,
           metaAdsData: marketingData.metaAds,
           mailerliteData: marketingData.mailerlite,
+          country: selectedCountry,
         },
       });
 
@@ -149,7 +153,7 @@ export default function AIOverview() {
       title: "Ad Spend Efficiency",
       icon: DollarSign,
       color: "text-meta-foreground",
-      insight: `Combined ad spend across Google Ads (€${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads (€${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals €${totalAdSpend.toLocaleString()}, generating ${totalConversions.toLocaleString()} conversions.`,
+      insight: `Combined ad spend across Google Ads (${currencySymbol}${marketingData.googleAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) and Meta Ads (${currencySymbol}${marketingData.metaAds?.overview?.adSpend?.toLocaleString() || 'N/A'}) totals ${currencySymbol}${totalAdSpend.toLocaleString()}, generating ${totalConversions.toLocaleString()} conversions.`,
       recommendation: "Google Ads shows higher CPC but better conversion rates. Consider reallocating 15% of Meta budget to Google Ads.",
     },
     {
@@ -169,6 +173,8 @@ export default function AIOverview() {
         title="AI-Powered Insights"
         description="Data-driven recommendations across all marketing channels"
         showDateFilter={false}
+        selectedCountry={selectedCountry}
+        onCountryChange={setSelectedCountry}
         actions={
           <>
             <Button 
@@ -219,7 +225,7 @@ export default function AIOverview() {
         <Card className="border-mailchimp/20 bg-mailchimp-light/50">
           <CardContent className="p-4 lg:p-6">
             <div className="text-xs lg:text-sm font-medium text-mailchimp-foreground opacity-80">Total Ad Spend</div>
-            <div className="text-lg lg:text-2xl font-bold text-mailchimp-foreground">€{totalAdSpend.toLocaleString()}</div>
+            <div className="text-lg lg:text-2xl font-bold text-mailchimp-foreground">{currencySymbol}{totalAdSpend.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
