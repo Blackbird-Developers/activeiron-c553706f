@@ -98,7 +98,7 @@ serve(async (req) => {
   }
 
   try {
-    const { startDate, endDate } = await req.json();
+    const { startDate, endDate, country } = await req.json();
     
     const GA4_SERVICE_ACCOUNT = Deno.env.get('GA4_SERVICE_ACCOUNT_JSON');
     const GA4_PROPERTY_ID = Deno.env.get('GA4_PROPERTY_ID');
@@ -221,7 +221,20 @@ serve(async (req) => {
       }
     );
 
-    // FIFTH API CALL: Get source/medium breakdown
+    // Build country dimension filter for source/medium call
+    const countryFilterObj = country && country !== 'all' ? {
+      dimensionFilter: {
+        filter: {
+          fieldName: 'country',
+          stringFilter: {
+            matchType: 'EXACT',
+            value: country === 'IE' ? 'Ireland' : country === 'UK' ? 'United Kingdom' : '',
+          }
+        }
+      }
+    } : {};
+
+    // FIFTH API CALL: Get source/medium breakdown (with optional country filter)
     const sourceMediumResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
@@ -245,6 +258,7 @@ serve(async (req) => {
             { name: 'bounceRate' },
             { name: 'screenPageViews' },
           ],
+          ...countryFilterObj,
           orderBys: [
             {
               metric: { metricName: 'sessions' },
