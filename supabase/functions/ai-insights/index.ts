@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData } = await req.json();
+    const { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, country } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
@@ -22,12 +22,17 @@ serve(async (req) => {
 
     console.log('Generating AI insights for marketing data');
 
+    const currencySymbol = country === 'UK' ? '£' : '€';
+    const currencyName = country === 'UK' ? 'GBP (£)' : 'EUR (€)';
+
     const systemPrompt = `You are a marketing analytics expert. Analyse the provided marketing data and generate actionable insights and recommendations. Focus on:
 1. Traffic performance and user engagement
 2. Ad spend efficiency and ROAS
 3. Conversion funnel optimisation
 4. Email campaign performance
 5. Cross-channel opportunities
+
+IMPORTANT: All monetary values MUST be displayed in ${currencyName}. Use the ${currencySymbol} symbol for all currency figures. The default currency is Euro (€) unless the UK market is specifically selected.
 
 Provide specific, data-driven recommendations in British English.`;
 
