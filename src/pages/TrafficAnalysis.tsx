@@ -147,13 +147,22 @@ export default function TrafficAnalysis() {
                     data={byMedium}
                     cx="50%"
                     cy="50%"
+                    innerRadius={60}
                     outerRadius={90}
                     dataKey="sessions"
+                    paddingAngle={2}
                   >
                     {byMedium.map((_, i) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
+                  {/* Center label */}
+                  <text x="50%" y="46%" textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground" style={{ fontSize: "11px" }}>
+                    Total Sessions
+                  </text>
+                  <text x="50%" y="56%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground" style={{ fontSize: "20px", fontWeight: 700 }}>
+                    {totalSessions.toLocaleString()}
+                  </text>
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "hsl(var(--card))",
