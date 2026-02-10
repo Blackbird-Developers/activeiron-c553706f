@@ -140,6 +140,7 @@ serve(async (req) => {
             { name: 'sessions' },
             { name: 'screenPageViews' },
             { name: 'averageSessionDuration' },
+            { name: 'engagedSessions' },
           ]
         }),
       }
@@ -255,6 +256,9 @@ serve(async (req) => {
     const avgSessionDuration = totalsData.rows?.[0]?.metricValues?.[6]?.value 
       ? parseFloat(totalsData.rows[0].metricValues[6].value) 
       : 0;
+    const engagedSessions = totalsData.rows?.[0]?.metricValues?.[7]?.value 
+      ? parseInt(totalsData.rows[0].metricValues[7].value) 
+      : 0;
     
     console.log('Extracted totals:', { 
       activeUsers, 
@@ -264,6 +268,7 @@ serve(async (req) => {
       sessions,
       pageViews,
       avgSessionDuration,
+      engagedSessions,
     });
     
     // Build traffic by source from channels data
@@ -324,6 +329,7 @@ serve(async (req) => {
         sessions: sessions,
         pageViews: pageViews,
         avgSessionDuration: Math.round(avgSessionDuration),
+        engagedSessions: engagedSessions,
       },
       trafficBySource: trafficBySource.slice(0, 5),
       trendsOverTime: trendsOverTime,
@@ -346,6 +352,7 @@ serve(async (req) => {
         sessions: 0,
         pageViews: 0,
         avgSessionDuration: 0,
+        engagedSessions: 0,
       },
       trafficBySource: [],
       trendsOverTime: [],
