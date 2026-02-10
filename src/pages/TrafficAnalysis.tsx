@@ -147,9 +147,7 @@ export default function TrafficAnalysis() {
                     data={byMedium}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                    outerRadius={100}
+                    outerRadius={90}
                     dataKey="sessions"
                   >
                     {byMedium.map((_, i) => (
@@ -163,7 +161,15 @@ export default function TrafficAnalysis() {
                       borderRadius: "var(--radius)",
                       fontSize: "12px",
                     }}
-                    formatter={(value: number) => value.toLocaleString()}
+                    formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+                  />
+                  <Legend
+                    formatter={(value: string) => {
+                      const item = byMedium.find(d => d.name === value);
+                      const pct = item && totalSessions ? ((item.sessions / totalSessions) * 100).toFixed(1) : "0";
+                      return `${value} (${pct}%)`;
+                    }}
+                    wrapperStyle={{ fontSize: "12px" }}
                   />
                 </PieChart>
               </ResponsiveContainer>
