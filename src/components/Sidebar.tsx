@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings, ChevronLeft, ChevronRight, Target, ShoppingBag, Mail } from "lucide-react";
+import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings, ChevronLeft, ChevronRight, Target, ShoppingBag, Mail, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import activeIronLogo from "@/assets/activeiron-logo.png";
@@ -15,6 +15,7 @@ export function Sidebar({ onNavigate, collapsed = false, onCollapsedChange }: Si
   const navItems = [
     { to: "/ai-overview", label: "AI Overview", icon: Sparkles },
     { to: "/", label: "Dashboard", icon: BarChart3 },
+    { to: "/traffic-analysis", label: "Traffic Analysis", icon: Globe },
     { to: "/consolidated-view", label: "Consolidated", icon: TableProperties },
     { to: "/meta-performance", label: "Meta Ads", icon: TrendingUp },
     { to: "/google-ads", label: "Google Ads", icon: Target },
