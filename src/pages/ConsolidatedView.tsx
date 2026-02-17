@@ -176,6 +176,9 @@ export default function ConsolidatedView() {
     const countryNameMap: Record<CountryCode, string[]> = {
       'IE': ['Ireland'],
       'UK': ['United Kingdom', 'Great Britain'],
+      'US': ['United States'],
+      'DE': ['Germany'],
+      'NZ': ['New Zealand'],
       'all': [],
     };
     const ga4CountryData = marketingData.ga4.countryBreakdown?.find(
@@ -188,6 +191,9 @@ export default function ConsolidatedView() {
     const shopifyCountryCodeMap: Record<CountryCode, string[]> = {
       'IE': ['IE'],
       'UK': ['GB', 'UK'],
+      'US': ['US'],
+      'DE': ['DE'],
+      'NZ': ['NZ'],
       'all': [],
     };
     const shopifyCountryData = (marketingData.shopify as any)?.countryBreakdown?.find(

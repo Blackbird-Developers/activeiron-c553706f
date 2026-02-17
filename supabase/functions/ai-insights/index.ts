@@ -22,8 +22,13 @@ serve(async (req) => {
 
     console.log('Generating AI insights for marketing data');
 
-    const currencySymbol = country === 'UK' ? '£' : '€';
-    const currencyName = country === 'UK' ? 'GBP (£)' : 'EUR (€)';
+    const currencyMap: Record<string, { symbol: string; name: string }> = {
+      'UK': { symbol: '£', name: 'GBP (£)' },
+      'US': { symbol: '$', name: 'USD ($)' },
+      'NZ': { symbol: 'NZ$', name: 'NZD (NZ$)' },
+    };
+    const currencySymbol = currencyMap[country]?.symbol || '€';
+    const currencyName = currencyMap[country]?.name || 'EUR (€)';
 
     const systemPrompt = `You are a marketing analytics expert. Analyse the provided marketing data and generate actionable insights and recommendations. Focus on:
 1. Traffic performance and user engagement
