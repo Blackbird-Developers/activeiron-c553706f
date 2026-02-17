@@ -5,11 +5,12 @@ import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { subDays, format } from "date-fns";
+import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { googleAdsData as placeholderData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
+import { CompareMode } from "@/components/DateFilter";
 
 const CACHE_KEY = 'google_ads_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -30,6 +31,8 @@ export default function GoogleAdsPerformance() {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [googleAdsData, setGoogleAdsData] = useState<any>(placeholderData);
   const [showActiveOnly, setShowActiveOnly] = useState(true);
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
 
   const fetchGoogleAdsData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -98,6 +101,27 @@ export default function GoogleAdsPerformance() {
   useEffect(() => {
     fetchGoogleAdsData();
   }, [fetchGoogleAdsData]);
+
+  // Fetch comparison period data
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+    supabase.functions.invoke('google-ads-data', {
+      body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
+    }).then(res => setCompareData(res.data?.data || null))
+      .catch(() => setCompareData(null));
+  }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -177,9 +201,11 @@ export default function GoogleAdsPerformance() {
         onEndDateChange={setEndDate}
         selectedCountry={selectedCountry}
         onCountryChange={setSelectedCountry}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
       />
 
-      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} />
+      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

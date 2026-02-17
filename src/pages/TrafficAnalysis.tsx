@@ -4,12 +4,14 @@ import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScoreCard } from "@/components/ScoreCard";
+import { calcCompare } from "@/lib/compareUtils";
 import { Globe, Users, ArrowUpDown, BarChart3, Clock } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Treemap } from "recharts";
-import { subDays, format } from "date-fns";
+import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CountryCode } from "@/components/CountryFilter";
+import { CompareMode } from "@/components/DateFilter";
 
 interface SourceMediumEntry {
   source: string;
@@ -46,6 +48,8 @@ export default function TrafficAnalysis() {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [sortField, setSortField] = useState<keyof SourceMediumEntry>("sessions");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     if (!startDate || !endDate) return;
@@ -74,6 +78,35 @@ export default function TrafficAnalysis() {
     }
     fetchData();
   }, [fetchData]);
+
+  // Fetch comparison period data
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+    supabase.functions.invoke('ga4-data', {
+      body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd'), country: selectedCountry }
+    }).then(res => {
+      const smb = res.data?.data?.sourceMediumBreakdown || [];
+      // Aggregate into overview-like totals for scorecards
+      const totals = smb.reduce((acc: any, d: any) => ({
+        sessions: acc.sessions + (d.sessions || 0),
+        users: acc.users + (d.users || 0),
+        newUsers: acc.newUsers + (d.newUsers || 0),
+      }), { sessions: 0, users: 0, newUsers: 0 });
+      setCompareData(totals);
+    }).catch(() => setCompareData(null));
+  }, [compareMode, startDate, endDate, selectedCountry]);
 
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
@@ -127,14 +160,16 @@ export default function TrafficAnalysis() {
           onEndDateChange={setEndDate}
           selectedCountry={selectedCountry}
           onCountryChange={setSelectedCountry}
+          compareMode={compareMode}
+          onCompareModeChange={setCompareMode}
         />
 
         {/* Overview scorecards */}
         <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <ScoreCard title="Total Sessions" value={totalSessions.toLocaleString()} change="" changeType="positive" icon={BarChart3} colorScheme="ga4" />
-          <ScoreCard title="Total Users" value={totalUsers.toLocaleString()} change="" changeType="positive" icon={Users} colorScheme="ga4" />
-          <ScoreCard title="New Users" value={totalNewUsers.toLocaleString()} change="" changeType="positive" icon={Users} colorScheme="ga4" />
-          <ScoreCard title="Sources Tracked" value={bySource.length.toString()} change="" changeType="positive" icon={Globe} colorScheme="ga4" />
+          <ScoreCard title="Total Sessions" value={totalSessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalSessions, compareData.sessions, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
+          <ScoreCard title="Total Users" value={totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalUsers, compareData.users, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
+          <ScoreCard title="New Users" value={totalNewUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalNewUsers, compareData.newUsers, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
+          <ScoreCard title="Sources Tracked" value={bySource.length.toString()} icon={Globe} colorScheme="ga4" />
         </div>
 
         {/* Charts row */}

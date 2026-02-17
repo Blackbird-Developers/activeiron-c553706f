@@ -7,10 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { LayoutList, TrendingUp, Package, Users } from "lucide-react";
-import { subDays, format } from "date-fns";
+import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CountryCode } from "@/components/CountryFilter";
+import { CompareMode } from "@/components/DateFilter";
 import {
   AreaChart,
   Area,
@@ -84,6 +85,8 @@ export default function ShopifyPerformance() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [shopifyData, setShopifyData] = useState<ShopifyData>(defaultShopifyData);
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IE', {
@@ -161,6 +164,27 @@ export default function ShopifyPerformance() {
   useEffect(() => {
     fetchShopifyData();
   }, [fetchShopifyData]);
+
+  // Fetch comparison period data
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+    supabase.functions.invoke('shopify-data', {
+      body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
+    }).then(res => setCompareData(res.data?.data || null))
+      .catch(() => setCompareData(null));
+  }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -258,9 +282,11 @@ export default function ShopifyPerformance() {
         onEndDateChange={setEndDate}
         selectedCountry={selectedCountry}
         onCountryChange={setSelectedCountry}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
       />
 
-      <ShopifySection data={filteredData} selectedCountry={selectedCountry} />
+      <ShopifySection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList>
