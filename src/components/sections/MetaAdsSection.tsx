@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Eye, Users, Link } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
@@ -47,11 +47,17 @@ export function MetaAdsSection({ data = placeholderData, selectedCountry = "all"
         <h2 className="text-xl lg:text-2xl font-bold text-meta-foreground">Meta Ads Performance</h2>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
+        <ScoreCard title="Ad Spend" value={`€${Number(data.overview.adSpend).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Impressions" value={data.overview.impressions.toLocaleString()} icon={Eye} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.impressions, compareData.overview?.impressions, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Reach" value={(data.overview.reach || 0).toLocaleString()} icon={Users} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.reach || 0, compareData?.overview?.reach, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Unique Link Clicks" value={(data.overview.clicks || 0).toLocaleString()} icon={Link} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.clicks || 0, compareData?.overview?.clicks, compareLabel) : undefined} compareLoading={compareLoading} />
+      </div>
+
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
         <ScoreCard title="CPC" value={`€${Number(data.overview.cpc).toFixed(2)}`} icon={MousePointer} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpc), compareData.overview?.cpc, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
         <ScoreCard title="CTR" value={`${Number(data.overview.ctr).toFixed(2)}%`} icon={Target} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Conversions" value={data.overview.conversions.toLocaleString()} icon={TrendingUp} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined} compareLoading={compareLoading} />
-        <ScoreCard title="Ad Spend" value={`€${Number(data.overview.adSpend).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Cost per Conversion" value={`€${Number(data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
       </div>
 
