@@ -29,6 +29,7 @@ interface ShopifyData {
   overview: {
     totalOrders: number;
     totalRevenue: number;
+    totalDiscounts?: number;
     averageOrderValue: number;
     totalProducts: number;
   };
@@ -51,6 +52,7 @@ interface ShopifyData {
     countryCode: string;
     totalOrders: number;
     totalRevenue: number;
+    totalDiscounts?: number;
     averageOrderValue: number;
     ordersOverTime: Array<{ date: string; orders: number; revenue: number }>;
     topProducts: Array<{ name: string; quantity: number; revenue: number }>;
@@ -219,7 +221,7 @@ export default function ShopifyPerformance() {
     if (!countryData) {
       return {
         ...shopifyData,
-        overview: { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0, totalProducts: shopifyData.overview.totalProducts },
+        overview: { totalOrders: 0, totalRevenue: 0, totalDiscounts: 0, averageOrderValue: 0, totalProducts: shopifyData.overview.totalProducts },
         ordersOverTime: [],
         topProducts: [],
         ordersByStatus: [],
@@ -230,6 +232,7 @@ export default function ShopifyPerformance() {
       overview: {
         totalOrders: countryData.totalOrders,
         totalRevenue: countryData.totalRevenue,
+        totalDiscounts: countryData.totalDiscounts || 0,
         averageOrderValue: countryData.averageOrderValue,
         totalProducts: shopifyData.overview.totalProducts,
       },
