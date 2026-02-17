@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Image, Video, TrendingUp, MousePointer, Target, Loader2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -97,7 +98,18 @@ export function CreativeAnalysis({ startDate, endDate }: CreativeAnalysisProps) 
 
   const renderAdRow = (ad: AdCreative) => (
     <TableRow key={ad.id}>
-      <TableCell className="font-medium max-w-[200px] truncate">{ad.headline}</TableCell>
+      <TableCell className="font-medium max-w-[200px]">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="block truncate cursor-default">{ad.headline}</span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-sm">
+              <p>{ad.headline}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </TableCell>
       <TableCell>
         <Badge variant="outline" className="gap-1">
           {ad.hasVideo ? <Video className="h-3 w-3" /> : <Image className="h-3 w-3" />}
