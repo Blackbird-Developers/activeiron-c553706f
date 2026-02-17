@@ -20,6 +20,12 @@ interface ShopifyOrder {
     country: string;
     country_code: string;
   };
+  total_discounts: string;
+  discount_codes: Array<{
+    code: string;
+    amount: string;
+    type: string;
+  }>;
   line_items: Array<{
     id: number;
     title: string;
@@ -216,6 +222,7 @@ serve(async (req) => {
       revenue: number;
       subtotal: number;
       grossSales: number;
+      totalDiscounts: number;
       productSales: Map<string, { name: string; quantity: number; revenue: number }>;
       ordersOverTime: Map<string, { orders: number; revenue: number }>;
       statusCount: Map<string, number>;
@@ -229,6 +236,7 @@ serve(async (req) => {
           revenue: 0,
           subtotal: 0,
           grossSales: 0,
+          totalDiscounts: 0,
           productSales: new Map(),
           ordersOverTime: new Map(),
           statusCount: new Map(),
@@ -247,6 +255,7 @@ serve(async (req) => {
     let totalRevenue = 0;
     let totalSubtotal = 0;
     let totalGrossSales = 0;
+    let totalDiscounts = 0;
     let totalOrders = paidOrders.length;
     
     const ordersOverTimeMap: Map<string, { orders: number; revenue: number }> = new Map();
@@ -261,11 +270,15 @@ serve(async (req) => {
       const orderRevenue = parseFloat(order.total_price) || 0;
       // Use subtotal_price for AOV: (gross sales - discounts) / orders
       const orderSubtotal = parseFloat(order.subtotal_price) || 0;
+      // Track discounts
+      const orderDiscounts = parseFloat(order.total_discounts) || 0;
       totalRevenue += orderRevenue;
       totalSubtotal += orderSubtotal;
+      totalDiscounts += orderDiscounts;
       countryData.orders += 1;
       countryData.revenue += orderRevenue;
       countryData.subtotal += orderSubtotal;
+      countryData.totalDiscounts += orderDiscounts;
 
       // Orders over time (group by date)
       const orderDate = new Date(order.created_at);
@@ -371,6 +384,7 @@ serve(async (req) => {
       countryCode: string;
       totalOrders: number;
       totalRevenue: number;
+      totalDiscounts: number;
       averageOrderValue: number;
       ordersOverTime: Array<{ date: string; orders: number; revenue: number }>;
       topProducts: Array<{ name: string; quantity: number; revenue: number }>;
@@ -406,6 +420,7 @@ serve(async (req) => {
         countryCode,
         totalOrders: data.orders,
         totalRevenue: Math.round(data.grossSales * 100) / 100,
+        totalDiscounts: Math.round(data.totalDiscounts * 100) / 100,
         averageOrderValue: data.orders > 0 ? Math.round((data.subtotal / data.orders) * 100) / 100 : 0,
         ordersOverTime: countryOrdersOverTime,
         topProducts: countryTopProducts,
@@ -421,6 +436,7 @@ serve(async (req) => {
         overview: {
           totalOrders,
           totalRevenue: Math.round(totalGrossSales * 100) / 100,
+          totalDiscounts: Math.round(totalDiscounts * 100) / 100,
           averageOrderValue: Math.round(averageOrderValue * 100) / 100,
           totalProducts: products.length,
         },

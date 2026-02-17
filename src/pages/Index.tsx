@@ -276,6 +276,7 @@ const Index = () => {
       overview: {
         totalOrders: shopifyCountryData.totalOrders || 0,
         totalRevenue: shopifyCountryData.totalRevenue || 0,
+        totalDiscounts: shopifyCountryData.totalDiscounts || 0,
         averageOrderValue: shopifyCountryData.averageOrderValue || 0,
         totalProducts: marketingData.shopify.overview.totalProducts,
       },
@@ -284,7 +285,7 @@ const Index = () => {
       ordersByStatus: [],
     } : {
       ...marketingData.shopify,
-      overview: { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0, totalProducts: marketingData.shopify.overview.totalProducts },
+      overview: { totalOrders: 0, totalRevenue: 0, totalDiscounts: 0, averageOrderValue: 0, totalProducts: marketingData.shopify.overview.totalProducts },
       ordersOverTime: [],
       topProducts: [],
       ordersByStatus: [],
