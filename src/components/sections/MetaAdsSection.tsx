@@ -1,14 +1,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 
 interface MetaAdsSectionProps {
   data?: typeof placeholderData;
+  selectedCountry?: string;
 }
 
-export function MetaAdsSection({ data = placeholderData }: MetaAdsSectionProps) {
+export function MetaAdsSection({ data = placeholderData, selectedCountry = "all" }: MetaAdsSectionProps) {
+  const hasData = data.overview.adSpend > 0 || data.overview.clicks > 0 || data.overview.impressions > 0;
+  const isFiltered = selectedCountry !== "all";
+
+  const countryLabels: Record<string, string> = {
+    IE: "Ireland", UK: "United Kingdom", US: "United States", DE: "Germany", NZ: "New Zealand",
+  };
+
+  if (!hasData && isFiltered) {
+    return (
+      <div className="space-y-4 lg:space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-1 w-8 lg:w-12 rounded-full bg-meta" />
+          <h2 className="text-xl lg:text-2xl font-bold text-meta-foreground">Meta Ads Performance</h2>
+        </div>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-6">
+            <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              No Meta Ads data available for <span className="font-medium text-foreground">{countryLabels[selectedCountry] || selectedCountry}</span>. Campaigns may not be running in this region or campaign names may not include the region identifier.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
