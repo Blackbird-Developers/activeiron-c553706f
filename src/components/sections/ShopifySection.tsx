@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
 import { calcCompare } from "@/lib/compareUtils";
-import { ShoppingCart, DollarSign, Package, TrendingUp, AlertCircle, Tag } from "lucide-react";
+import { ShoppingCart, DollarSign, Package, TrendingUp, AlertCircle } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell,
@@ -85,10 +85,9 @@ export function ShopifySection({ data, selectedCountry = "all", compareData, com
         </div>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         <ScoreCard title="Total Orders" value={overview.totalOrders.toLocaleString()} icon={ShoppingCart} compare={compareData && compareLabel ? calcCompare(overview.totalOrders, compareData.overview?.totalOrders, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Gross Sales" value={formatCurrency(overview.totalRevenue)} icon={DollarSign} compare={compareData && compareLabel ? calcCompare(overview.totalRevenue, compareData.overview?.totalRevenue, compareLabel) : undefined} compareLoading={compareLoading} />
-        <ScoreCard title="Discounts" value={formatCurrency(overview.totalDiscounts || 0)} icon={Tag} compare={compareData && compareLabel ? calcCompare(overview.totalDiscounts || 0, compareData.overview?.totalDiscounts || 0, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Avg Order Value" value={formatCurrency(overview.averageOrderValue)} icon={TrendingUp} compare={compareData && compareLabel ? calcCompare(overview.averageOrderValue, compareData.overview?.averageOrderValue, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Total Products" value={overview.totalProducts.toLocaleString()} icon={Package} />
       </div>
