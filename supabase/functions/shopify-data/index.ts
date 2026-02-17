@@ -210,6 +210,7 @@ serve(async (req) => {
       orders: number;
       revenue: number;
       subtotal: number;
+      grossSales: number;
       productSales: Map<string, { name: string; quantity: number; revenue: number }>;
       ordersOverTime: Map<string, { orders: number; revenue: number }>;
       statusCount: Map<string, number>;
@@ -222,6 +223,7 @@ serve(async (req) => {
           orders: 0,
           revenue: 0,
           subtotal: 0,
+          grossSales: 0,
           productSales: new Map(),
           ordersOverTime: new Map(),
           statusCount: new Map(),
@@ -239,6 +241,7 @@ serve(async (req) => {
     // Calculate metrics from orders (also for "all" aggregate)
     let totalRevenue = 0;
     let totalSubtotal = 0;
+    let totalGrossSales = 0;
     let totalOrders = paidOrders.length;
     
     const ordersOverTimeMap: Map<string, { orders: number; revenue: number }> = new Map();
@@ -277,10 +280,12 @@ serve(async (req) => {
         revenue: countryExisting.revenue + orderRevenue,
       });
 
-      // Product sales
+      // Product sales — itemRevenue = gross sales (price × qty, before discounts)
+      let orderGrossSales = 0;
       for (const item of order.line_items) {
         const productKey = item.product_id?.toString() || item.title;
         const itemRevenue = parseFloat(item.price) * item.quantity;
+        orderGrossSales += itemRevenue;
         
         // Global aggregate
         const existingProduct = productSalesMap.get(productKey) || { 
@@ -306,6 +311,8 @@ serve(async (req) => {
           revenue: countryProduct.revenue + itemRevenue,
         });
       }
+      totalGrossSales += orderGrossSales;
+      countryData.grossSales += orderGrossSales;
 
       // Financial status - global
       const status = order.financial_status || 'unknown';
@@ -390,7 +397,7 @@ serve(async (req) => {
       countryBreakdown.push({
         countryCode,
         totalOrders: data.orders,
-        totalRevenue: Math.round(data.revenue * 100) / 100,
+        totalRevenue: Math.round(data.grossSales * 100) / 100,
         averageOrderValue: data.orders > 0 ? Math.round((data.subtotal / data.orders) * 100) / 100 : 0,
         ordersOverTime: countryOrdersOverTime,
         topProducts: countryTopProducts,
@@ -405,7 +412,7 @@ serve(async (req) => {
       data: {
         overview: {
           totalOrders,
-          totalRevenue: Math.round(totalRevenue * 100) / 100,
+          totalRevenue: Math.round(totalGrossSales * 100) / 100,
           averageOrderValue: Math.round(averageOrderValue * 100) / 100,
           totalProducts: products.length,
         },
