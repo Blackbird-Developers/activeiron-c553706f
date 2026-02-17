@@ -203,6 +203,38 @@ const Index = () => {
       )
     );
 
+    // Filter Shopify by country breakdown
+    const shopifyCountryCodeMap: Record<CountryCode, string[]> = {
+      'IE': ['IE'],
+      'UK': ['GB', 'UK'],
+      'US': ['US'],
+      'DE': ['DE'],
+      'NZ': ['NZ'],
+      'all': [],
+    };
+    const targetCodes = shopifyCountryCodeMap[selectedCountry];
+    const shopifyCountryData = (marketingData.shopify as any)?.countryBreakdown?.find(
+      (c: any) => targetCodes.includes(c.countryCode?.toUpperCase())
+    );
+    const filteredShopify = shopifyCountryData ? {
+      ...marketingData.shopify,
+      overview: {
+        totalOrders: shopifyCountryData.orders || 0,
+        totalRevenue: shopifyCountryData.revenue || 0,
+        averageOrderValue: shopifyCountryData.orders > 0 ? shopifyCountryData.revenue / shopifyCountryData.orders : 0,
+        totalProducts: marketingData.shopify.overview.totalProducts,
+      },
+      ordersOverTime: [],
+      topProducts: [],
+      ordersByStatus: [],
+    } : {
+      ...marketingData.shopify,
+      overview: { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0, totalProducts: marketingData.shopify.overview.totalProducts },
+      ordersOverTime: [],
+      topProducts: [],
+      ordersByStatus: [],
+    };
+
     return {
       ...marketingData,
       ga4: {
@@ -243,6 +275,7 @@ const Index = () => {
         },
         campaigns: filteredMetaCampaigns,
       } as any,
+      shopify: filteredShopify,
     };
   }, [marketingData, selectedCountry]);
 
