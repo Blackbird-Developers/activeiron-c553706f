@@ -274,9 +274,9 @@ const Index = () => {
     const filteredShopify = shopifyCountryData ? {
       ...marketingData.shopify,
       overview: {
-        totalOrders: shopifyCountryData.orders || 0,
-        totalRevenue: shopifyCountryData.revenue || 0,
-        averageOrderValue: shopifyCountryData.orders > 0 ? shopifyCountryData.revenue / shopifyCountryData.orders : 0,
+        totalOrders: shopifyCountryData.totalOrders || 0,
+        totalRevenue: shopifyCountryData.totalRevenue || 0,
+        averageOrderValue: shopifyCountryData.averageOrderValue || 0,
         totalProducts: marketingData.shopify.overview.totalProducts,
       },
       ordersOverTime: [],
