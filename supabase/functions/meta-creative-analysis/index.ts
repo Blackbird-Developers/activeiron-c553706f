@@ -34,9 +34,9 @@ serve(async (req) => {
       `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/ads?` +
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
-        fields: 'id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id,object_story_spec}',
+        fields: 'id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id}',
         filtering: JSON.stringify([{ field: 'effective_status', operator: 'IN', value: ['ACTIVE', 'PAUSED'] }]),
-        limit: '100',
+        limit: '50',
       }),
       { method: 'GET' }
     );
@@ -72,15 +72,19 @@ serve(async (req) => {
               a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase'
             )?.value || 0;
 
+            const creative = ad.creative || {};
+            const headline = creative.title || ad.name || 'Untitled';
+            const description = creative.body || ad.name || 'N/A';
+
             return {
               id: ad.id,
               name: ad.name,
               status: ad.status,
-              creative: ad.creative || {},
-              headline: ad.creative?.title || ad.creative?.object_story_spec?.link_data?.name || 'N/A',
-              description: ad.creative?.body || ad.creative?.object_story_spec?.link_data?.description || 'N/A',
-              imageUrl: ad.creative?.image_url || ad.creative?.thumbnail_url || null,
-              hasVideo: !!ad.creative?.video_id,
+              creative: creative,
+              headline,
+              description,
+              imageUrl: creative.image_url || creative.thumbnail_url || null,
+              hasVideo: !!creative.video_id,
               spend: parseFloat(data.spend || 0),
               impressions: parseInt(data.impressions || 0),
               clicks: parseInt(data.clicks || 0),
