@@ -273,7 +273,7 @@ serve(async (req) => {
               new URLSearchParams({
                 access_token: META_ADS_API_KEY,
                 time_range: JSON.stringify({ since: startDate, until: endDate }),
-                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type',
+                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,purchase_roas',
               }),
               {
                 method: 'GET',
@@ -296,6 +296,11 @@ serve(async (req) => {
                 a.action_type === 'purchase' || a.action_type === 'offsite_conversion.fb_pixel_purchase'
               )?.value || 0;
 
+              // Extract ROAS from purchase_roas field
+              const roas = data.purchase_roas?.find((a: any) =>
+                a.action_type === 'omni_purchase' || a.action_type === 'purchase'
+              )?.value || 0;
+
               return {
                 id: campaign.id,
                 name: campaign.name,
@@ -307,7 +312,7 @@ serve(async (req) => {
                 clicks: parseInt(data.clicks || 0),
                 conversions: parseInt(conversions),
                 costPerConversion: parseFloat(costPerConversion),
-                roas: 0, // Would need revenue data
+                roas: parseFloat(roas),
               };
             }
           } catch (error) {
@@ -376,7 +381,11 @@ serve(async (req) => {
         reach: parseInt(accountMetrics.reach || 0),
       },
       performanceOverTime,
-      campaignPerformance: [],
+      campaignPerformance: campaigns.slice(0, 10).map((c: any) => ({
+        campaign: (c.name || '').length > 25 ? c.name.substring(0, 25) + '…' : c.name,
+        conversions: c.conversions || 0,
+        roas: c.roas || 0,
+      })),
       campaigns,
       countryBreakdown,
     };
