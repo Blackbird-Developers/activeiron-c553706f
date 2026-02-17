@@ -5,7 +5,7 @@ import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
-import { FunnelSection } from "@/components/sections/FunnelSection";
+
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { subDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -302,12 +302,6 @@ const Index = () => {
         <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} />
         <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} />
         <MailerLiteSection data={filteredData.mailerlite} />
-        <FunnelSection 
-          ga4Data={filteredData.ga4}
-          metaAdsData={filteredData.metaAds}
-          googleAdsData={filteredData.googleAds}
-          mailchimpData={filteredData.mailerlite}
-        />
         </div>
       </div>
     </>
