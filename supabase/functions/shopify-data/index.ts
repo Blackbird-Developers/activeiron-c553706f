@@ -26,6 +26,11 @@ interface ShopifyOrder {
     quantity: number;
     price: string;
     product_id: number;
+    tax_lines: Array<{
+      price: string;
+      rate: number;
+      title: string;
+    }>;
   }>;
 }
 
@@ -285,7 +290,10 @@ serve(async (req) => {
       for (const item of order.line_items) {
         const productKey = item.product_id?.toString() || item.title;
         const itemRevenue = parseFloat(item.price) * item.quantity;
-        orderGrossSales += itemRevenue;
+        // Subtract line-item taxes to get pre-tax gross sales (for tax-inclusive stores)
+        const itemTax = (item.tax_lines || []).reduce((sum, tl) => sum + (parseFloat(tl.price) || 0), 0);
+        const itemGrossSales = itemRevenue - itemTax;
+        orderGrossSales += itemGrossSales;
         
         // Global aggregate
         const existingProduct = productSalesMap.get(productKey) || { 
@@ -296,7 +304,7 @@ serve(async (req) => {
         productSalesMap.set(productKey, {
           name: item.title,
           quantity: existingProduct.quantity + item.quantity,
-          revenue: existingProduct.revenue + itemRevenue,
+          revenue: existingProduct.revenue + itemGrossSales,
         });
 
         // Per-country aggregate
@@ -308,7 +316,7 @@ serve(async (req) => {
         countryData.productSales.set(productKey, {
           name: item.title,
           quantity: countryProduct.quantity + item.quantity,
-          revenue: countryProduct.revenue + itemRevenue,
+          revenue: countryProduct.revenue + itemGrossSales,
         });
       }
       totalGrossSales += orderGrossSales;
