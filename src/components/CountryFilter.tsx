@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type CountryCode = "all" | "IE" | "UK";
+export type CountryCode = "all" | "IE" | "UK" | "US" | "DE" | "NZ";
 
 interface CountryFilterProps {
   value: CountryCode;
@@ -18,6 +18,9 @@ const countryOptions: { value: CountryCode; label: string }[] = [
   { value: "all", label: "All Markets" },
   { value: "IE", label: "Ireland" },
   { value: "UK", label: "United Kingdom" },
+  { value: "US", label: "United States" },
+  { value: "DE", label: "Germany" },
+  { value: "NZ", label: "New Zealand" },
 ];
 
 export function CountryFilter({ value, onChange }: CountryFilterProps) {
@@ -77,6 +80,60 @@ export function parseCountryFromCampaignName(campaignName: string): CountryCode 
     nameLower.includes('british')
   ) {
     return 'UK';
+  }
+
+  // USA patterns
+  if (
+    nameLower.includes('united states') ||
+    nameLower.includes(' us ') ||
+    nameLower.includes('-us-') ||
+    nameLower.includes(' us-') ||
+    nameLower.includes('-us ') ||
+    nameLower.startsWith('us ') ||
+    nameLower.startsWith('us-') ||
+    nameLower.endsWith(' us') ||
+    nameLower.endsWith('-us') ||
+    nameLower.includes(' usa ') ||
+    nameLower.includes('-usa-') ||
+    nameLower.includes(' usa-') ||
+    nameLower.includes('-usa ') ||
+    nameLower.startsWith('usa ') ||
+    nameLower.startsWith('usa-') ||
+    nameLower.endsWith(' usa') ||
+    nameLower.endsWith('-usa')
+  ) {
+    return 'US';
+  }
+
+  // Germany patterns
+  if (
+    nameLower.includes('germany') ||
+    nameLower.includes('german') ||
+    nameLower.includes(' de ') ||
+    nameLower.includes('-de-') ||
+    nameLower.includes(' de-') ||
+    nameLower.includes('-de ') ||
+    nameLower.startsWith('de ') ||
+    nameLower.startsWith('de-') ||
+    nameLower.endsWith(' de') ||
+    nameLower.endsWith('-de')
+  ) {
+    return 'DE';
+  }
+
+  // New Zealand patterns
+  if (
+    nameLower.includes('new zealand') ||
+    nameLower.includes(' nz ') ||
+    nameLower.includes('-nz-') ||
+    nameLower.includes(' nz-') ||
+    nameLower.includes('-nz ') ||
+    nameLower.startsWith('nz ') ||
+    nameLower.startsWith('nz-') ||
+    nameLower.endsWith(' nz') ||
+    nameLower.endsWith('-nz')
+  ) {
+    return 'NZ';
   }
   
   return null;

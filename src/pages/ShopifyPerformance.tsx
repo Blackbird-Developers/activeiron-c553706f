@@ -178,6 +178,9 @@ export default function ShopifyPerformance() {
     const countryCodeMap: Record<CountryCode, string[]> = {
       'IE': ['IE'],
       'UK': ['GB', 'UK'],
+      'US': ['US'],
+      'DE': ['DE'],
+      'NZ': ['NZ'],
       'all': [],
     };
 

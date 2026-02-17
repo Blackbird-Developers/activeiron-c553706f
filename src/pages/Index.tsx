@@ -192,6 +192,9 @@ const Index = () => {
     const countryNameMap: Record<CountryCode, string[]> = {
       'IE': ['Ireland'],
       'UK': ['United Kingdom', 'Great Britain'],
+      'US': ['United States'],
+      'DE': ['Germany'],
+      'NZ': ['New Zealand'],
       'all': [],
     };
     const ga4CountryData = marketingData.ga4.countryBreakdown?.find(

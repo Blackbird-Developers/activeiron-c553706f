@@ -222,13 +222,20 @@ serve(async (req) => {
     );
 
     // Build country dimension filter for source/medium call
-    const countryFilterObj = country && country !== 'all' ? {
+    const countryFullName: Record<string, string> = {
+      'IE': 'Ireland',
+      'UK': 'United Kingdom',
+      'US': 'United States',
+      'DE': 'Germany',
+      'NZ': 'New Zealand',
+    };
+    const countryFilterObj = country && country !== 'all' && countryFullName[country] ? {
       dimensionFilter: {
         filter: {
           fieldName: 'country',
           stringFilter: {
             matchType: 'EXACT',
-            value: country === 'IE' ? 'Ireland' : country === 'UK' ? 'United Kingdom' : '',
+            value: countryFullName[country],
           }
         }
       }

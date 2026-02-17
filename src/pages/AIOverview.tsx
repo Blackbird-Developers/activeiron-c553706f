@@ -23,7 +23,7 @@ export default function AIOverview() {
 
   const totalAdSpend = (marketingData.googleAds?.overview?.adSpend || 0) + (marketingData.metaAds?.overview?.adSpend || 0);
   const totalConversions = (marketingData.googleAds?.overview?.conversions || 0) + (marketingData.metaAds?.overview?.conversions || 0);
-  const currencySymbol = selectedCountry === 'UK' ? '£' : '€';
+  const currencySymbol = selectedCountry === 'UK' ? '£' : selectedCountry === 'US' ? '$' : selectedCountry === 'NZ' ? 'NZ$' : '€';
 
   const fetchMarketingData = async () => {
     setIsLoading(true);
