@@ -26,11 +26,11 @@ serve(async (req) => {
     const userPrompt = `Analyse this Meta Ads campaign:
     
 Campaign: ${campaign.name}
-Spend: £${campaign.spend}
-CPC: £${campaign.cpc}
+Spend: €${campaign.spend}
+CPC: €${campaign.cpc}
 CTR: ${campaign.ctr}%
 Conversions: ${campaign.conversions}
-CPA: £${campaign.costPerConversion}
+CPA: €${campaign.costPerConversion}
 ROAS: ${campaign.roas || 'N/A'}
 
 Provide:

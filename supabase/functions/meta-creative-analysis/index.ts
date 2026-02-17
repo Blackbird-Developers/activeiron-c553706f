@@ -116,10 +116,10 @@ TOP PERFORMERS BY CTR:
 ${bestByCTR.map(a => `- "${a.headline}" | CTR: ${a.ctr.toFixed(2)}% | Clicks: ${a.clicks} | Type: ${a.hasVideo ? 'Video' : 'Image'}`).join('\n')}
 
 TOP PERFORMERS BY CONVERSIONS:
-${bestByConversions.map(a => `- "${a.headline}" | ${a.conversions} conversions | Spend: £${a.spend.toFixed(2)} | Type: ${a.hasVideo ? 'Video' : 'Image'}`).join('\n')}
+${bestByConversions.map(a => `- "${a.headline}" | ${a.conversions} conversions | Spend: €${a.spend.toFixed(2)} | Type: ${a.hasVideo ? 'Video' : 'Image'}`).join('\n')}
 
 MOST EFFICIENT (LOW CPC):
-${bestByCPC.map(a => `- "${a.headline}" | CPC: £${a.cpc.toFixed(2)} | Clicks: ${a.clicks} | Type: ${a.hasVideo ? 'Video' : 'Image'}`).join('\n')}
+${bestByCPC.map(a => `- "${a.headline}" | CPC: €${a.cpc.toFixed(2)} | Clicks: ${a.clicks} | Type: ${a.hasVideo ? 'Video' : 'Image'}`).join('\n')}
 
 Total ads analysed: ${validAds.length}
 Video ads: ${validAds.filter(a => a.hasVideo).length}
