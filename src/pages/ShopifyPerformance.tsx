@@ -87,6 +87,7 @@ export default function ShopifyPerformance() {
   const [shopifyData, setShopifyData] = useState<ShopifyData>(defaultShopifyData);
   const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IE', {
@@ -180,10 +181,12 @@ export default function ShopifyPerformance() {
       compStart = subYears(startDate, 1);
       compEnd = subYears(endDate, 1);
     }
+    setCompareLoading(true);
     supabase.functions.invoke('shopify-data', {
       body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
     }).then(res => setCompareData(res.data?.data || null))
-      .catch(() => setCompareData(null));
+      .catch(() => setCompareData(null))
+      .finally(() => setCompareLoading(false));
   }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
@@ -286,7 +289,7 @@ export default function ShopifyPerformance() {
         onCompareModeChange={setCompareMode}
       />
 
-      <ShopifySection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+      <ShopifySection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList>

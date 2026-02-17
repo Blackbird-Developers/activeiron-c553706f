@@ -10,9 +10,10 @@ interface GoogleAdsSectionProps {
   selectedCountry?: string;
   compareData?: any;
   compareLabel?: string;
+  compareLoading?: boolean;
 }
 
-export function GoogleAdsSection({ data = placeholderData, selectedCountry = "all", compareData, compareLabel }: GoogleAdsSectionProps) {
+export function GoogleAdsSection({ data = placeholderData, selectedCountry = "all", compareData, compareLabel, compareLoading }: GoogleAdsSectionProps) {
   const hasData = data.overview.adSpend > 0 || data.overview.clicks > 0 || data.overview.impressions > 0;
   const isFiltered = selectedCountry !== "all";
 
@@ -54,43 +55,11 @@ export function GoogleAdsSection({ data = placeholderData, selectedCountry = "al
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-        <ScoreCard
-          title="CPC"
-          value={`€${Number(data.overview.cpc).toFixed(2)}`}
-          icon={MousePointer}
-          colorScheme="google-ads"
-          compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpc), compareData.overview?.cpc, compareLabel) : undefined}
-          invertChange
-        />
-        <ScoreCard
-          title="CTR"
-          value={`${Number(data.overview.ctr).toFixed(2)}%`}
-          icon={Target}
-          colorScheme="google-ads"
-          compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Conversions"
-          value={data.overview.conversions.toLocaleString()}
-          icon={TrendingUp}
-          colorScheme="google-ads"
-          compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Ad Spend"
-          value={`€${Number(data.overview.adSpend).toFixed(2)}`}
-          icon={DollarSign}
-          colorScheme="google-ads"
-          compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Cost per Conversion"
-          value={`€${Number(data.overview.costPerConversion).toFixed(2)}`}
-          icon={DollarSign}
-          colorScheme="google-ads"
-          compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined}
-          invertChange
-        />
+        <ScoreCard title="CPC" value={`€${Number(data.overview.cpc).toFixed(2)}`} icon={MousePointer} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpc), compareData.overview?.cpc, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
+        <ScoreCard title="CTR" value={`${Number(data.overview.ctr).toFixed(2)}%`} icon={Target} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Conversions" value={data.overview.conversions.toLocaleString()} icon={TrendingUp} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Ad Spend" value={`€${Number(data.overview.adSpend).toFixed(2)}`} icon={DollarSign} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Cost per Conversion" value={`€${Number(data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">

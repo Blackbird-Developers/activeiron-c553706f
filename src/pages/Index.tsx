@@ -38,6 +38,7 @@ const Index = () => {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,
@@ -169,6 +170,7 @@ const Index = () => {
     const compEndStr = format(compEnd, 'yyyy-MM-dd');
 
     const fetchCompare = async () => {
+      setCompareLoading(true);
       try {
         const [ga4Res, metaRes, googleRes, mailerliteRes, shopifyRes] = await Promise.all([
           supabase.functions.invoke('ga4-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
@@ -187,6 +189,8 @@ const Index = () => {
       } catch (e) {
         console.error('Compare data fetch error:', e);
         setCompareData(null);
+      } finally {
+        setCompareLoading(false);
       }
     };
     fetchCompare();
@@ -350,11 +354,11 @@ const Index = () => {
       />
 
       <div className="space-y-12">
-        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? compareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
-        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
-        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
-        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
-        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? compareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? compareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? compareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
         </div>
       </div>
     </>

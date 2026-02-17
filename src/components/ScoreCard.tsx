@@ -15,7 +15,8 @@ interface ScoreCardProps {
   icon?: LucideIcon;
   colorScheme?: "ga4" | "google-ads" | "meta" | "subbly" | "mailchimp" | "default";
   compare?: CompareData;
-  invertChange?: boolean; // true for metrics where lower is better (CPC, cost per conversion)
+  compareLoading?: boolean;
+  invertChange?: boolean;
 }
 
 export function ScoreCard({
@@ -26,6 +27,7 @@ export function ScoreCard({
   icon: Icon,
   colorScheme = "default",
   compare,
+  compareLoading = false,
   invertChange = false,
 }: ScoreCardProps) {
   const colorClasses = {
@@ -57,7 +59,11 @@ export function ScoreCard({
           <div className="space-y-1 lg:space-y-2 flex-1 min-w-0">
             <p className="text-xs lg:text-sm font-medium opacity-80 truncate">{title}</p>
             <p className="text-xl lg:text-3xl font-bold tracking-tight truncate">{value}</p>
-            {compare ? (
+            {compareLoading ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-0.5">
+                <span className="h-3 w-12 rounded-full bg-muted-foreground/20 animate-pulse" />
+              </span>
+            ) : compare ? (
               <CompareBadge compare={compare} type={getCompareType(compare.percentChange)} />
             ) : change ? (
               <p className={cn("text-[10px] lg:text-xs font-medium truncate", changeColorClasses[changeType])}>
