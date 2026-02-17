@@ -3,12 +3,15 @@ import { ScoreCard } from "@/components/ScoreCard";
 import { Mail, MousePointer, TrendingUp, Percent } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { mailerliteData as placeholderData } from "@/data/placeholderData";
+import { calcCompare } from "@/lib/compareUtils";
 
 interface MailerLiteSectionProps {
   data?: typeof placeholderData;
+  compareData?: any;
+  compareLabel?: string;
 }
 
-export function MailerLiteSection({ data = placeholderData }: MailerLiteSectionProps) {
+export function MailerLiteSection({ data = placeholderData, compareData, compareLabel }: MailerLiteSectionProps) {
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
@@ -20,42 +23,37 @@ export function MailerLiteSection({ data = placeholderData }: MailerLiteSectionP
         <ScoreCard
           title="Email Opens"
           value={data.overview.emailOpens.toLocaleString()}
-          change="+6.5% vs last period"
-          changeType="positive"
           icon={Mail}
           colorScheme="mailchimp"
+          compare={compareData && compareLabel ? calcCompare(data.overview.emailOpens, compareData.overview?.emailOpens, compareLabel) : undefined}
         />
         <ScoreCard
           title="Email Clicks"
           value={data.overview.emailClicks.toLocaleString()}
-          change="+9.2% vs last period"
-          changeType="positive"
           icon={MousePointer}
           colorScheme="mailchimp"
+          compare={compareData && compareLabel ? calcCompare(data.overview.emailClicks, compareData.overview?.emailClicks, compareLabel) : undefined}
         />
         <ScoreCard
           title="Open Rate"
           value={`${data.overview.openRate}%`}
-          change="+1.8% vs last period"
-          changeType="positive"
           icon={Percent}
           colorScheme="mailchimp"
+          compare={compareData && compareLabel ? calcCompare(data.overview.openRate, compareData.overview?.openRate, compareLabel) : undefined}
         />
         <ScoreCard
           title="Click-through Rate"
           value={`${data.overview.clickThroughRate}%`}
-          change="+0.5% vs last period"
-          changeType="positive"
           icon={TrendingUp}
           colorScheme="mailchimp"
+          compare={compareData && compareLabel ? calcCompare(data.overview.clickThroughRate, compareData.overview?.clickThroughRate, compareLabel) : undefined}
         />
         <ScoreCard
           title="Click-to-Open Rate"
           value={`${data.overview.clickToOpenRate}%`}
-          change="+2.1% vs last period"
-          changeType="positive"
           icon={Percent}
           colorScheme="mailchimp"
+          compare={compareData && compareLabel ? calcCompare(data.overview.clickToOpenRate, compareData.overview?.clickToOpenRate, compareLabel) : undefined}
         />
       </div>
 

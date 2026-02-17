@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { DateFilter } from "@/components/DateFilter";
+import { DateFilter, CompareMode } from "@/components/DateFilter";
 import { CountryFilter, CountryCode } from "@/components/CountryFilter";
 import { ReactNode } from "react";
 
@@ -15,6 +15,8 @@ interface PageHeaderProps {
   onStartDateChange?: (date: Date | undefined) => void;
   onEndDateChange?: (date: Date | undefined) => void;
   showDateFilter?: boolean;
+  compareMode?: CompareMode;
+  onCompareModeChange?: (mode: CompareMode) => void;
   selectedCountry?: CountryCode;
   onCountryChange?: (country: CountryCode) => void;
   showCountryFilter?: boolean;
@@ -32,6 +34,8 @@ export function PageHeader({
   onStartDateChange,
   onEndDateChange,
   showDateFilter = true,
+  compareMode,
+  onCompareModeChange,
   selectedCountry,
   onCountryChange,
   showCountryFilter = true,
@@ -67,6 +71,8 @@ export function PageHeader({
                 endDate={endDate}
                 onStartDateChange={onStartDateChange}
                 onEndDateChange={onEndDateChange}
+                compareMode={compareMode}
+                onCompareModeChange={onCompareModeChange}
               />
             )}
             

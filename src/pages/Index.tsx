@@ -7,11 +7,12 @@ import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 
 import { LoadingOverlay } from "@/components/LoadingOverlay";
-import { subDays, format } from "date-fns";
+import { subDays, subMonths, subYears, format, differenceInDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, mailerliteData, shopifyData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
+import { CompareMode } from "@/components/DateFilter";
 const CACHE_KEY = 'marketing_dashboard_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
@@ -35,6 +36,8 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,
@@ -140,6 +143,54 @@ const Index = () => {
     }
     fetchMarketingData(true);
   }, [fetchMarketingData]);
+
+  // Fetch comparison period data when compare mode is active
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subMonths(startDate, 0);
+      compStart = subDays(subMonths(startDate, 1), -1);
+      // Actually: previous period of same length ending the day before start
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      // YoY: same dates, one year ago
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+
+    const compStartStr = format(compStart, 'yyyy-MM-dd');
+    const compEndStr = format(compEnd, 'yyyy-MM-dd');
+
+    const fetchCompare = async () => {
+      try {
+        const [ga4Res, metaRes, googleRes, mailerliteRes, shopifyRes] = await Promise.all([
+          supabase.functions.invoke('ga4-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+          supabase.functions.invoke('meta-ads-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+          supabase.functions.invoke('google-ads-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+          supabase.functions.invoke('mailerlite-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+          supabase.functions.invoke('shopify-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+        ]);
+        setCompareData({
+          ga4: ga4Res.data?.data || null,
+          googleAds: googleRes.data?.data || null,
+          metaAds: metaRes.data?.data || null,
+          mailerlite: mailerliteRes.data?.data || null,
+          shopify: shopifyRes.data?.data || null,
+        });
+      } catch (e) {
+        console.error('Compare data fetch error:', e);
+        setCompareData(null);
+      }
+    };
+    fetchCompare();
+  }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -294,14 +345,16 @@ const Index = () => {
         onEndDateChange={setEndDate}
         selectedCountry={selectedCountry}
         onCountryChange={setSelectedCountry}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
       />
 
       <div className="space-y-12">
-        <GA4Section data={filteredData.ga4} />
-        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} />
-        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} />
-        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} />
-        <MailerLiteSection data={filteredData.mailerlite} />
+        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? compareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? compareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
         </div>
       </div>
     </>
