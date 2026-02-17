@@ -17,6 +17,12 @@ export function MetaAdsSection({ data = placeholderData, selectedCountry = "all"
   const hasData = data.overview.adSpend > 0 || data.overview.clicks > 0 || data.overview.impressions > 0;
   const isFiltered = selectedCountry !== "all";
 
+  // Filter campaign performance chart to only show active campaigns with spend
+  const activeCampaignPerformance = (data.campaignPerformance || []).filter((c: any) => {
+    if (c.status && c.status !== 'ACTIVE') return false;
+    return (c.spend ?? c.conversions ?? 0) > 0;
+  });
+
   const countryLabels: Record<string, string> = {
     IE: "Ireland", UK: "United Kingdom", US: "United States", DE: "Germany", NZ: "New Zealand",
   };
@@ -94,7 +100,7 @@ export function MetaAdsSection({ data = placeholderData, selectedCountry = "all"
           </CardHeader>
           <CardContent className="px-2 lg:px-6">
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={data.campaignPerformance}>
+              <BarChart data={activeCampaignPerformance}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="campaign" stroke="hsl(var(--muted-foreground))" fontSize={11} tickMargin={8} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} width={45} />
