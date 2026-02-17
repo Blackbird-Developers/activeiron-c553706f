@@ -228,20 +228,26 @@ serve(async (req) => {
       return countryDataMap.get(countryCode)!;
     }
 
+    // Filter out non-paid orders (cancelled, voided, refunded, pending)
+    const paidStatuses = new Set(['paid', 'partially_paid', 'partially_refunded']);
+    const paidOrders = orders.filter(order => paidStatuses.has(order.financial_status));
+    
+    console.log(`Filtered to ${paidOrders.length} paid orders out of ${orders.length} total`);
+
     // Calculate metrics from orders (also for "all" aggregate)
     let totalRevenue = 0;
-    let totalOrders = orders.length;
+    let totalOrders = paidOrders.length;
     
     const ordersOverTimeMap: Map<string, { orders: number; revenue: number }> = new Map();
     const productSalesMap: Map<string, { name: string; quantity: number; revenue: number }> = new Map();
     const statusCountMap: Map<string, number> = new Map();
 
-    for (const order of orders) {
+    for (const order of paidOrders) {
       const countryCode = getOrderCountry(order);
       const countryData = getCountryData(countryCode);
 
-      // Revenue (use subtotal_price for net revenue, or total_price for gross)
-      const orderRevenue = parseFloat(order.total_price) || 0;
+      // Use subtotal_price for net revenue (excludes shipping & taxes, matches Shopify analytics)
+      const orderRevenue = parseFloat(order.subtotal_price) || 0;
       totalRevenue += orderRevenue;
       countryData.orders += 1;
       countryData.revenue += orderRevenue;
