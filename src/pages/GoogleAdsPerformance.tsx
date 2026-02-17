@@ -179,7 +179,7 @@ export default function GoogleAdsPerformance() {
         onCountryChange={setSelectedCountry}
       />
 
-      <GoogleAdsSection data={filteredData} />
+      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -232,7 +232,7 @@ export default function GoogleAdsPerformance() {
           ) : (
             <p className="text-muted-foreground text-center py-8">
               {selectedCountry !== 'all' 
-                ? `No campaigns found for ${selectedCountry === 'IE' ? 'Ireland' : 'United Kingdom'}`
+                ? `No campaigns found for ${{'IE':'Ireland','UK':'United Kingdom','US':'United States','DE':'Germany','NZ':'New Zealand'}[selectedCountry] || selectedCountry}`
                 : 'No campaign data available'}
             </p>
           )}

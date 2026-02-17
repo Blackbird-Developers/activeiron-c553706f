@@ -188,7 +188,7 @@ export default function MetaPerformance() {
         onCountryChange={setSelectedCountry}
       />
 
-      <MetaAdsSection data={filteredData.metaData} />
+      <MetaAdsSection data={filteredData.metaData} selectedCountry={selectedCountry} />
 
       <Tabs defaultValue="campaigns" className="w-full">
         <div className="flex items-center justify-between">
