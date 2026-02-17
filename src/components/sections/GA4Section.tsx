@@ -10,9 +10,10 @@ interface GA4SectionProps {
   data?: typeof placeholderData;
   compareData?: any;
   compareLabel?: string;
+  compareLoading?: boolean;
 }
 
-export function GA4Section({ data = placeholderData, compareData, compareLabel }: GA4SectionProps) {
+export function GA4Section({ data = placeholderData, compareData, compareLabel, compareLoading }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -81,25 +82,25 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel }
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Total Users" value={data.overview.totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.totalUsers, compareData.overview?.totalUsers, compareLabel) : undefined} />
+            <ScoreCard title="Total Users" value={data.overview.totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.totalUsers, compareData.overview?.totalUsers, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="New Users" value={data.overview.newUsers.toLocaleString()} icon={UserPlus} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.newUsers, compareData.overview?.newUsers, compareLabel) : undefined} />
+            <ScoreCard title="New Users" value={data.overview.newUsers.toLocaleString()} icon={UserPlus} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.newUsers, compareData.overview?.newUsers, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Sessions" value={data.overview.sessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.sessions, compareData.overview?.sessions, compareLabel) : undefined} />
+            <ScoreCard title="Sessions" value={data.overview.sessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.sessions, compareData.overview?.sessions, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Engaged Sessions" value={(data.overview.engagedSessions || 0).toLocaleString()} icon={MousePointerClick} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.engagedSessions || 0, compareData.overview?.engagedSessions, compareLabel) : undefined} />
+            <ScoreCard title="Engaged Sessions" value={(data.overview.engagedSessions || 0).toLocaleString()} icon={MousePointerClick} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.engagedSessions || 0, compareData.overview?.engagedSessions, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Engagement Rate" value={`${data.overview.engagementRate}%`} icon={Activity} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.engagementRate, compareData.overview?.engagementRate, compareLabel) : undefined} />
+            <ScoreCard title="Engagement Rate" value={`${data.overview.engagementRate}%`} icon={Activity} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.engagementRate, compareData.overview?.engagementRate, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Bounce Rate" value={`${data.overview.bounceRate}%`} icon={TrendingDown} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.bounceRate, compareData.overview?.bounceRate, compareLabel) : undefined} invertChange />
+            <ScoreCard title="Bounce Rate" value={`${data.overview.bounceRate}%`} icon={TrendingDown} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.bounceRate, compareData.overview?.bounceRate, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
           </div>
           <div className="min-w-[200px] flex-shrink-0 flex-1">
-            <ScoreCard title="Avg Engagement Time" value={formatDuration(data.overview.avgSessionDuration)} icon={Clock} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.avgSessionDuration, compareData.overview?.avgSessionDuration, compareLabel) : undefined} />
+            <ScoreCard title="Avg Engagement Time" value={formatDuration(data.overview.avgSessionDuration)} icon={Clock} colorScheme="ga4" compare={compareData && compareLabel ? calcCompare(data.overview.avgSessionDuration, compareData.overview?.avgSessionDuration, compareLabel) : undefined} compareLoading={compareLoading} />
           </div>
         </div>
       </div>

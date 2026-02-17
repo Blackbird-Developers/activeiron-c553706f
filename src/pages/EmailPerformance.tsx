@@ -31,6 +31,7 @@ export default function EmailPerformance() {
   const [mailerliteData, setMailerliteData] = useState<any>(placeholderData);
   const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   const fetchEmailData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -115,10 +116,12 @@ export default function EmailPerformance() {
       compStart = subYears(startDate, 1);
       compEnd = subYears(endDate, 1);
     }
+    setCompareLoading(true);
     supabase.functions.invoke('mailerlite-data', {
       body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
     }).then(res => setCompareData(res.data?.data || null))
-      .catch(() => setCompareData(null));
+      .catch(() => setCompareData(null))
+      .finally(() => setCompareLoading(false));
   }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
@@ -188,7 +191,7 @@ export default function EmailPerformance() {
         </TabsList>
         
         <TabsContent value="overview" className="mt-6">
-          <MailerLiteSection data={mailerliteData} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+          <MailerLiteSection data={mailerliteData} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
         </TabsContent>
         
         <TabsContent value="campaigns" className="mt-6">

@@ -50,6 +50,7 @@ export default function TrafficAnalysis() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!startDate || !endDate) return;
@@ -94,18 +95,19 @@ export default function TrafficAnalysis() {
       compStart = subYears(startDate, 1);
       compEnd = subYears(endDate, 1);
     }
+    setCompareLoading(true);
     supabase.functions.invoke('ga4-data', {
       body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd'), country: selectedCountry }
     }).then(res => {
       const smb = res.data?.data?.sourceMediumBreakdown || [];
-      // Aggregate into overview-like totals for scorecards
       const totals = smb.reduce((acc: any, d: any) => ({
         sessions: acc.sessions + (d.sessions || 0),
         users: acc.users + (d.users || 0),
         newUsers: acc.newUsers + (d.newUsers || 0),
       }), { sessions: 0, users: 0, newUsers: 0 });
       setCompareData(totals);
-    }).catch(() => setCompareData(null));
+    }).catch(() => setCompareData(null))
+      .finally(() => setCompareLoading(false));
   }, [compareMode, startDate, endDate, selectedCountry]);
 
   const sorted = useMemo(() => {
@@ -166,9 +168,9 @@ export default function TrafficAnalysis() {
 
         {/* Overview scorecards */}
         <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <ScoreCard title="Total Sessions" value={totalSessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalSessions, compareData.sessions, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
-          <ScoreCard title="Total Users" value={totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalUsers, compareData.users, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
-          <ScoreCard title="New Users" value={totalNewUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalNewUsers, compareData.newUsers, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} />
+          <ScoreCard title="Total Sessions" value={totalSessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalSessions, compareData.sessions, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+          <ScoreCard title="Total Users" value={totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalUsers, compareData.users, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+          <ScoreCard title="New Users" value={totalNewUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalNewUsers, compareData.newUsers, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
           <ScoreCard title="Sources Tracked" value={bySource.length.toString()} icon={Globe} colorScheme="ga4" />
         </div>
 

@@ -9,9 +9,10 @@ interface MailerLiteSectionProps {
   data?: typeof placeholderData;
   compareData?: any;
   compareLabel?: string;
+  compareLoading?: boolean;
 }
 
-export function MailerLiteSection({ data = placeholderData, compareData, compareLabel }: MailerLiteSectionProps) {
+export function MailerLiteSection({ data = placeholderData, compareData, compareLabel, compareLoading }: MailerLiteSectionProps) {
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-center gap-3">
@@ -20,41 +21,11 @@ export function MailerLiteSection({ data = placeholderData, compareData, compare
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-        <ScoreCard
-          title="Email Opens"
-          value={data.overview.emailOpens.toLocaleString()}
-          icon={Mail}
-          colorScheme="mailchimp"
-          compare={compareData && compareLabel ? calcCompare(data.overview.emailOpens, compareData.overview?.emailOpens, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Email Clicks"
-          value={data.overview.emailClicks.toLocaleString()}
-          icon={MousePointer}
-          colorScheme="mailchimp"
-          compare={compareData && compareLabel ? calcCompare(data.overview.emailClicks, compareData.overview?.emailClicks, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Open Rate"
-          value={`${data.overview.openRate}%`}
-          icon={Percent}
-          colorScheme="mailchimp"
-          compare={compareData && compareLabel ? calcCompare(data.overview.openRate, compareData.overview?.openRate, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Click-through Rate"
-          value={`${data.overview.clickThroughRate}%`}
-          icon={TrendingUp}
-          colorScheme="mailchimp"
-          compare={compareData && compareLabel ? calcCompare(data.overview.clickThroughRate, compareData.overview?.clickThroughRate, compareLabel) : undefined}
-        />
-        <ScoreCard
-          title="Click-to-Open Rate"
-          value={`${data.overview.clickToOpenRate}%`}
-          icon={Percent}
-          colorScheme="mailchimp"
-          compare={compareData && compareLabel ? calcCompare(data.overview.clickToOpenRate, compareData.overview?.clickToOpenRate, compareLabel) : undefined}
-        />
+        <ScoreCard title="Email Opens" value={data.overview.emailOpens.toLocaleString()} icon={Mail} colorScheme="mailchimp" compare={compareData && compareLabel ? calcCompare(data.overview.emailOpens, compareData.overview?.emailOpens, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Email Clicks" value={data.overview.emailClicks.toLocaleString()} icon={MousePointer} colorScheme="mailchimp" compare={compareData && compareLabel ? calcCompare(data.overview.emailClicks, compareData.overview?.emailClicks, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Open Rate" value={`${data.overview.openRate}%`} icon={Percent} colorScheme="mailchimp" compare={compareData && compareLabel ? calcCompare(data.overview.openRate, compareData.overview?.openRate, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Click-through Rate" value={`${data.overview.clickThroughRate}%`} icon={TrendingUp} colorScheme="mailchimp" compare={compareData && compareLabel ? calcCompare(data.overview.clickThroughRate, compareData.overview?.clickThroughRate, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Click-to-Open Rate" value={`${data.overview.clickToOpenRate}%`} icon={Percent} colorScheme="mailchimp" compare={compareData && compareLabel ? calcCompare(data.overview.clickToOpenRate, compareData.overview?.clickToOpenRate, compareLabel) : undefined} compareLoading={compareLoading} />
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">

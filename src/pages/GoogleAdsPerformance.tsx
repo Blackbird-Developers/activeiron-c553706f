@@ -33,6 +33,7 @@ export default function GoogleAdsPerformance() {
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
   const fetchGoogleAdsData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -117,10 +118,12 @@ export default function GoogleAdsPerformance() {
       compStart = subYears(startDate, 1);
       compEnd = subYears(endDate, 1);
     }
+    setCompareLoading(true);
     supabase.functions.invoke('google-ads-data', {
       body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
     }).then(res => setCompareData(res.data?.data || null))
-      .catch(() => setCompareData(null));
+      .catch(() => setCompareData(null))
+      .finally(() => setCompareLoading(false));
   }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
@@ -205,7 +208,7 @@ export default function GoogleAdsPerformance() {
         onCompareModeChange={setCompareMode}
       />
 
-      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
+      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
