@@ -6,10 +6,11 @@ import { EmailCampaignsTable } from "@/components/EmailCampaignsTable";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserCheck, LayoutList, BarChart3 } from "lucide-react";
-import { subMonths, startOfMonth, format } from "date-fns";
+import { subMonths, subYears, subDays, startOfMonth, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { mailerliteData as placeholderData } from "@/data/placeholderData";
+import { CompareMode } from "@/components/DateFilter";
 
 const CACHE_KEY = 'email_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -28,6 +29,8 @@ export default function EmailPerformance() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [mailerliteData, setMailerliteData] = useState<any>(placeholderData);
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
 
   const fetchEmailData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -97,6 +100,27 @@ export default function EmailPerformance() {
     fetchEmailData();
   }, [fetchEmailData]);
 
+  // Fetch comparison period data
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+    supabase.functions.invoke('mailerlite-data', {
+      body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
+    }).then(res => setCompareData(res.data?.data || null))
+      .catch(() => setCompareData(null));
+  }, [compareMode, startDate, endDate]);
+
   const [, setTick] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => setTick(t => t + 1), 60000);
@@ -119,6 +143,9 @@ export default function EmailPerformance() {
         endDate={endDate}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
+        showCountryFilter={false}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
       />
 
       {/* Subscriber metrics */}
@@ -161,7 +188,7 @@ export default function EmailPerformance() {
         </TabsList>
         
         <TabsContent value="overview" className="mt-6">
-          <MailerLiteSection data={mailerliteData} />
+          <MailerLiteSection data={mailerliteData} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
         </TabsContent>
         
         <TabsContent value="campaigns" className="mt-6">

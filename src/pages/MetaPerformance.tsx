@@ -6,13 +6,14 @@ import { CreativeAnalysis } from "@/components/CreativeAnalysis";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutList, Palette } from "lucide-react";
-import { subDays, format } from "date-fns";
+import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { CompareMode } from "@/components/DateFilter";
 
 const CACHE_KEY = 'meta_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
@@ -35,6 +36,8 @@ export default function MetaPerformance() {
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [metaData, setMetaData] = useState<any>(placeholderData);
   const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [compareMode, setCompareMode] = useState<CompareMode>("off");
+  const [compareData, setCompareData] = useState<any>(null);
 
   const fetchMetaData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -108,6 +111,27 @@ export default function MetaPerformance() {
   useEffect(() => {
     fetchMetaData();
   }, [fetchMetaData]);
+
+  // Fetch comparison period data
+  useEffect(() => {
+    if (compareMode === 'off' || !startDate || !endDate) {
+      setCompareData(null);
+      return;
+    }
+    const daySpan = differenceInDays(endDate, startDate);
+    let compStart: Date, compEnd: Date;
+    if (compareMode === 'mom') {
+      compEnd = subDays(startDate, 1);
+      compStart = subDays(compEnd, daySpan);
+    } else {
+      compStart = subYears(startDate, 1);
+      compEnd = subYears(endDate, 1);
+    }
+    supabase.functions.invoke('meta-ads-data', {
+      body: { startDate: format(compStart, 'yyyy-MM-dd'), endDate: format(compEnd, 'yyyy-MM-dd') }
+    }).then(res => setCompareData(res.data?.data || null))
+      .catch(() => setCompareData(null));
+  }, [compareMode, startDate, endDate]);
 
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -186,9 +210,11 @@ export default function MetaPerformance() {
         onEndDateChange={setEndDate}
         selectedCountry={selectedCountry}
         onCountryChange={setSelectedCountry}
+        compareMode={compareMode}
+        onCompareModeChange={setCompareMode}
       />
 
-      <MetaAdsSection data={filteredData.metaData} selectedCountry={selectedCountry} />
+      <MetaAdsSection data={filteredData.metaData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} />
 
       <Tabs defaultValue="campaigns" className="w-full">
         <div className="flex items-center justify-between">
