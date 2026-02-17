@@ -1,14 +1,43 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { googleAdsData as placeholderData } from "@/data/placeholderData";
 
 interface GoogleAdsSectionProps {
   data?: typeof placeholderData;
+  selectedCountry?: string;
 }
 
-export function GoogleAdsSection({ data = placeholderData }: GoogleAdsSectionProps) {
+export function GoogleAdsSection({ data = placeholderData, selectedCountry = "all" }: GoogleAdsSectionProps) {
+  const hasData = data.overview.adSpend > 0 || data.overview.clicks > 0 || data.overview.impressions > 0;
+  const isFiltered = selectedCountry !== "all";
+
+  const countryLabels: Record<string, string> = {
+    IE: "Ireland", UK: "United Kingdom", US: "United States", DE: "Germany", NZ: "New Zealand",
+  };
+
+  if (!hasData && isFiltered) {
+    return (
+      <div className="space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <div className="h-1 w-8 lg:w-12 rounded-full bg-google-ads" />
+            <h2 className="text-xl lg:text-2xl font-bold text-google-ads-foreground">Google Ads Performance</h2>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-6">
+            <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0" />
+            <p className="text-sm text-muted-foreground">
+              No Google Ads data available for <span className="font-medium text-foreground">{countryLabels[selectedCountry] || selectedCountry}</span>. Campaigns may not be running in this region or campaign names may not include the region identifier.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

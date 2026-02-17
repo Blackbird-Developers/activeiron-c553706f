@@ -86,7 +86,7 @@ serve(async (req) => {
 
     // Test a simple API call to check token validity
     const testResponse = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${formattedCustomerId}`,
+      `https://googleads.googleapis.com/v20/customers/${formattedCustomerId}`,
       {
         method: 'GET',
         headers: {
@@ -166,7 +166,7 @@ serve(async (req) => {
 async function listAccessibleCustomers(accessToken: string, developerToken: string): Promise<string[]> {
   try {
     const response = await fetch(
-      'https://googleads.googleapis.com/v19/customers:listAccessibleCustomers',
+      'https://googleads.googleapis.com/v20/customers:listAccessibleCustomers',
       {
         method: 'GET',
         headers: {
@@ -234,7 +234,7 @@ async function fetchAccountMetrics(
     }
 
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers,
@@ -325,7 +325,7 @@ async function fetchDailyPerformance(
     }
 
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers,
@@ -422,7 +422,7 @@ async function fetchCampaignPerformance(
     }
 
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers,
@@ -521,7 +521,7 @@ async function fetchCountryBreakdown(
     }
 
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}/googleAds:searchStream`,
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
       {
         method: 'POST',
         headers,

@@ -265,9 +265,9 @@ const Index = () => {
 
       <div className="space-y-12">
         <GA4Section data={filteredData.ga4} />
-        <GoogleAdsSection data={filteredData.googleAds} />
-        <MetaAdsSection data={filteredData.metaAds} />
-        <ShopifySection data={filteredData.shopify} />
+        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} />
+        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} />
+        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} />
         <MailerLiteSection data={filteredData.mailerlite} />
         <FunnelSection 
           ga4Data={filteredData.ga4}
