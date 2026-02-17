@@ -246,8 +246,8 @@ serve(async (req) => {
       const countryCode = getOrderCountry(order);
       const countryData = getCountryData(countryCode);
 
-      // Use subtotal_price for net revenue (excludes shipping & taxes, matches Shopify analytics)
-      const orderRevenue = parseFloat(order.subtotal_price) || 0;
+      // Use total_price for gross revenue (includes shipping & taxes)
+      const orderRevenue = parseFloat(order.total_price) || 0;
       totalRevenue += orderRevenue;
       countryData.orders += 1;
       countryData.revenue += orderRevenue;
