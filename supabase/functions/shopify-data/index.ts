@@ -209,6 +209,7 @@ serve(async (req) => {
     const countryDataMap: Map<string, {
       orders: number;
       revenue: number;
+      subtotal: number;
       productSales: Map<string, { name: string; quantity: number; revenue: number }>;
       ordersOverTime: Map<string, { orders: number; revenue: number }>;
       statusCount: Map<string, number>;
@@ -220,6 +221,7 @@ serve(async (req) => {
         countryDataMap.set(countryCode, {
           orders: 0,
           revenue: 0,
+          subtotal: 0,
           productSales: new Map(),
           ordersOverTime: new Map(),
           statusCount: new Map(),
@@ -236,6 +238,7 @@ serve(async (req) => {
 
     // Calculate metrics from orders (also for "all" aggregate)
     let totalRevenue = 0;
+    let totalSubtotal = 0;
     let totalOrders = paidOrders.length;
     
     const ordersOverTimeMap: Map<string, { orders: number; revenue: number }> = new Map();
@@ -248,9 +251,13 @@ serve(async (req) => {
 
       // Use total_price for gross revenue (includes shipping & taxes)
       const orderRevenue = parseFloat(order.total_price) || 0;
+      // Use subtotal_price for AOV: (gross sales - discounts) / orders
+      const orderSubtotal = parseFloat(order.subtotal_price) || 0;
       totalRevenue += orderRevenue;
+      totalSubtotal += orderSubtotal;
       countryData.orders += 1;
       countryData.revenue += orderRevenue;
+      countryData.subtotal += orderSubtotal;
 
       // Orders over time (group by date)
       const orderDate = new Date(order.created_at);
@@ -341,7 +348,8 @@ serve(async (req) => {
         percentage: totalStatusCount > 0 ? Math.round((count / totalStatusCount) * 100) : 0,
       }));
 
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    // AOV = (gross sales - discounts) / orders = subtotal_price / orders
+    const averageOrderValue = totalOrders > 0 ? totalSubtotal / totalOrders : 0;
 
     // Build per-country breakdown
     const countryBreakdown: Array<{
@@ -383,7 +391,7 @@ serve(async (req) => {
         countryCode,
         totalOrders: data.orders,
         totalRevenue: Math.round(data.revenue * 100) / 100,
-        averageOrderValue: data.orders > 0 ? Math.round((data.revenue / data.orders) * 100) / 100 : 0,
+        averageOrderValue: data.orders > 0 ? Math.round((data.subtotal / data.orders) * 100) / 100 : 0,
         ordersOverTime: countryOrdersOverTime,
         topProducts: countryTopProducts,
         ordersByStatus: countryOrdersByStatus,
