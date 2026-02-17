@@ -260,7 +260,7 @@ export default function ShopifyPerformance() {
         onCountryChange={setSelectedCountry}
       />
 
-      <ShopifySection data={filteredData} />
+      <ShopifySection data={filteredData} selectedCountry={selectedCountry} />
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList>
