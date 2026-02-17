@@ -133,32 +133,57 @@ export function GA4Section({ data = placeholderData }: GA4SectionProps) {
             <CardTitle className="text-base lg:text-lg text-ga4-foreground">Traffic by Source</CardTitle>
           </CardHeader>
           <CardContent className="px-2 lg:px-6">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={data.trafficBySource}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name}: ${percentage}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="users"
-                >
-                  {data.trafficBySource.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--card))", 
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)",
-                    fontSize: "12px"
-                  }} 
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="flex items-center gap-6">
+              <div className="w-[140px] h-[140px] flex-shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={data.trafficBySource}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={65}
+                      paddingAngle={2}
+                      dataKey="users"
+                      stroke="none"
+                    >
+                      {data.trafficBySource.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "var(--radius)",
+                        fontSize: "12px"
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-2 flex-1 min-w-0">
+                {data.trafficBySource.map((entry, index) => {
+                  const total = data.trafficBySource.reduce((sum, e) => sum + e.users, 0);
+                  const pct = total > 0 ? ((entry.users / total) * 100).toFixed(1) : '0';
+                  return (
+                    <div key={entry.name} className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        />
+                        <span className="text-sm text-foreground truncate">{entry.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-sm font-medium text-foreground">{entry.users.toLocaleString()}</span>
+                        <span className="text-xs text-muted-foreground w-12 text-right">{pct}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
