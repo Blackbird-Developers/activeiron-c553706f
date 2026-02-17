@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+import { Calendar, GitCompareArrows } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import type { DateRange } from "react-day-picker";
+
+export type CompareMode = "off" | "mom" | "yoy";
 
 type PresetKey = "7d" | "30d" | "thisMonth" | "lastMonth";
 
@@ -40,6 +42,8 @@ interface DateFilterProps {
   endDate: Date | undefined;
   onStartDateChange: (date: Date | undefined) => void;
   onEndDateChange: (date: Date | undefined) => void;
+  compareMode?: CompareMode;
+  onCompareModeChange?: (mode: CompareMode) => void;
 }
 
 export function DateFilter({
@@ -47,6 +51,8 @@ export function DateFilter({
   endDate,
   onStartDateChange,
   onEndDateChange,
+  compareMode = "off",
+  onCompareModeChange,
 }: DateFilterProps) {
   const [open, setOpen] = useState(false);
 
@@ -85,36 +91,66 @@ export function DateFilter({
         >
           <Calendar className="mr-1.5 h-3.5 w-3.5 shrink-0" />
           {formatDateRange()}
+          {compareMode !== "off" && (
+            <span className="ml-1 px-1.5 py-0.5 rounded bg-primary/15 text-primary text-[10px] font-semibold uppercase">
+              {compareMode === "mom" ? "MoM" : "YoY"}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <div className="flex">
-          {/* Presets sidebar */}
-          <div className="flex flex-col gap-1 p-3 border-r border-border">
-            <span className="text-xs font-medium text-muted-foreground mb-1">Quick Select</span>
-            {presets.map((preset) => (
-              <Button
-                key={preset.key}
-                variant="ghost"
-                size="sm"
-                onClick={() => handlePresetClick(preset.key)}
-                className="justify-start h-8 px-2 text-xs font-normal hover:bg-accent"
-              >
-                {preset.label}
-              </Button>
-            ))}
+        <div className="flex flex-col">
+          <div className="flex">
+            {/* Presets sidebar */}
+            <div className="flex flex-col gap-1 p-3 border-r border-border">
+              <span className="text-xs font-medium text-muted-foreground mb-1">Quick Select</span>
+              {presets.map((preset) => (
+                <Button
+                  key={preset.key}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handlePresetClick(preset.key)}
+                  className="justify-start h-8 px-2 text-xs font-normal hover:bg-accent"
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            
+            {/* Calendar */}
+            <CalendarComponent
+              mode="range"
+              selected={{ from: startDate, to: endDate }}
+              onSelect={handleRangeSelect}
+              defaultMonth={startDate}
+              numberOfMonths={2}
+              initialFocus
+              className="p-3 pointer-events-auto"
+            />
           </div>
-          
-          {/* Calendar */}
-          <CalendarComponent
-            mode="range"
-            selected={{ from: startDate, to: endDate }}
-            onSelect={handleRangeSelect}
-            defaultMonth={startDate}
-            numberOfMonths={2}
-            initialFocus
-            className="p-3 pointer-events-auto"
-          />
+
+          {/* Compare toggle */}
+          {onCompareModeChange && (
+            <div className="flex items-center gap-2 px-3 py-2.5 border-t border-border">
+              <GitCompareArrows className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="text-xs font-medium text-muted-foreground mr-1">Compare:</span>
+              {([
+                { key: "off" as CompareMode, label: "Off" },
+                { key: "mom" as CompareMode, label: "MoM" },
+                { key: "yoy" as CompareMode, label: "YoY" },
+              ]).map((opt) => (
+                <Button
+                  key={opt.key}
+                  variant={compareMode === opt.key ? "default" : "outline"}
+                  size="sm"
+                  className="h-6 px-2 text-[11px]"
+                  onClick={() => onCompareModeChange(opt.key)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

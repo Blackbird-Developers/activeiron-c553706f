@@ -3,13 +3,16 @@ import { ScoreCard } from "@/components/ScoreCard";
 import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { googleAdsData as placeholderData } from "@/data/placeholderData";
+import { calcCompare } from "@/lib/compareUtils";
 
 interface GoogleAdsSectionProps {
   data?: typeof placeholderData;
   selectedCountry?: string;
+  compareData?: any;
+  compareLabel?: string;
 }
 
-export function GoogleAdsSection({ data = placeholderData, selectedCountry = "all" }: GoogleAdsSectionProps) {
+export function GoogleAdsSection({ data = placeholderData, selectedCountry = "all", compareData, compareLabel }: GoogleAdsSectionProps) {
   const hasData = data.overview.adSpend > 0 || data.overview.clicks > 0 || data.overview.impressions > 0;
   const isFiltered = selectedCountry !== "all";
 
@@ -54,42 +57,39 @@ export function GoogleAdsSection({ data = placeholderData, selectedCountry = "al
         <ScoreCard
           title="CPC"
           value={`€${Number(data.overview.cpc).toFixed(2)}`}
-          change="-4.8% vs last period"
-          changeType="positive"
           icon={MousePointer}
           colorScheme="google-ads"
+          compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpc), compareData.overview?.cpc, compareLabel) : undefined}
+          invertChange
         />
         <ScoreCard
           title="CTR"
           value={`${Number(data.overview.ctr).toFixed(2)}%`}
-          change="+1.2% vs last period"
-          changeType="positive"
           icon={Target}
           colorScheme="google-ads"
+          compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined}
         />
         <ScoreCard
           title="Conversions"
           value={data.overview.conversions.toLocaleString()}
-          change="+12.7% vs last period"
-          changeType="positive"
           icon={TrendingUp}
           colorScheme="google-ads"
+          compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined}
         />
         <ScoreCard
           title="Ad Spend"
           value={`€${Number(data.overview.adSpend).toFixed(2)}`}
-          change="+9.3% vs last period"
-          changeType="neutral"
           icon={DollarSign}
           colorScheme="google-ads"
+          compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined}
         />
         <ScoreCard
           title="Cost per Conversion"
           value={`€${Number(data.overview.costPerConversion).toFixed(2)}`}
-          change="-6.2% vs last period"
-          changeType="positive"
           icon={DollarSign}
           colorScheme="google-ads"
+          compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined}
+          invertChange
         />
       </div>
 

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
+import { calcCompare } from "@/lib/compareUtils";
 import { ShoppingCart, DollarSign, Package, TrendingUp, AlertCircle } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -21,11 +22,13 @@ interface ShopifyData {
 interface ShopifySectionProps {
   data: ShopifyData;
   selectedCountry?: string;
+  compareData?: any;
+  compareLabel?: string;
 }
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
-export function ShopifySection({ data, selectedCountry = "all" }: ShopifySectionProps) {
+export function ShopifySection({ data, selectedCountry = "all", compareData, compareLabel }: ShopifySectionProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0,
@@ -81,9 +84,9 @@ export function ShopifySection({ data, selectedCountry = "all" }: ShopifySection
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-        <ScoreCard title="Total Orders" value={overview.totalOrders.toLocaleString()} icon={ShoppingCart} />
-        <ScoreCard title="Total Revenue" value={formatCurrency(overview.totalRevenue)} icon={DollarSign} />
-        <ScoreCard title="Avg Order Value" value={formatCurrency(overview.averageOrderValue)} icon={TrendingUp} />
+        <ScoreCard title="Total Orders" value={overview.totalOrders.toLocaleString()} icon={ShoppingCart} compare={compareData && compareLabel ? calcCompare(overview.totalOrders, compareData.overview?.totalOrders, compareLabel) : undefined} />
+        <ScoreCard title="Total Revenue" value={formatCurrency(overview.totalRevenue)} icon={DollarSign} compare={compareData && compareLabel ? calcCompare(overview.totalRevenue, compareData.overview?.totalRevenue, compareLabel) : undefined} />
+        <ScoreCard title="Avg Order Value" value={formatCurrency(overview.averageOrderValue)} icon={TrendingUp} compare={compareData && compareLabel ? calcCompare(overview.averageOrderValue, compareData.overview?.averageOrderValue, compareLabel) : undefined} />
         <ScoreCard title="Total Products" value={overview.totalProducts.toLocaleString()} icon={Package} />
       </div>
 
