@@ -125,7 +125,7 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
                   }} 
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Line type="monotone" dataKey="users" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Total Users" dot={false} />
+                <Line type="monotone" dataKey="users" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Active Users" dot={false} />
                 <Line type="monotone" dataKey="newUsers" stroke="hsl(var(--chart-2))" strokeWidth={2} name="New Users" dot={false} />
               </LineChart>
             </ResponsiveContainer>
