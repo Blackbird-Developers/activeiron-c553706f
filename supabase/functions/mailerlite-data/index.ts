@@ -80,7 +80,7 @@ serve(async (req) => {
     let activeSubscribers = 0;
     
     try {
-      // Fetch total subscribers count
+      // Fetch total subscribers count (limit=0 returns just {"total": N})
       const subscribersResponse = await fetch(
         'https://connect.mailerlite.com/api/subscribers?limit=0',
         {
@@ -95,11 +95,11 @@ serve(async (req) => {
       
       if (subscribersResponse.ok) {
         const subscribersData = await subscribersResponse.json();
-        totalSubscribers = subscribersData.meta?.total || 0;
-        console.log('Total subscribers from API:', totalSubscribers);
+        console.log('Total subscribers raw response:', JSON.stringify(subscribersData));
+        totalSubscribers = subscribersData.total || 0;
       }
       
-      // Fetch active subscribers count (status=active filter)
+      // Fetch active subscribers count
       const activeSubscribersResponse = await fetch(
         'https://connect.mailerlite.com/api/subscribers?filter[status]=active&limit=0',
         {
@@ -114,8 +114,8 @@ serve(async (req) => {
       
       if (activeSubscribersResponse.ok) {
         const activeSubscribersData = await activeSubscribersResponse.json();
-        activeSubscribers = activeSubscribersData.meta?.total || 0;
-        console.log('Active subscribers from API:', activeSubscribers);
+        console.log('Active subscribers raw response:', JSON.stringify(activeSubscribersData));
+        activeSubscribers = activeSubscribersData.total || 0;
       }
     } catch (e) {
       console.error('Error fetching subscriber stats:', e);
