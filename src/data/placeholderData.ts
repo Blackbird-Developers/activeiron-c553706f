@@ -12,11 +12,11 @@ export const ga4Data = {
     engagedSessions: 36250,
   },
   trafficBySource: [
-    { name: "Organic Search", users: 18500, percentage: 40.5 },
-    { name: "Direct", users: 12000, percentage: 26.3 },
-    { name: "Social Media", users: 8900, percentage: 19.5 },
-    { name: "Referral", users: 4278, percentage: 9.4 },
-    { name: "Email", users: 2000, percentage: 4.3 },
+    { name: "Organic Search", sessions: 18500, users: 18500, percentage: 40.5 },
+    { name: "Direct", sessions: 12000, users: 12000, percentage: 26.3 },
+    { name: "Social Media", sessions: 8900, users: 8900, percentage: 19.5 },
+    { name: "Referral", sessions: 4278, users: 4278, percentage: 9.4 },
+    { name: "Email", sessions: 2000, users: 2000, percentage: 4.3 },
   ],
   trendsOverTime: [
     { date: "Jan 1", users: 3200, newUsers: 890, sessions: 4100, pageViews: 8500 },
