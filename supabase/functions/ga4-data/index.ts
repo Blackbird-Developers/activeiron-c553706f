@@ -157,9 +157,9 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
-          dimensions: [{ name: 'firstUserDefaultChannelGroup' }],
+          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
           metrics: [
-            { name: 'totalUsers' },
+            { name: 'sessions' },
           ]
         }),
       }
@@ -178,7 +178,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'date' }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'active1DayUsers' },
             { name: 'newUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
@@ -330,14 +330,17 @@ serve(async (req) => {
     
     // Build traffic by source from channels data
     const trafficBySource = channelsData.rows?.map((row: any) => {
-      const users = parseInt(row.metricValues[0].value);
+      const channelSessions = parseInt(row.metricValues[0].value);
       
       return {
         name: row.dimensionValues[0].value,
-        users,
-        percentage: activeUsers > 0 ? Math.round((users / activeUsers) * 1000) / 10 : 0
+        sessions: channelSessions,
+        percentage: sessions > 0 ? Math.round((channelSessions / sessions) * 1000) / 10 : 0
       };
     }) || [];
+    
+    // Sort by sessions descending
+    trafficBySource.sort((a: any, b: any) => b.sessions - a.sessions);
 
     // Build trends over time from date-based report
     const trendsOverTime = trendsData.rows?.map((row: any) => {
@@ -353,7 +356,7 @@ serve(async (req) => {
 
       return {
         date: formattedDate,
-        users: parseInt(row.metricValues[0].value),
+        users: parseInt(row.metricValues[0].value), // totalUsers per day
         newUsers: parseInt(row.metricValues[1].value),
         sessions: parseInt(row.metricValues[2].value),
         pageViews: parseInt(row.metricValues[3].value),

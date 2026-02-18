@@ -125,8 +125,9 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
                   }} 
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} />
-                <Line type="monotone" dataKey="users" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Active Users" dot={false} />
+                <Line type="monotone" dataKey="sessions" stroke="hsl(var(--ga4-primary))" strokeWidth={2} name="Sessions" dot={false} />
                 <Line type="monotone" dataKey="newUsers" stroke="hsl(var(--chart-2))" strokeWidth={2} name="New Users" dot={false} />
+                <Line type="monotone" dataKey="pageViews" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Page Views" dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -148,7 +149,7 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
                       innerRadius={40}
                       outerRadius={65}
                       paddingAngle={2}
-                      dataKey="users"
+                      dataKey="sessions"
                       stroke="none"
                     >
                       {data.trafficBySource.map((entry, index) => (
@@ -168,8 +169,9 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
               </div>
               <div className="flex flex-col gap-2 flex-1 min-w-0">
                 {data.trafficBySource.map((entry, index) => {
-                  const total = data.trafficBySource.reduce((sum, e) => sum + e.users, 0);
-                  const pct = total > 0 ? ((entry.users / total) * 100).toFixed(1) : '0';
+                  const total = data.trafficBySource.reduce((sum, e) => sum + (e.sessions || e.users || 0), 0);
+                  const val = entry.sessions || entry.users || 0;
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0';
                   return (
                     <div key={entry.name} className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 min-w-0">
@@ -180,7 +182,7 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
                         <span className="text-sm text-foreground truncate">{entry.name}</span>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-sm font-medium text-foreground">{entry.users.toLocaleString()}</span>
+                        <span className="text-sm font-medium text-foreground">{val.toLocaleString()}</span>
                         <span className="text-xs text-muted-foreground w-12 text-right">{pct}%</span>
                       </div>
                     </div>
