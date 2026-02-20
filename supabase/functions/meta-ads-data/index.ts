@@ -101,7 +101,7 @@ serve(async (req) => {
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
         time_range: JSON.stringify({ since: startDate, until: endDate }),
-        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency,video_thruplay_watched_actions',
+        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency,video_thruplay_watched_actions,post_engagement,cost_per_unique_click',
         level: 'account',
       }),
       {
@@ -371,24 +371,33 @@ serve(async (req) => {
       accountMetrics.video_thruplay_watched_actions?.find((a: any) => a.action_type === 'video_view')?.value || 0
     );
 
+    // Extract post engagements
+    const engagements = parseInt(accountMetrics.post_engagement || 0);
+
     // CPR = Cost Per Result = Ad Spend / Conversions (same as costPerConversion but named explicitly)
     const cpr = costPerConversion;
+
+    // CPE = Cost Per Engagement
+    const adSpend = parseFloat(accountMetrics.spend || 0);
+    const cpe = engagements > 0 ? adSpend / engagements : 0;
     
     console.log('Account metrics actions:', JSON.stringify(accountMetrics.actions?.slice(0, 10)));
-    console.log('Extracted conversions:', conversions, 'Cost per conversion:', costPerConversion, 'Thruplays:', thruplays);
+    console.log('Extracted conversions:', conversions, 'Cost per conversion:', costPerConversion, 'Thruplays:', thruplays, 'Engagements:', engagements, 'CPE:', cpe);
 
     const processedData = {
       overview: {
         cpc: parseFloat(accountMetrics.cpc || 0),
         ctr: parseFloat(accountMetrics.ctr || 0),
         conversions: conversions,
-        adSpend: parseFloat(accountMetrics.spend || 0),
+        adSpend: adSpend,
         costPerConversion: costPerConversion,
         impressions: parseInt(accountMetrics.impressions || 0),
         clicks: parseInt(accountMetrics.clicks || 0),
         reach: parseInt(accountMetrics.reach || 0),
         thruplays: thruplays,
         cpr: cpr,
+        engagements: engagements,
+        cpe: cpe,
       },
       performanceOverTime,
       campaignPerformance: campaigns.slice(0, 10).map((c: any) => ({
