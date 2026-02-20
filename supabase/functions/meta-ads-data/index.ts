@@ -101,7 +101,7 @@ serve(async (req) => {
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
         time_range: JSON.stringify({ since: startDate, until: endDate }),
-        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency',
+        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency,video_thruplay_watched_actions',
         level: 'account',
       }),
       {
@@ -365,9 +365,17 @@ serve(async (req) => {
         }
       }
     }
+
+    // Extract thruplays (video views that reached at least 15 seconds)
+    const thruplays = parseInt(
+      accountMetrics.video_thruplay_watched_actions?.find((a: any) => a.action_type === 'video_view')?.value || 0
+    );
+
+    // CPR = Cost Per Result = Ad Spend / Conversions (same as costPerConversion but named explicitly)
+    const cpr = costPerConversion;
     
     console.log('Account metrics actions:', JSON.stringify(accountMetrics.actions?.slice(0, 10)));
-    console.log('Extracted conversions:', conversions, 'Cost per conversion:', costPerConversion);
+    console.log('Extracted conversions:', conversions, 'Cost per conversion:', costPerConversion, 'Thruplays:', thruplays);
 
     const processedData = {
       overview: {
@@ -379,6 +387,8 @@ serve(async (req) => {
         impressions: parseInt(accountMetrics.impressions || 0),
         clicks: parseInt(accountMetrics.clicks || 0),
         reach: parseInt(accountMetrics.reach || 0),
+        thruplays: thruplays,
+        cpr: cpr,
       },
       performanceOverTime,
       campaignPerformance: campaigns.slice(0, 10).map((c: any) => ({

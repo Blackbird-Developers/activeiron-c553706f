@@ -79,6 +79,8 @@ export const metaAdsData = {
     impressions: 320000,
     clicks: 11040,
     reach: 250000,
+    thruplays: 0,
+    cpr: 6.85,
   },
   performanceOverTime: [
     { date: "Jan 1", spend: 1100, conversions: 165, ctr: 3.2, impressions: 42000, clicks: 1344 },
