@@ -281,10 +281,10 @@ export default function TrafficAnalysis() {
                     ))}
                   </Pie>
                   {/* Center label */}
-                  <text x="50%" y="46%" textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground" style={{ fontSize: "11px" }}>
+                  <text x="50%" y="44%" textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground" style={{ fontSize: "11px" }}>
                     Total Sessions
                   </text>
-                  <text x="50%" y="56%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground" style={{ fontSize: "20px", fontWeight: 700 }}>
+                  <text x="50%" y="55%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground" style={{ fontSize: "20px", fontWeight: 700 }}>
                     {totalSessions.toLocaleString()}
                   </text>
                   <Tooltip
