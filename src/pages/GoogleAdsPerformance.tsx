@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
+import { GoogleAdsAIOverview } from "@/components/GoogleAdsAIOverview";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { LayoutList, Sparkles } from "lucide-react";
 import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -193,80 +196,101 @@ export default function GoogleAdsPerformance() {
       <LoadingOverlay isLoading={isLoading} colorScheme="google" />
       <div className="space-y-6 lg:space-y-8">
         <PageHeader
-        title="Google Ads Performance"
-        titleClassName="text-google-ads-foreground"
-        description="Comprehensive overview of all Google Ads campaigns"
-        lastRefresh={lastRefresh}
-        isLoading={isLoading}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        selectedCountry={selectedCountry}
-        onCountryChange={setSelectedCountry}
-        compareMode={compareMode}
-        onCompareModeChange={setCompareMode}
-      />
+          title="Google Ads Performance"
+          titleClassName="text-google-ads-foreground"
+          description="Comprehensive overview of all Google Ads campaigns"
+          lastRefresh={lastRefresh}
+          isLoading={isLoading}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
+          compareMode={compareMode}
+          onCompareModeChange={setCompareMode}
+        />
 
-      <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-google-ads-foreground">Campaign Performance</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="active-only"
-              checked={showActiveOnly}
-              onCheckedChange={setShowActiveOnly}
-            />
-            <Label htmlFor="active-only" className="text-sm text-muted-foreground cursor-pointer">
-              Active only
-            </Label>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {filteredData.campaignPerformance?.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2">Campaign</th>
-                    <th className="text-right p-2">Status</th>
-                    <th className="text-right p-2">Spend</th>
-                    <th className="text-right p-2">Clicks</th>
-                    <th className="text-right p-2">Conversions</th>
-                    <th className="text-right p-2">ROAS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData.campaignPerformance.map((campaign: any, index: number) => (
-                    <tr key={index} className="border-b">
-                      <td className="p-2">{campaign.campaign}</td>
-                      <td className="text-right p-2">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          campaign.status === 'ENABLED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {campaign.status}
-                        </span>
-                      </td>
-                      <td className="text-right p-2">€{campaign.spend?.toFixed(2)}</td>
-                      <td className="text-right p-2">{campaign.clicks?.toLocaleString()}</td>
-                      <td className="text-right p-2">{campaign.conversions}</td>
-                      <td className="text-right p-2">{campaign.roas?.toFixed(2)}x</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <Tabs defaultValue="campaigns" className="w-full">
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="campaigns" className="gap-2">
+                <LayoutList className="h-4 w-4" />
+                Campaigns
+              </TabsTrigger>
+              <TabsTrigger value="ai-overview" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                AI Overview
+              </TabsTrigger>
+            </TabsList>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="active-only"
+                checked={showActiveOnly}
+                onCheckedChange={setShowActiveOnly}
+              />
+              <Label htmlFor="active-only" className="text-sm text-muted-foreground cursor-pointer">
+                Active only
+              </Label>
             </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">
-              {selectedCountry !== 'all' 
-                ? `No campaigns found for ${{'IE':'Ireland','UK':'United Kingdom','US':'United States','DE':'Germany','NZ':'New Zealand'}[selectedCountry] || selectedCountry}`
-                : 'No campaign data available'}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+
+          <TabsContent value="campaigns" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-google-ads-foreground">Campaign Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {filteredData.campaignPerformance?.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2">Campaign</th>
+                          <th className="text-right p-2">Status</th>
+                          <th className="text-right p-2">Spend</th>
+                          <th className="text-right p-2">Clicks</th>
+                          <th className="text-right p-2">Conversions</th>
+                          <th className="text-right p-2">ROAS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredData.campaignPerformance.map((campaign: any, index: number) => (
+                          <tr key={index} className="border-b">
+                            <td className="p-2">{campaign.campaign}</td>
+                            <td className="text-right p-2">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                campaign.status === 'ENABLED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-muted text-muted-foreground'
+                              }`}>
+                                {campaign.status}
+                              </span>
+                            </td>
+                            <td className="text-right p-2">€{campaign.spend?.toFixed(2)}</td>
+                            <td className="text-right p-2">{campaign.clicks?.toLocaleString()}</td>
+                            <td className="text-right p-2">{campaign.conversions}</td>
+                            <td className="text-right p-2">{campaign.roas?.toFixed(2)}x</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">
+                    {selectedCountry !== 'all'
+                      ? `No campaigns found for ${{ IE: 'Ireland', UK: 'United Kingdom', US: 'United States', DE: 'Germany', NZ: 'New Zealand' }[selectedCountry] || selectedCountry}`
+                      : 'No campaign data available'}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ai-overview" className="mt-6">
+            <GoogleAdsAIOverview googleAdsData={filteredData} />
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );

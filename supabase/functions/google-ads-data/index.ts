@@ -149,11 +149,33 @@ serve(async (req) => {
       formattedLoginCustomerId
     );
 
+    // Fetch top keywords
+    const topKeywords = await fetchTopKeywords(
+      accessToken,
+      developerToken,
+      formattedCustomerId,
+      formattedStartDate,
+      formattedEndDate,
+      formattedLoginCustomerId
+    );
+
+    // Fetch responsive search ads
+    const responsiveSearchAds = await fetchResponsiveSearchAds(
+      accessToken,
+      developerToken,
+      formattedCustomerId,
+      formattedStartDate,
+      formattedEndDate,
+      formattedLoginCustomerId
+    );
+
     const data = {
       overview: accountMetrics,
       performanceOverTime: dailyPerformance,
       campaignPerformance: campaignPerformance,
       countryBreakdown: countryBreakdown,
+      topKeywords,
+      responsiveSearchAds,
     };
 
     console.log('Google Ads data retrieved successfully');
@@ -622,5 +644,208 @@ function getPlaceholderData() {
       { country: 'United States', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
       { country: 'Germany', impressions: 0, clicks: 0, spend: 0, conversions: 0, cpc: 0, ctr: 0 },
     ],
+    topKeywords: [],
+    responsiveSearchAds: [],
   };
 }
+
+async function fetchTopKeywords(
+  accessToken: string,
+  developerToken: string,
+  customerId: string,
+  startDate: string,
+  endDate: string,
+  loginCustomerId: string | null
+) {
+  const query = `
+    SELECT
+      ad_group_criterion.keyword.text,
+      ad_group_criterion.keyword.match_type,
+      ad_group_criterion.quality_info.quality_score,
+      metrics.impressions,
+      metrics.clicks,
+      metrics.cost_micros,
+      metrics.conversions,
+      metrics.ctr,
+      metrics.average_cpc
+    FROM keyword_view
+    WHERE segments.date BETWEEN '${startDate}' AND '${endDate}'
+      AND ad_group_criterion.status != 'REMOVED'
+    ORDER BY metrics.clicks DESC
+    LIMIT 50
+  `;
+
+  try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
+
+    const response = await fetch(
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
+      { method: 'POST', headers, body: JSON.stringify({ query }) }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('Google Ads API error (keywords):', err);
+      return [];
+    }
+
+    const data = await response.json();
+    const keywordMap: Record<string, any> = {};
+
+    if (data && Array.isArray(data)) {
+      for (const result of data) {
+        if (result.results) {
+          for (const row of result.results) {
+            const criterion = row.adGroupCriterion || {};
+            const metrics = row.metrics || {};
+            const text = criterion.keyword?.text;
+            const matchType = criterion.keyword?.matchType;
+            if (!text) continue;
+
+            const key = `${text}__${matchType}`;
+            if (!keywordMap[key]) {
+              keywordMap[key] = {
+                keyword: text,
+                matchType: matchType || 'UNKNOWN',
+                qualityScore: criterion.qualityInfo?.qualityScore || null,
+                impressions: 0,
+                clicks: 0,
+                spend: 0,
+                conversions: 0,
+              };
+            }
+            keywordMap[key].impressions += parseInt(metrics.impressions || 0);
+            keywordMap[key].clicks += parseInt(metrics.clicks || 0);
+            keywordMap[key].spend += parseInt(metrics.costMicros || 0) / 1000000;
+            keywordMap[key].conversions += parseFloat(metrics.conversions || 0);
+          }
+        }
+      }
+    }
+
+    return Object.values(keywordMap).map((k: any) => ({
+      keyword: k.keyword,
+      matchType: k.matchType,
+      qualityScore: k.qualityScore,
+      impressions: k.impressions,
+      clicks: k.clicks,
+      spend: parseFloat(k.spend.toFixed(2)),
+      conversions: Math.round(k.conversions),
+      cpc: k.clicks > 0 ? parseFloat((k.spend / k.clicks).toFixed(2)) : 0,
+      ctr: k.impressions > 0 ? parseFloat(((k.clicks / k.impressions) * 100).toFixed(2)) : 0,
+    })).sort((a: any, b: any) => b.clicks - a.clicks).slice(0, 30);
+  } catch (error) {
+    console.error('Error fetching keywords:', error);
+    return [];
+  }
+}
+
+async function fetchResponsiveSearchAds(
+  accessToken: string,
+  developerToken: string,
+  customerId: string,
+  startDate: string,
+  endDate: string,
+  loginCustomerId: string | null
+) {
+  const query = `
+    SELECT
+      campaign.name,
+      ad_group.name,
+      ad_group_ad.ad.responsive_search_ad.headlines,
+      ad_group_ad.ad.responsive_search_ad.descriptions,
+      ad_group_ad.status,
+      metrics.impressions,
+      metrics.clicks,
+      metrics.cost_micros,
+      metrics.conversions,
+      metrics.ctr
+    FROM ad_group_ad
+    WHERE segments.date BETWEEN '${startDate}' AND '${endDate}'
+      AND ad_group_ad.ad.type = 'RESPONSIVE_SEARCH_AD'
+      AND ad_group_ad.status != 'REMOVED'
+    ORDER BY metrics.clicks DESC
+    LIMIT 20
+  `;
+
+  try {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${accessToken}`,
+      'developer-token': developerToken,
+      'Content-Type': 'application/json',
+    };
+    if (loginCustomerId) headers['login-customer-id'] = loginCustomerId;
+
+    const response = await fetch(
+      `https://googleads.googleapis.com/v20/customers/${customerId}/googleAds:searchStream`,
+      { method: 'POST', headers, body: JSON.stringify({ query }) }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('Google Ads API error (RSAs):', err);
+      return [];
+    }
+
+    const data = await response.json();
+    const rsaMap: Record<string, any> = {};
+
+    if (data && Array.isArray(data)) {
+      for (const result of data) {
+        if (result.results) {
+          for (const row of result.results) {
+            const ad = row.adGroupAd?.ad?.responsiveSearchAd || {};
+            const campaign = row.campaign?.name || 'Unknown';
+            const adGroup = row.adGroup?.name || 'Unknown';
+            const metrics = row.metrics || {};
+            const status = row.adGroupAd?.status;
+
+            const headlines = (ad.headlines || []).map((h: any) => h.text).filter(Boolean);
+            const descriptions = (ad.descriptions || []).map((d: any) => d.text).filter(Boolean);
+            const key = `${campaign}__${adGroup}__${headlines[0] || 'unknown'}`;
+
+            if (!rsaMap[key]) {
+              rsaMap[key] = {
+                campaign,
+                adGroup,
+                headlines,
+                descriptions,
+                status,
+                impressions: 0,
+                clicks: 0,
+                spend: 0,
+                conversions: 0,
+              };
+            }
+            rsaMap[key].impressions += parseInt(metrics.impressions || 0);
+            rsaMap[key].clicks += parseInt(metrics.clicks || 0);
+            rsaMap[key].spend += parseInt(metrics.costMicros || 0) / 1000000;
+            rsaMap[key].conversions += parseFloat(metrics.conversions || 0);
+          }
+        }
+      }
+    }
+
+    return Object.values(rsaMap).map((ad: any) => ({
+      campaign: ad.campaign,
+      adGroup: ad.adGroup,
+      headlines: ad.headlines,
+      descriptions: ad.descriptions,
+      status: ad.status,
+      impressions: ad.impressions,
+      clicks: ad.clicks,
+      spend: parseFloat(ad.spend.toFixed(2)),
+      conversions: Math.round(ad.conversions),
+      ctr: ad.impressions > 0 ? parseFloat(((ad.clicks / ad.impressions) * 100).toFixed(2)) : 0,
+    })).sort((a: any, b: any) => b.clicks - a.clicks).slice(0, 15);
+  } catch (error) {
+    console.error('Error fetching RSAs:', error);
+    return [];
+  }
+}
+
