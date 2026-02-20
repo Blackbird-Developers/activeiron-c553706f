@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Eye, Users, Link, Play } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Eye, Users, Link, Play, Heart } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
@@ -70,6 +70,8 @@ export function MetaAdsSection({ data = placeholderData, selectedCountry = "all"
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
         <ScoreCard title="CPR" value={`€${Number(data.overview.cpr ?? data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpr ?? data.overview.costPerConversion), compareData.overview?.cpr ?? compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
         <ScoreCard title="Thruplays" value={(data.overview.thruplays ?? 0).toLocaleString()} icon={Play} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.thruplays ?? 0, compareData.overview?.thruplays ?? 0, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="Engagements" value={(data.overview.engagements ?? 0).toLocaleString()} icon={Heart} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.engagements ?? 0, compareData.overview?.engagements ?? 0, compareLabel) : undefined} compareLoading={compareLoading} />
+        <ScoreCard title="CPE" value={`€${Number(data.overview.cpe ?? 0).toFixed(2)}`} icon={MousePointer} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpe ?? 0), compareData.overview?.cpe ?? 0, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
