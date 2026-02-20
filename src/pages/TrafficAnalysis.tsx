@@ -13,6 +13,58 @@ import { useToast } from "@/hooks/use-toast";
 import { CountryCode } from "@/components/CountryFilter";
 import { CompareMode } from "@/components/DateFilter";
 
+// Maps raw GA4 source/medium values to human-readable labels
+const SOURCE_LABELS: Record<string, string> = {
+  "(direct)": "Direct",
+  "(not set)": "Unknown",
+  "(other)": "Other",
+  google: "Google",
+  bing: "Bing",
+  yahoo: "Yahoo",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+  twitter: "Twitter / X",
+  linkedin: "LinkedIn",
+  pinterest: "Pinterest",
+  youtube: "YouTube",
+  mailerlite: "MailerLite",
+  mailchimp: "Mailchimp",
+  klaviyo: "Klaviyo",
+  shopify: "Shopify",
+  duckduckgo: "DuckDuckGo",
+  baidu: "Baidu",
+  "l.facebook.com": "Facebook",
+  "t.co": "Twitter / X",
+  "lnkd.in": "LinkedIn",
+};
+
+const MEDIUM_LABELS: Record<string, string> = {
+  "(none)": "None",
+  "(not set)": "Unknown",
+  organic: "Organic Search",
+  cpc: "Paid Search (CPC)",
+  email: "Email",
+  referral: "Referral",
+  social: "Social",
+  display: "Display",
+  affiliate: "Affiliate",
+  video: "Video",
+  push: "Push Notification",
+  sms: "SMS",
+  direct: "Direct",
+};
+
+function friendlySource(raw: string) {
+  const lower = raw.toLowerCase();
+  return SOURCE_LABELS[lower] ?? SOURCE_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
+}
+
+function friendlyMedium(raw: string) {
+  const lower = raw.toLowerCase();
+  return MEDIUM_LABELS[lower] ?? MEDIUM_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
+}
+
 interface SourceMediumEntry {
   source: string;
   medium: string;
@@ -127,13 +179,19 @@ export default function TrafficAnalysis() {
   // Aggregations for charts
   const byMedium = useMemo(() => {
     const map = new Map<string, number>();
-    data.forEach(d => map.set(d.medium, (map.get(d.medium) || 0) + d.sessions));
+    data.forEach(d => {
+      const label = friendlyMedium(d.medium);
+      map.set(label, (map.get(label) || 0) + d.sessions);
+    });
     return Array.from(map, ([name, sessions]) => ({ name, sessions })).sort((a, b) => b.sessions - a.sessions);
   }, [data]);
 
   const bySource = useMemo(() => {
     const map = new Map<string, number>();
-    data.forEach(d => map.set(d.source, (map.get(d.source) || 0) + d.sessions));
+    data.forEach(d => {
+      const label = friendlySource(d.source);
+      map.set(label, (map.get(label) || 0) + d.sessions);
+    });
     return Array.from(map, ([name, sessions]) => ({ name, sessions })).sort((a, b) => b.sessions - a.sessions).slice(0, 10);
   }, [data]);
 
@@ -297,8 +355,8 @@ export default function TrafficAnalysis() {
                   ) : (
                     sorted.map((row, i) => (
                       <TableRow key={i}>
-                        <TableCell className="font-medium">{row.source}</TableCell>
-                        <TableCell>{row.medium}</TableCell>
+                        <TableCell className="font-medium">{friendlySource(row.source)}</TableCell>
+                        <TableCell>{friendlyMedium(row.medium)}</TableCell>
                         <TableCell className="text-right">{row.sessions.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.newUsers.toLocaleString()}</TableCell>
