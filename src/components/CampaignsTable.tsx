@@ -35,13 +35,15 @@ interface Campaign {
   clicks?: number;
   reach?: number;
   frequency?: number;
+  engagements?: number;
+  cpe?: number;
 }
 
 interface CampaignsTableProps {
   campaigns: Campaign[];
 }
 
-type ColumnKey = 'status' | 'spend' | 'cpc' | 'ctr' | 'conversions' | 'cpa' | 'roas' | 'impressions' | 'clicks' | 'reach' | 'frequency';
+type ColumnKey = 'status' | 'spend' | 'cpc' | 'ctr' | 'conversions' | 'cpa' | 'roas' | 'impressions' | 'clicks' | 'reach' | 'frequency' | 'engagements' | 'cpe';
 
 const ALL_COLUMNS: { key: ColumnKey; label: string; defaultVisible: boolean }[] = [
   { key: 'status', label: 'Status', defaultVisible: true },
@@ -51,6 +53,8 @@ const ALL_COLUMNS: { key: ColumnKey; label: string; defaultVisible: boolean }[] 
   { key: 'clicks', label: 'Clicks', defaultVisible: false },
   { key: 'cpc', label: 'CPC', defaultVisible: true },
   { key: 'ctr', label: 'CTR', defaultVisible: true },
+  { key: 'engagements', label: 'Engagements', defaultVisible: true },
+  { key: 'cpe', label: 'CPE', defaultVisible: true },
   { key: 'conversions', label: 'Conversions', defaultVisible: true },
   { key: 'cpa', label: 'CPA', defaultVisible: true },
   { key: 'roas', label: 'ROAS', defaultVisible: true },
@@ -149,6 +153,14 @@ export function CampaignsTable({ campaigns }: CampaignsTableProps) {
         return campaign.reach?.toLocaleString('en-GB') ?? '-';
       case 'frequency':
         return campaign.frequency?.toFixed(2) ?? '-';
+      case 'engagements':
+        return campaign.engagements != null && campaign.engagements > 0
+          ? campaign.engagements.toLocaleString('en-GB')
+          : '-';
+      case 'cpe':
+        return campaign.cpe != null && campaign.cpe > 0
+          ? `€${campaign.cpe.toFixed(2)}`
+          : '-';
       default:
         return '-';
     }
