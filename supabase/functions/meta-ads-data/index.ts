@@ -273,7 +273,7 @@ serve(async (req) => {
               new URLSearchParams({
                 access_token: META_ADS_API_KEY,
                 time_range: JSON.stringify({ since: startDate, until: endDate }),
-                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,purchase_roas',
+                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,purchase_roas,post_engagement',
               }),
               {
                 method: 'GET',
@@ -301,11 +301,16 @@ serve(async (req) => {
                 a.action_type === 'omni_purchase' || a.action_type === 'purchase'
               )?.value || 0;
 
+              // Extract post engagements and CPE
+              const engagements = parseInt(data.post_engagement || 0);
+              const campaignSpend = parseFloat(data.spend || 0);
+              const cpe = engagements > 0 ? campaignSpend / engagements : 0;
+
               return {
                 id: campaign.id,
                 name: campaign.name,
                 status: campaign.effective_status,
-                spend: parseFloat(data.spend || 0),
+                spend: campaignSpend,
                 cpc: parseFloat(data.cpc || 0),
                 ctr: parseFloat(data.ctr || 0),
                 impressions: parseInt(data.impressions || 0),
@@ -313,6 +318,8 @@ serve(async (req) => {
                 conversions: parseInt(conversions),
                 costPerConversion: parseFloat(costPerConversion),
                 roas: parseFloat(roas),
+                engagements,
+                cpe,
               };
             }
           } catch (error) {
