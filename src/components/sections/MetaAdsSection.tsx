@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Eye, Users, Link } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Eye, Users, Link, Play } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { metaAdsData as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
@@ -65,6 +65,11 @@ export function MetaAdsSection({ data = placeholderData, selectedCountry = "all"
         <ScoreCard title="CTR" value={`${Number(data.overview.ctr).toFixed(2)}%`} icon={Target} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Conversions" value={data.overview.conversions.toLocaleString()} icon={TrendingUp} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Cost per Conversion" value={`€${Number(data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
+      </div>
+
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4">
+        <ScoreCard title="CPR" value={`€${Number(data.overview.cpr ?? data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpr ?? data.overview.costPerConversion), compareData.overview?.cpr ?? compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
+        <ScoreCard title="Thruplays" value={(data.overview.thruplays ?? 0).toLocaleString()} icon={Play} colorScheme="meta" compare={compareData && compareLabel ? calcCompare(data.overview.thruplays ?? 0, compareData.overview?.thruplays ?? 0, compareLabel) : undefined} compareLoading={compareLoading} />
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
