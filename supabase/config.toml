@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.shopify-data]
 verify_jwt = false
+
+[functions.growth-report]
+verify_jwt = false
