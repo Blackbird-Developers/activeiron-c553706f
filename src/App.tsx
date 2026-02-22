@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import ShopifyPerformance from "./pages/ShopifyPerformance";
 import TrafficAnalysis from "./pages/TrafficAnalysis";
+import GrowthReport from "./pages/GrowthReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -105,6 +106,7 @@ const App = () => {
                   <Route path="/email" element={<EmailPerformance />} />
                   <Route path="/google-ads" element={<GoogleAdsPerformance />} />
                   <Route path="/shopify" element={<ShopifyPerformance />} />
+                  <Route path="/growth-report" element={<GrowthReport />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
