@@ -101,7 +101,7 @@ serve(async (req) => {
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
         time_range: JSON.stringify({ since: startDate, until: endDate }),
-        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency,video_thruplay_watched_actions,post_reactions,post_comments,post_shares,cost_per_unique_click',
+        fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,reach,frequency,video_thruplay_watched_actions,cost_per_unique_click',
         level: 'account',
       }),
       {
@@ -273,7 +273,7 @@ serve(async (req) => {
               new URLSearchParams({
                 access_token: META_ADS_API_KEY,
                 time_range: JSON.stringify({ since: startDate, until: endDate }),
-                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,purchase_roas,post_reactions,post_comments,post_shares',
+                fields: 'impressions,clicks,spend,cpc,ctr,actions,cost_per_action_type,purchase_roas',
               }),
               {
                 method: 'GET',
@@ -301,11 +301,9 @@ serve(async (req) => {
                 a.action_type === 'omni_purchase' || a.action_type === 'purchase'
               )?.value || 0;
 
-              // Extract post engagements (reactions + comments + shares) and CPE
-              const reactions = parseInt(data.post_reactions || 0);
-              const comments = parseInt(data.post_comments || 0);
-              const shares = parseInt(data.post_shares || 0);
-              const engagements = reactions + comments + shares;
+              // Extract engagements from actions (post_engagement action type)
+              const engagementAction = data.actions?.find((a: any) => a.action_type === 'post_engagement');
+              const engagements = parseInt(engagementAction?.value || 0);
               const campaignSpend = parseFloat(data.spend || 0);
               const cpe = engagements > 0 ? campaignSpend / engagements : 0;
 
@@ -381,11 +379,9 @@ serve(async (req) => {
       accountMetrics.video_thruplay_watched_actions?.find((a: any) => a.action_type === 'video_view')?.value || 0
     );
 
-    // Extract post engagements (reactions + comments + shares)
-    const reactions = parseInt(accountMetrics.post_reactions || 0);
-    const comments = parseInt(accountMetrics.post_comments || 0);
-    const shares = parseInt(accountMetrics.post_shares || 0);
-    const engagements = reactions + comments + shares;
+    // Extract engagements from actions (post_engagement action type)
+    const engagementAction = accountMetrics.actions?.find((a: any) => a.action_type === 'post_engagement');
+    const engagements = parseInt(engagementAction?.value || 0);
 
     // CPR = Cost Per Result = Ad Spend / Conversions (same as costPerConversion but named explicitly)
     const cpr = costPerConversion;
