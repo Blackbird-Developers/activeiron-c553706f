@@ -14,13 +14,13 @@ serve(async (req) => {
   try {
     const { ga4Data, googleAdsData, metaAdsData, subblyData, mailchimpData, country } = await req.json();
     
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('Lovable API key not configured');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('Anthropic API key not configured');
     }
 
-    console.log('Generating AI insights for marketing data');
+    console.log('Generating AI insights for marketing data via Claude');
 
     const currencySymbol = '€';
     const currencyName = 'EUR (€)';
@@ -46,16 +46,18 @@ Mailchimp Campaigns: ${JSON.stringify(mailchimpData)}
 
 Generate 4-5 key insights with specific recommendations.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
       }),
@@ -65,29 +67,17 @@ Generate 4-5 key insights with specific recommendations.`;
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }),
-          {
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error('Anthropic API error:', response.status, errorText);
+      throw new Error(`Anthropic API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const insights = data.choices[0].message.content;
-    console.log('AI insights generated successfully');
+    const insights = data.content[0].text;
+    console.log('Claude AI insights generated successfully');
 
     return new Response(JSON.stringify({ insights }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -96,10 +86,7 @@ Generate 4-5 key insights with specific recommendations.`;
     console.error('Error in ai-insights function:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
