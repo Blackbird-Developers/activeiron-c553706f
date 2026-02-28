@@ -20,6 +20,7 @@ interface CachedData {
   timestamp: number;
   startDate: string;
   endDate: string;
+  selectedCountry: CountryCode;
   data: {
     ga4: typeof ga4Data;
     googleAds: typeof googleAdsData;
@@ -62,7 +63,8 @@ const Index = () => {
           
           if (cacheAge < CACHE_DURATION_MS && 
               cached.startDate === startDateStr && 
-              cached.endDate === endDateStr) {
+              cached.endDate === endDateStr &&
+              cached.selectedCountry === selectedCountry) {
             setMarketingData(cached.data);
             setLastRefresh(new Date(cached.timestamp));
             return;
@@ -81,7 +83,7 @@ const Index = () => {
     setIsLoading(true);
     try {
       const [ga4Response, metaAdsResponse, googleAdsResponse, mailerliteResponse, shopifyResponse] = await Promise.all([
-        supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr } })
+        supabase.functions.invoke('ga4-data', { body: { startDate: startDateStr, endDate: endDateStr, country: selectedCountry } })
           .catch(err => ({ data: null, error: err })),
         supabase.functions.invoke('meta-ads-data', { body: { startDate: startDateStr, endDate: endDateStr } })
           .catch(err => ({ data: null, error: err })),
@@ -114,6 +116,7 @@ const Index = () => {
         timestamp: now.getTime(),
         startDate: startDateStr,
         endDate: endDateStr,
+        selectedCountry,
         data: newData,
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
@@ -132,7 +135,7 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [startDate, endDate, toast]);
+  }, [startDate, endDate, selectedCountry, toast]);
 
   const didMountRef = useRef(false);
   useEffect(() => {
@@ -173,7 +176,7 @@ const Index = () => {
       setCompareLoading(true);
       try {
         const [ga4Res, metaRes, googleRes, mailerliteRes, shopifyRes] = await Promise.all([
-          supabase.functions.invoke('ga4-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
+          supabase.functions.invoke('ga4-data', { body: { startDate: compStartStr, endDate: compEndStr, country: selectedCountry } }).catch(() => ({ data: null })),
           supabase.functions.invoke('meta-ads-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
           supabase.functions.invoke('google-ads-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
           supabase.functions.invoke('mailerlite-data', { body: { startDate: compStartStr, endDate: compEndStr } }).catch(() => ({ data: null })),
@@ -194,7 +197,7 @@ const Index = () => {
       }
     };
     fetchCompare();
-  }, [compareMode, startDate, endDate]);
+  }, [compareMode, startDate, endDate, selectedCountry]);
 
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -257,7 +260,6 @@ const Index = () => {
         c.country?.toLowerCase() === name.toLowerCase()
       )
     );
-
     // Filter Shopify by country breakdown
     const shopifyCountryCodeMap: Record<CountryCode, string[]> = {
       'IE': ['IE'],
@@ -296,7 +298,7 @@ const Index = () => {
       ga4: {
         ...marketingData.ga4,
         overview: ga4CountryData ? {
-          totalUsers: ga4CountryData.users || 0,
+          totalUsers: Math.max(ga4CountryData.users || 0, ga4CountryData.newUsers || 0),
           newUsers: ga4CountryData.newUsers || 0,
           sessions: ga4CountryData.sessions || 0,
           pageViews: ga4CountryData.pageViews || 0,
@@ -365,7 +367,6 @@ const Index = () => {
     const ga4Country = compareData.ga4?.countryBreakdown?.find(
       (c: any) => countryNameMap[selectedCountry]?.some((name: string) => c.country?.toLowerCase() === name.toLowerCase())
     );
-
     // Shopify
     const shopifyCodeMap: Record<CountryCode, string[]> = {
       'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'all': [],
@@ -379,7 +380,7 @@ const Index = () => {
       ga4: compareData.ga4 ? {
         ...compareData.ga4,
         overview: ga4Country ? {
-          totalUsers: ga4Country.users || 0,
+          totalUsers: Math.max(ga4Country.users || 0, ga4Country.newUsers || 0),
           newUsers: ga4Country.newUsers || 0,
           sessions: ga4Country.sessions || 0,
           pageViews: ga4Country.pageViews || 0,
