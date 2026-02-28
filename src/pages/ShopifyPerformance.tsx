@@ -243,6 +243,29 @@ export default function ShopifyPerformance() {
     };
   }, [shopifyData, selectedCountry]);
 
+  // Apply same country filtering to compare data
+  const filteredCompareData = useMemo(() => {
+    if (!compareData || selectedCountry === 'all') return compareData;
+    const countryCodeMap: Record<CountryCode, string[]> = {
+      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'all': [],
+    };
+    const targetCodes = countryCodeMap[selectedCountry];
+    const countryData = compareData.countryBreakdown?.find(
+      (c: any) => targetCodes.includes(c.countryCode?.toUpperCase())
+    );
+    if (!countryData) {
+      return { ...compareData, overview: { totalOrders: 0, totalRevenue: 0, totalDiscounts: 0, averageOrderValue: 0, totalProducts: compareData.overview?.totalProducts || 0 } };
+    }
+    return {
+      ...compareData,
+      overview: {
+        totalOrders: countryData.totalOrders, totalRevenue: countryData.totalRevenue,
+        totalDiscounts: countryData.totalDiscounts || 0, averageOrderValue: countryData.averageOrderValue,
+        totalProducts: compareData.overview?.totalProducts || 0,
+      },
+    };
+  }, [compareData, selectedCountry]);
+
   // Calculate additional insights from filtered data
   const insights = useMemo(() => {
     const { ordersOverTime, topProducts, ordersByStatus } = filteredData;
@@ -292,7 +315,7 @@ export default function ShopifyPerformance() {
         onCompareModeChange={setCompareMode}
       />
 
-      <ShopifySection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+      <ShopifySection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList>
