@@ -210,13 +210,7 @@ serve(async (req) => {
             { name: 'screenPageViews' },
             { name: 'engagementRate' },
           ],
-          orderBys: [
-            {
-              metric: { metricName: 'activeUsers' },
-              desc: true,
-            },
-          ],
-          limit: 10,
+          limit: 50,
         }),
       }
     );
