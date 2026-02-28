@@ -121,7 +121,27 @@ serve(async (req) => {
     // Get OAuth access token
     const accessToken = await getAccessToken(serviceAccount);
 
-    // FIRST API CALL: Get accurate totals WITHOUT dimensions (matches GA4 UI)
+    // Build country dimension filter (used when a specific market is selected)
+    const countryFullName: Record<string, string> = {
+      'IE': 'Ireland',
+      'UK': 'United Kingdom',
+      'US': 'United States',
+      'DE': 'Germany',
+      'NZ': 'New Zealand',
+    };
+    const countryFilterObj = country && country !== 'all' && countryFullName[country] ? {
+      dimensionFilter: {
+        filter: {
+          fieldName: 'country',
+          stringFilter: {
+            matchType: 'EXACT',
+            value: countryFullName[country],
+          }
+        }
+      }
+    } : {};
+
+    // FIRST API CALL: Get accurate totals (optionally filtered by market)
     const totalsResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
@@ -133,7 +153,7 @@ serve(async (req) => {
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'bounceRate' },
@@ -141,7 +161,8 @@ serve(async (req) => {
             { name: 'screenPageViews' },
             { name: 'averageSessionDuration' },
             { name: 'engagedSessions' },
-          ]
+          ],
+          ...countryFilterObj
         }),
       }
     );
@@ -160,7 +181,8 @@ serve(async (req) => {
           dimensions: [{ name: 'sessionDefaultChannelGroup' }],
           metrics: [
             { name: 'sessions' },
-          ]
+          ],
+          ...countryFilterObj
         }),
       }
     );
@@ -178,11 +200,12 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'date' }],
           metrics: [
-            { name: 'active1DayUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
           ],
+          ...countryFilterObj,
           orderBys: [
             {
               dimension: { dimensionName: 'date' },
@@ -205,7 +228,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'country' }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
             { name: 'engagementRate' },
@@ -214,32 +237,13 @@ serve(async (req) => {
             { name: 'averageSessionDuration' },
             { name: 'engagedSessions' },
           ],
+          ...countryFilterObj,
           limit: 50,
         }),
       }
     );
 
-    // Build country dimension filter for source/medium call
-    const countryFullName: Record<string, string> = {
-      'IE': 'Ireland',
-      'UK': 'United Kingdom',
-      'US': 'United States',
-      'DE': 'Germany',
-      'NZ': 'New Zealand',
-    };
-    const countryFilterObj = country && country !== 'all' && countryFullName[country] ? {
-      dimensionFilter: {
-        filter: {
-          fieldName: 'country',
-          stringFilter: {
-            matchType: 'EXACT',
-            value: countryFullName[country],
-          }
-        }
-      }
-    } : {};
-
-    // FIFTH API CALL: Get source/medium breakdown (with optional country filter)
+    // FIFTH API CALL: Get source/medium breakdown (optionally filtered by market)
     const sourceMediumResponse = await fetch(
       `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
       {
@@ -256,7 +260,7 @@ serve(async (req) => {
           ],
           metrics: [
             { name: 'sessions' },
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'averageSessionDuration' },
@@ -290,7 +294,7 @@ serve(async (req) => {
     console.log('Totals response (no dimensions):', JSON.stringify(totalsData, null, 2));
 
     // Extract accurate totals from the no-dimension response
-    const activeUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
+    const totalUsers = totalsData.rows?.[0]?.metricValues?.[0]?.value 
       ? parseInt(totalsData.rows[0].metricValues[0].value) 
       : 0;
     const newUsers = totalsData.rows?.[0]?.metricValues?.[1]?.value 
@@ -316,7 +320,7 @@ serve(async (req) => {
       : 0;
     
     console.log('Extracted totals:', { 
-      activeUsers, 
+      totalUsers, 
       newUsers,
       engagementRate,
       bounceRate,
@@ -401,7 +405,7 @@ serve(async (req) => {
     // Create processed data structure
     const processedData = {
       overview: {
-        totalUsers: activeUsers,
+        totalUsers: totalUsers,
         newUsers: newUsers,
         engagementRate: Math.round(engagementRate * 10) / 10,
         bounceRate: Math.round(bounceRate * 10) / 10,
