@@ -298,7 +298,7 @@ const Index = () => {
       ga4: {
         ...marketingData.ga4,
         overview: ga4CountryData ? {
-          totalUsers: Math.max(ga4CountryData.users || 0, ga4CountryData.newUsers || 0),
+          totalUsers: ga4CountryData.users || 0,
           newUsers: ga4CountryData.newUsers || 0,
           sessions: ga4CountryData.sessions || 0,
           pageViews: ga4CountryData.pageViews || 0,
@@ -380,7 +380,7 @@ const Index = () => {
       ga4: compareData.ga4 ? {
         ...compareData.ga4,
         overview: ga4Country ? {
-          totalUsers: Math.max(ga4Country.users || 0, ga4Country.newUsers || 0),
+          totalUsers: ga4Country.users || 0,
           newUsers: ga4Country.newUsers || 0,
           sessions: ga4Country.sessions || 0,
           pageViews: ga4Country.pageViews || 0,

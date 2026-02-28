@@ -153,7 +153,7 @@ serve(async (req) => {
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
           metrics: [
-            { name: 'totalUsers' },
+            { name: 'activeUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'bounceRate' },
@@ -200,7 +200,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'date' }],
           metrics: [
-            { name: 'totalUsers' },
+            { name: 'activeUsers' },
             { name: 'newUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
@@ -228,7 +228,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'country' }],
           metrics: [
-            { name: 'totalUsers' },
+            { name: 'activeUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
             { name: 'engagementRate' },
@@ -260,7 +260,7 @@ serve(async (req) => {
           ],
           metrics: [
             { name: 'sessions' },
-            { name: 'totalUsers' },
+            { name: 'activeUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'averageSessionDuration' },
