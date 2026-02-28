@@ -122,20 +122,22 @@ serve(async (req) => {
     const accessToken = await getAccessToken(serviceAccount);
 
     // Build country dimension filter (used when a specific market is selected)
-    const countryFullName: Record<string, string> = {
-      'IE': 'Ireland',
-      'UK': 'United Kingdom',
-      'US': 'United States',
-      'DE': 'Germany',
-      'NZ': 'New Zealand',
+    // Use countryId (ISO code) to avoid locale/name matching inconsistencies.
+    const countryIdMap: Record<string, string> = {
+      IE: 'IE',
+      UK: 'GB',
+      US: 'US',
+      DE: 'DE',
+      NZ: 'NZ',
     };
-    const countryFilterObj = country && country !== 'all' && countryFullName[country] ? {
+    const countryId = country ? countryIdMap[country] : undefined;
+    const countryFilterObj = country && country !== 'all' && countryId ? {
       dimensionFilter: {
         filter: {
-          fieldName: 'country',
+          fieldName: 'countryId',
           stringFilter: {
             matchType: 'EXACT',
-            value: countryFullName[country],
+            value: countryId,
           }
         }
       }
@@ -153,7 +155,7 @@ serve(async (req) => {
         body: JSON.stringify({
           dateRanges: [{ startDate, endDate }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'bounceRate' },
@@ -200,7 +202,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'date' }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
@@ -228,7 +230,7 @@ serve(async (req) => {
           dateRanges: [{ startDate, endDate }],
           dimensions: [{ name: 'country' }],
           metrics: [
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'sessions' },
             { name: 'screenPageViews' },
             { name: 'engagementRate' },
@@ -260,7 +262,7 @@ serve(async (req) => {
           ],
           metrics: [
             { name: 'sessions' },
-            { name: 'activeUsers' },
+            { name: 'totalUsers' },
             { name: 'newUsers' },
             { name: 'engagementRate' },
             { name: 'averageSessionDuration' },
