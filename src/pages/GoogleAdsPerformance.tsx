@@ -191,6 +191,33 @@ export default function GoogleAdsPerformance() {
     };
   }, [googleAdsData, selectedCountry, showActiveOnly]);
 
+  // Apply same country/active filtering to compare data
+  const filteredCompareData = useMemo(() => {
+    if (!compareData) return null;
+    let campaigns = compareData.campaignPerformance || [];
+    if (showActiveOnly) {
+      campaigns = campaigns.filter((c: any) => c.status === 'ENABLED');
+    }
+    if (selectedCountry !== 'all') {
+      campaigns = campaigns.filter((c: any) => parseCountryFromCampaignName(c.campaign || '') === selectedCountry);
+    }
+    const agg = campaigns.reduce((acc: any, c: any) => ({
+      spend: acc.spend + (c.spend || 0), clicks: acc.clicks + (c.clicks || 0),
+      impressions: acc.impressions + (c.impressions || 0), conversions: acc.conversions + (c.conversions || 0),
+    }), { spend: 0, clicks: 0, impressions: 0, conversions: 0 });
+    return {
+      ...compareData,
+      overview: {
+        ...compareData.overview,
+        adSpend: agg.spend, clicks: agg.clicks, impressions: agg.impressions, conversions: agg.conversions,
+        cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
+        ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
+        costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
+      },
+      campaignPerformance: campaigns,
+    };
+  }, [compareData, selectedCountry, showActiveOnly]);
+
   return (
     <>
       <LoadingOverlay isLoading={isLoading} colorScheme="google" />
@@ -211,7 +238,7 @@ export default function GoogleAdsPerformance() {
           onCompareModeChange={setCompareMode}
         />
 
-        <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
 
         <Tabs defaultValue="campaigns" className="w-full">
           <div className="flex items-center justify-between">

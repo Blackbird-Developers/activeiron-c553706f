@@ -291,7 +291,7 @@ const Index = () => {
       ordersByStatus: [],
     };
 
-    return {
+  return {
       ...marketingData,
       ga4: {
         ...marketingData.ga4,
@@ -335,6 +335,89 @@ const Index = () => {
     };
   }, [marketingData, selectedCountry]);
 
+  // Apply same country filtering to compare data
+  const filteredCompareData = useMemo(() => {
+    if (!compareData || selectedCountry === 'all') return compareData;
+
+    const filterAdsCampaigns = (campaigns: any[], nameKey: string) => {
+      const filtered = campaigns.filter((c: any) => parseCountryFromCampaignName(c[nameKey] || '') === selectedCountry);
+      const agg = filtered.reduce((acc: any, c: any) => ({
+        spend: acc.spend + (c.spend || 0),
+        clicks: acc.clicks + (c.clicks || 0),
+        impressions: acc.impressions + (c.impressions || 0),
+        conversions: acc.conversions + (c.conversions || 0),
+      }), { spend: 0, clicks: 0, impressions: 0, conversions: 0 });
+      return { filtered, agg };
+    };
+
+    // Google Ads
+    const goog = filterAdsCampaigns(compareData.googleAds?.campaignPerformance || [], 'campaign');
+    // Meta Ads
+    const meta = filterAdsCampaigns(compareData.metaAds?.campaigns || [], 'name');
+
+    // GA4
+    const countryNameMap: Record<CountryCode, string[]> = {
+      'IE': ['Ireland'], 'UK': ['United Kingdom', 'Great Britain'], 'US': ['United States'], 'DE': ['Germany'], 'NZ': ['New Zealand'], 'all': [],
+    };
+    const ga4Country = compareData.ga4?.countryBreakdown?.find(
+      (c: any) => countryNameMap[selectedCountry]?.some((name: string) => c.country?.toLowerCase() === name.toLowerCase())
+    );
+
+    // Shopify
+    const shopifyCodeMap: Record<CountryCode, string[]> = {
+      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'all': [],
+    };
+    const shopifyCountry = compareData.shopify?.countryBreakdown?.find(
+      (c: any) => shopifyCodeMap[selectedCountry]?.includes(c.countryCode?.toUpperCase())
+    );
+
+    return {
+      ...compareData,
+      ga4: compareData.ga4 ? {
+        ...compareData.ga4,
+        overview: ga4Country ? {
+          ...compareData.ga4.overview,
+          totalUsers: ga4Country.users || 0,
+          sessions: ga4Country.sessions || 0,
+          pageViews: ga4Country.pageViews || 0,
+          engagementRate: ga4Country.engagementRate || 0,
+        } : compareData.ga4.overview,
+      } : null,
+      googleAds: compareData.googleAds ? {
+        ...compareData.googleAds,
+        overview: {
+          ...compareData.googleAds.overview,
+          adSpend: goog.agg.spend, clicks: goog.agg.clicks, impressions: goog.agg.impressions, conversions: goog.agg.conversions,
+          cpc: goog.agg.clicks > 0 ? goog.agg.spend / goog.agg.clicks : 0,
+          ctr: goog.agg.impressions > 0 ? (goog.agg.clicks / goog.agg.impressions) * 100 : 0,
+          costPerConversion: goog.agg.conversions > 0 ? goog.agg.spend / goog.agg.conversions : 0,
+        },
+        campaignPerformance: goog.filtered,
+      } : null,
+      metaAds: compareData.metaAds ? {
+        ...compareData.metaAds,
+        overview: {
+          ...compareData.metaAds.overview,
+          adSpend: meta.agg.spend, clicks: meta.agg.clicks, impressions: meta.agg.impressions, conversions: meta.agg.conversions,
+          cpc: meta.agg.clicks > 0 ? meta.agg.spend / meta.agg.clicks : 0,
+          ctr: meta.agg.impressions > 0 ? (meta.agg.clicks / meta.agg.impressions) * 100 : 0,
+          costPerConversion: meta.agg.conversions > 0 ? meta.agg.spend / meta.agg.conversions : 0,
+        },
+        campaigns: meta.filtered,
+      } : null,
+      shopify: shopifyCountry ? {
+        ...compareData.shopify,
+        overview: {
+          totalOrders: shopifyCountry.totalOrders || 0,
+          totalRevenue: shopifyCountry.totalRevenue || 0,
+          totalDiscounts: shopifyCountry.totalDiscounts || 0,
+          averageOrderValue: shopifyCountry.averageOrderValue || 0,
+          totalProducts: compareData.shopify?.overview?.totalProducts || 0,
+        },
+      } : compareData.shopify,
+    };
+  }, [compareData, selectedCountry]);
+
   return (
     <>
       <LoadingOverlay isLoading={isLoading} />
@@ -355,11 +438,11 @@ const Index = () => {
       />
 
       <div className="space-y-12">
-        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? compareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? compareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? compareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? filteredCompareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? filteredCompareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
         </div>
       </div>
     </>
