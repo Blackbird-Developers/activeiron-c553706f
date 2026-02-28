@@ -209,6 +209,10 @@ serve(async (req) => {
             { name: 'sessions' },
             { name: 'screenPageViews' },
             { name: 'engagementRate' },
+            { name: 'newUsers' },
+            { name: 'bounceRate' },
+            { name: 'averageSessionDuration' },
+            { name: 'engagedSessions' },
           ],
           limit: 50,
         }),
@@ -365,6 +369,10 @@ serve(async (req) => {
         sessions: parseInt(row.metricValues[1].value),
         pageViews: parseInt(row.metricValues[2].value),
         engagementRate: parseFloat(row.metricValues[3].value) * 100,
+        newUsers: parseInt(row.metricValues[4].value),
+        bounceRate: parseFloat(row.metricValues[5].value) * 100,
+        avgSessionDuration: parseFloat(row.metricValues[6].value),
+        engagedSessions: parseInt(row.metricValues[7].value),
       };
     }) || [];
     
