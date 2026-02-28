@@ -252,7 +252,7 @@ const Index = () => {
       'NZ': ['New Zealand'],
       'all': [],
     };
-    const ga4CountryData = marketingData.ga4.countryBreakdown?.find(
+    const ga4CountryData: any = marketingData.ga4.countryBreakdown?.find(
       (c: any) => countryNameMap[selectedCountry]?.some(name => 
         c.country?.toLowerCase() === name.toLowerCase()
       )
@@ -296,11 +296,14 @@ const Index = () => {
       ga4: {
         ...marketingData.ga4,
         overview: ga4CountryData ? {
-          ...marketingData.ga4.overview,
           totalUsers: ga4CountryData.users || 0,
+          newUsers: ga4CountryData.newUsers || 0,
           sessions: ga4CountryData.sessions || 0,
           pageViews: ga4CountryData.pageViews || 0,
-          engagementRate: ga4CountryData.engagementRate || 0,
+          engagementRate: Math.round((ga4CountryData.engagementRate || 0) * 10) / 10,
+          bounceRate: Math.round((ga4CountryData.bounceRate || 0) * 10) / 10,
+          avgSessionDuration: Math.round(ga4CountryData.avgSessionDuration || 0),
+          engagedSessions: ga4CountryData.engagedSessions || 0,
         } : marketingData.ga4.overview,
       },
       googleAds: {
@@ -376,11 +379,14 @@ const Index = () => {
       ga4: compareData.ga4 ? {
         ...compareData.ga4,
         overview: ga4Country ? {
-          ...compareData.ga4.overview,
           totalUsers: ga4Country.users || 0,
+          newUsers: ga4Country.newUsers || 0,
           sessions: ga4Country.sessions || 0,
           pageViews: ga4Country.pageViews || 0,
-          engagementRate: ga4Country.engagementRate || 0,
+          engagementRate: Math.round((ga4Country.engagementRate || 0) * 10) / 10,
+          bounceRate: Math.round((ga4Country.bounceRate || 0) * 10) / 10,
+          avgSessionDuration: Math.round(ga4Country.avgSessionDuration || 0),
+          engagedSessions: ga4Country.engagedSessions || 0,
         } : compareData.ga4.overview,
       } : null,
       googleAds: compareData.googleAds ? {
