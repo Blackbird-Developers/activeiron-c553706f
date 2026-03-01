@@ -1,8 +1,10 @@
 import { useRef, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { Users, UserPlus, Activity, TrendingDown, Clock, MousePointerClick, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, UserPlus, Activity, TrendingDown, Clock, MousePointerClick, BarChart3, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Tooltip as RechartsTooltip } from "recharts";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { Tooltip as ShadTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ga4Data as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
 
@@ -15,6 +17,7 @@ interface GA4SectionProps {
 
 export function GA4Section({ data = placeholderData, compareData, compareLabel, compareLoading }: GA4SectionProps) {
   const COLORS = ["hsl(var(--ga4-primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+  const hasUserAnomaly = data.overview.newUsers > data.overview.totalUsers && data.overview.totalUsers > 0;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -104,6 +107,15 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
           </div>
         </div>
       </div>
+
+      {hasUserAnomaly && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+          <span>
+            <strong>Data note:</strong> GA4 reports New Users ({data.overview.newUsers.toLocaleString()}) higher than Total Users ({data.overview.totalUsers.toLocaleString()}) for this market/period. This is a known GA4 reporting behaviour where Total Users are deduplicated across the date range while New Users are summed daily.
+          </span>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
         <Card>
