@@ -237,6 +237,7 @@ async function fetchAccountMetrics(
       metrics.clicks,
       metrics.cost_micros,
       metrics.conversions,
+      metrics.conversions_value,
       metrics.cost_per_conversion,
       metrics.ctr,
       metrics.average_cpc
@@ -278,6 +279,7 @@ async function fetchAccountMetrics(
     let totalClicks = 0;
     let totalCostMicros = 0;
     let totalConversions = 0;
+    let totalConversionsValue = 0;
 
     if (data && Array.isArray(data)) {
       for (const result of data) {
@@ -288,6 +290,7 @@ async function fetchAccountMetrics(
             totalClicks += parseInt(metrics.clicks || 0);
             totalCostMicros += parseInt(metrics.costMicros || 0);
             totalConversions += parseFloat(metrics.conversions || 0);
+            totalConversionsValue += parseFloat(metrics.conversionsValue || 0);
           }
         }
       }
@@ -306,7 +309,8 @@ async function fetchAccountMetrics(
       costPerConversion: parseFloat(costPerConversion.toFixed(2)),
       impressions: totalImpressions,
       clicks: totalClicks,
-      reach: totalImpressions, // Google Ads doesn't have reach, using impressions
+      reach: totalImpressions,
+      conversionsValue: parseFloat(totalConversionsValue.toFixed(2)),
     };
   } catch (error) {
     console.error('Error fetching account metrics:', error);
@@ -501,6 +505,7 @@ async function fetchCampaignPerformance(
       clicks: campaign.clicks,
       spend: parseFloat(campaign.spend.toFixed(2)),
       conversions: Math.round(campaign.conversions),
+      conversionsValue: parseFloat(campaign.conversionsValue.toFixed(2)),
       roas: campaign.spend > 0 ? parseFloat((campaign.conversionsValue / campaign.spend).toFixed(2)) : 0,
     }));
 
