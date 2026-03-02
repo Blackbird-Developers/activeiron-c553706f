@@ -45,6 +45,7 @@ export const googleAdsData = {
     impressions: 245000,
     clicks: 10098,
     reach: 180000,
+    conversionsValue: 32450.75,
   },
   performanceOverTime: [
     { date: "Jan 1", spend: 1250, conversions: 145, ctr: 3.9, impressions: 32000, clicks: 1248 },
@@ -56,10 +57,10 @@ export const googleAdsData = {
     { date: "Feb 12", spend: 1480, conversions: 178, ctr: 4.2, impressions: 37000, clicks: 1554 },
   ],
   campaignPerformance: [
-    { campaign: "Campaign X", spend: 2800, conversions: 335, roas: 3.9 },
-    { campaign: "Campaign Y", spend: 2400, conversions: 290, roas: 3.6 },
-    { campaign: "Campaign Z", spend: 2100, conversions: 258, roas: 3.3 },
-    { campaign: "Campaign W", spend: 1934, conversions: 206, roas: 3.0 },
+    { campaign: "Campaign X", spend: 2800, conversions: 335, conversionsValue: 10920, roas: 3.9 },
+    { campaign: "Campaign Y", spend: 2400, conversions: 290, conversionsValue: 8640, roas: 3.6 },
+    { campaign: "Campaign Z", spend: 2100, conversions: 258, conversionsValue: 6930, roas: 3.3 },
+    { campaign: "Campaign W", spend: 1934, conversions: 206, conversionsValue: 5802, roas: 3.0 },
   ],
   countryBreakdown: [
     { country: "Ireland", impressions: 80000, clicks: 3300, spend: 3000, conversions: 360, cpc: 0.91, ctr: 4.1 },

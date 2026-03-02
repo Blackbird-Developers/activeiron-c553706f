@@ -163,8 +163,9 @@ export default function GoogleAdsPerformance() {
         clicks: acc.clicks + (c.clicks || 0),
         impressions: acc.impressions + (c.impressions || 0),
         conversions: acc.conversions + (c.conversions || 0),
+        conversionsValue: acc.conversionsValue + (c.conversionsValue || 0),
       }),
-      { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
+      { spend: 0, clicks: 0, impressions: 0, conversions: 0, conversionsValue: 0 }
     );
 
     // If all countries selected and no active filter, return raw overview
@@ -183,6 +184,7 @@ export default function GoogleAdsPerformance() {
         clicks: agg.clicks,
         impressions: agg.impressions,
         conversions: agg.conversions,
+        conversionsValue: agg.conversionsValue,
         cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
         ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
         costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
@@ -204,12 +206,14 @@ export default function GoogleAdsPerformance() {
     const agg = campaigns.reduce((acc: any, c: any) => ({
       spend: acc.spend + (c.spend || 0), clicks: acc.clicks + (c.clicks || 0),
       impressions: acc.impressions + (c.impressions || 0), conversions: acc.conversions + (c.conversions || 0),
-    }), { spend: 0, clicks: 0, impressions: 0, conversions: 0 });
+      conversionsValue: acc.conversionsValue + (c.conversionsValue || 0),
+    }), { spend: 0, clicks: 0, impressions: 0, conversions: 0, conversionsValue: 0 });
     return {
       ...compareData,
       overview: {
         ...compareData.overview,
         adSpend: agg.spend, clicks: agg.clicks, impressions: agg.impressions, conversions: agg.conversions,
+        conversionsValue: agg.conversionsValue,
         cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
         ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
         costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
@@ -275,11 +279,12 @@ export default function GoogleAdsPerformance() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left p-2">Campaign</th>
+                         <th className="text-left p-2">Campaign</th>
                           <th className="text-right p-2">Status</th>
                           <th className="text-right p-2">Spend</th>
                           <th className="text-right p-2">Clicks</th>
                           <th className="text-right p-2">Conversions</th>
+                          <th className="text-right p-2">Conv. Value</th>
                           <th className="text-right p-2">ROAS</th>
                         </tr>
                       </thead>
@@ -297,6 +302,7 @@ export default function GoogleAdsPerformance() {
                             <td className="text-right p-2">€{campaign.spend?.toFixed(2)}</td>
                             <td className="text-right p-2">{campaign.clicks?.toLocaleString()}</td>
                             <td className="text-right p-2">{campaign.conversions}</td>
+                            <td className="text-right p-2">€{(campaign.conversionsValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="text-right p-2">{campaign.roas?.toFixed(2)}x</td>
                           </tr>
                         ))}

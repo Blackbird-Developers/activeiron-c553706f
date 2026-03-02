@@ -55,17 +55,34 @@ export function DateFilter({
   onCompareModeChange,
 }: DateFilterProps) {
   const [open, setOpen] = useState(false);
+  // Draft state for pending selection
+  const [draftStart, setDraftStart] = useState<Date | undefined>(startDate);
+  const [draftEnd, setDraftEnd] = useState<Date | undefined>(endDate);
+
+  // Sync draft when popover opens
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen) {
+      setDraftStart(startDate);
+      setDraftEnd(endDate);
+    }
+    setOpen(isOpen);
+  };
 
   const handlePresetClick = (key: PresetKey) => {
     const { start, end } = getPresetDates(key);
-    onStartDateChange(start);
-    onEndDateChange(end);
-    setOpen(false);
+    setDraftStart(start);
+    setDraftEnd(end);
   };
 
   const handleRangeSelect = (range: DateRange | undefined) => {
-    onStartDateChange(range?.from);
-    onEndDateChange(range?.to);
+    setDraftStart(range?.from);
+    setDraftEnd(range?.to);
+  };
+
+  const handleApply = () => {
+    onStartDateChange(draftStart);
+    onEndDateChange(draftEnd);
+    setOpen(false);
   };
 
   const formatDateRange = () => {
@@ -79,7 +96,7 @@ export function DateFilter({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -120,37 +137,49 @@ export function DateFilter({
             {/* Calendar */}
             <CalendarComponent
               mode="range"
-              selected={{ from: startDate, to: endDate }}
+              selected={{ from: draftStart, to: draftEnd }}
               onSelect={handleRangeSelect}
-              defaultMonth={startDate}
+              defaultMonth={draftStart}
               numberOfMonths={2}
               initialFocus
               className="p-3 pointer-events-auto"
             />
           </div>
 
-          {/* Compare toggle */}
-          {onCompareModeChange && (
-            <div className="flex items-center gap-2 px-3 py-2.5 border-t border-border">
-              <GitCompareArrows className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <span className="text-xs font-medium text-muted-foreground mr-1">Compare:</span>
-              {([
-                { key: "off" as CompareMode, label: "Off" },
-                { key: "mom" as CompareMode, label: "MoM" },
-                { key: "yoy" as CompareMode, label: "YoY" },
-              ]).map((opt) => (
-                <Button
-                  key={opt.key}
-                  variant={compareMode === opt.key ? "default" : "outline"}
-                  size="sm"
-                  className="h-6 px-2 text-[11px]"
-                  onClick={() => onCompareModeChange(opt.key)}
-                >
-                  {opt.label}
-                </Button>
-              ))}
+          {/* Compare toggle + Apply */}
+          <div className="flex items-center justify-between px-3 py-2.5 border-t border-border">
+            <div className="flex items-center gap-2">
+              {onCompareModeChange && (
+                <>
+                  <GitCompareArrows className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-xs font-medium text-muted-foreground mr-1">Compare:</span>
+                  {([
+                    { key: "off" as CompareMode, label: "Off" },
+                    { key: "mom" as CompareMode, label: "MoM" },
+                    { key: "yoy" as CompareMode, label: "YoY" },
+                  ]).map((opt) => (
+                    <Button
+                      key={opt.key}
+                      variant={compareMode === opt.key ? "default" : "outline"}
+                      size="sm"
+                      className="h-6 px-2 text-[11px]"
+                      onClick={() => onCompareModeChange(opt.key)}
+                    >
+                      {opt.label}
+                    </Button>
+                  ))}
+                </>
+              )}
             </div>
-          )}
+            <Button
+              size="sm"
+              className="h-7 px-4 text-xs font-medium ml-4"
+              onClick={handleApply}
+              disabled={!draftStart || !draftEnd}
+            >
+              Apply
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
