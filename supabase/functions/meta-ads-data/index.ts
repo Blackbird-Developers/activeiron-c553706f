@@ -153,7 +153,7 @@ serve(async (req) => {
       `https://graph.facebook.com/v21.0/act_${META_AD_ACCOUNT_ID}/campaigns?` +
       new URLSearchParams({
         access_token: META_ADS_API_KEY,
-        fields: 'name,status,effective_status',
+        fields: 'name,status,effective_status,objective',
         filtering: JSON.stringify([{ field: 'effective_status', operator: 'IN', value: ['ACTIVE'] }]),
       }),
       {
@@ -311,6 +311,7 @@ serve(async (req) => {
                 id: campaign.id,
                 name: campaign.name,
                 status: campaign.effective_status,
+                objective: campaign.objective || 'UNKNOWN',
                 spend: campaignSpend,
                 cpc: parseFloat(data.cpc || 0),
                 ctr: parseFloat(data.ctr || 0),

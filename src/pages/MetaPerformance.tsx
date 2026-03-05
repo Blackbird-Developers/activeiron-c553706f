@@ -16,6 +16,25 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { CompareMode } from "@/components/DateFilter";
 
+// Map Meta API objective values to friendly groups
+const OBJECTIVE_GROUPS: Record<string, string> = {
+  OUTCOME_AWARENESS: "Awareness",
+  BRAND_AWARENESS: "Awareness",
+  REACH: "Awareness",
+  OUTCOME_ENGAGEMENT: "Awareness",
+  OUTCOME_TRAFFIC: "Conversions",
+  OUTCOME_LEADS: "Conversions",
+  OUTCOME_SALES: "Conversions",
+  CONVERSIONS: "Conversions",
+  LINK_CLICKS: "Conversions",
+  LEAD_GENERATION: "Conversions",
+  PRODUCT_CATALOG_SALES: "Conversions",
+};
+
+function getObjectiveGroup(objective: string): string {
+  return OBJECTIVE_GROUPS[objective] || "Other";
+}
+
 const CACHE_KEY = 'meta_performance_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
@@ -37,6 +56,7 @@ export default function MetaPerformance() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [objectiveTab, setObjectiveTab] = useState<string>("all");
 
   const fetchMetaData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -140,19 +160,51 @@ export default function MetaPerformance() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter data based on selected country and active status
+  // Helper to aggregate campaign metrics
+  const aggregateCampaigns = (campaignList: any[], baseData: any) => {
+    const agg = campaignList.reduce(
+      (acc: any, c: any) => ({
+        spend: acc.spend + (c.spend || 0),
+        clicks: acc.clicks + (c.clicks || 0),
+        impressions: acc.impressions + (c.impressions || 0),
+        conversions: acc.conversions + (c.conversions || 0),
+        engagements: acc.engagements + (c.engagements || 0),
+        reach: acc.reach + (c.reach || 0),
+      }),
+      { spend: 0, clicks: 0, impressions: 0, conversions: 0, engagements: 0, reach: 0 }
+    );
+    return {
+      metaData: {
+        ...baseData,
+        overview: {
+          ...baseData.overview,
+          adSpend: agg.spend,
+          clicks: agg.clicks,
+          impressions: agg.impressions,
+          conversions: agg.conversions,
+          engagements: agg.engagements,
+          cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
+          ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
+          costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
+          cpr: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
+          cpe: agg.engagements > 0 ? agg.spend / agg.engagements : 0,
+        },
+        campaigns: campaignList,
+      },
+      campaigns: campaignList,
+    };
+  };
+
+  // Filter data based on selected country, active status, and objective
   const filteredData = useMemo(() => {
-    // Start with all campaigns
     let filteredCampaigns = [...campaigns];
 
-    // Filter by active status if enabled
     if (showActiveOnly) {
       filteredCampaigns = filteredCampaigns.filter((campaign: any) => 
         campaign.status === 'ACTIVE'
       );
     }
 
-    // Filter by country if selected
     if (selectedCountry !== 'all') {
       filteredCampaigns = filteredCampaigns.filter((campaign: any) => {
         const country = parseCountryFromCampaignName(campaign.name || '');
@@ -160,40 +212,19 @@ export default function MetaPerformance() {
       });
     }
 
-    // If no filters applied and showing all, return original data
-    if (!showActiveOnly && selectedCountry === 'all') {
+    // Filter by objective group
+    if (objectiveTab !== 'all') {
+      filteredCampaigns = filteredCampaigns.filter((campaign: any) => 
+        getObjectiveGroup(campaign.objective || '') === objectiveTab
+      );
+    }
+
+    if (!showActiveOnly && selectedCountry === 'all' && objectiveTab === 'all') {
       return { metaData, campaigns };
     }
 
-    // Aggregate metrics from filtered campaigns
-    const agg = filteredCampaigns.reduce(
-      (acc: any, c: any) => ({
-        spend: acc.spend + (c.spend || 0),
-        clicks: acc.clicks + (c.clicks || 0),
-        impressions: acc.impressions + (c.impressions || 0),
-        conversions: acc.conversions + (c.conversions || 0),
-      }),
-      { spend: 0, clicks: 0, impressions: 0, conversions: 0 }
-    );
-
-    return {
-      metaData: {
-        ...metaData,
-        overview: {
-          ...metaData.overview,
-          adSpend: agg.spend,
-          clicks: agg.clicks,
-          impressions: agg.impressions,
-          conversions: agg.conversions,
-          cpc: agg.clicks > 0 ? agg.spend / agg.clicks : 0,
-          ctr: agg.impressions > 0 ? (agg.clicks / agg.impressions) * 100 : 0,
-          costPerConversion: agg.conversions > 0 ? agg.spend / agg.conversions : 0,
-        },
-        campaigns: filteredCampaigns,
-      },
-      campaigns: filteredCampaigns,
-    };
-  }, [metaData, campaigns, selectedCountry, showActiveOnly]);
+    return aggregateCampaigns(filteredCampaigns, metaData);
+  }, [metaData, campaigns, selectedCountry, showActiveOnly, objectiveTab]);
 
   // Apply same country/active filtering to compare data
   const filteredCompareData = useMemo(() => {
@@ -204,6 +235,9 @@ export default function MetaPerformance() {
     }
     if (selectedCountry !== 'all') {
       compCampaigns = compCampaigns.filter((c: any) => parseCountryFromCampaignName(c.name || '') === selectedCountry);
+    }
+    if (objectiveTab !== 'all') {
+      compCampaigns = compCampaigns.filter((c: any) => getObjectiveGroup(c.objective || '') === objectiveTab);
     }
     const agg = compCampaigns.reduce((acc: any, c: any) => ({
       spend: acc.spend + (c.spend || 0), clicks: acc.clicks + (c.clicks || 0),
@@ -220,7 +254,16 @@ export default function MetaPerformance() {
       },
       campaigns: compCampaigns,
     };
-  }, [compareData, selectedCountry, showActiveOnly]);
+  }, [compareData, selectedCountry, showActiveOnly, objectiveTab]);
+
+  // Detect which objective groups exist in the data
+  const availableObjectives = useMemo(() => {
+    const groups = new Set<string>();
+    campaigns.forEach((c: any) => {
+      groups.add(getObjectiveGroup(c.objective || ''));
+    });
+    return Array.from(groups).sort();
+  }, [campaigns]);
 
   return (
     <>
@@ -242,7 +285,19 @@ export default function MetaPerformance() {
         onCompareModeChange={setCompareMode}
       />
 
-      <MetaAdsSection data={filteredData.metaData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+      {/* Objective filter tabs */}
+      {availableObjectives.length > 1 && (
+        <Tabs value={objectiveTab} onValueChange={setObjectiveTab}>
+          <TabsList>
+            <TabsTrigger value="all">All Campaigns</TabsTrigger>
+            {availableObjectives.map(obj => (
+              <TabsTrigger key={obj} value={obj}>{obj}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
+
+      <MetaAdsSection data={filteredData.metaData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} objectiveFilter={objectiveTab} />
 
       <Tabs defaultValue="campaigns" className="w-full">
         <div className="flex items-center justify-between">
