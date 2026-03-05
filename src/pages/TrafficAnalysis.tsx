@@ -259,7 +259,7 @@ export default function TrafficAnalysis() {
       if (SPLITTABLE_SOURCES.has(baseLabel)) {
         label = isPaid ? `${baseLabel} Paid` : `${baseLabel} Organic`;
       } else if (SOCIAL_PAID_MERGE_SOURCES.has(baseLabel)) {
-        label = isPaid ? "Paid Social" : `${baseLabel} Organic`;
+        label = "Paid Social";
       }
       map.set(label, (map.get(label) || 0) + d.sessions);
     });
