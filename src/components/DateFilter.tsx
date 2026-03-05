@@ -8,18 +8,19 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format, subDays, startOfMonth, endOfMonth, subMonths, startOfYear } from "date-fns";
 import type { DateRange } from "react-day-picker";
 
 export type CompareMode = "off" | "mom" | "yoy";
 
-type PresetKey = "7d" | "30d" | "thisMonth" | "lastMonth";
+type PresetKey = "7d" | "30d" | "thisMonth" | "lastMonth" | "ytd";
 
 const presets: { key: PresetKey; label: string }[] = [
   { key: "7d", label: "Last 7 Days" },
   { key: "30d", label: "Last 30 Days" },
   { key: "thisMonth", label: "This Month" },
   { key: "lastMonth", label: "Last Month" },
+  { key: "ytd", label: "Year to Date" },
 ];
 
 const getPresetDates = (key: PresetKey): { start: Date; end: Date } => {
@@ -34,6 +35,8 @@ const getPresetDates = (key: PresetKey): { start: Date; end: Date } => {
     case "lastMonth":
       const lastMonth = subMonths(today, 1);
       return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth) };
+    case "ytd":
+      return { start: startOfYear(today), end: today };
   }
 };
 

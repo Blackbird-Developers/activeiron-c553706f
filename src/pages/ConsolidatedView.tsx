@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { PageHeader } from "@/components/PageHeader";
 import { ConsolidatedMetricsSection } from "@/components/sections/ConsolidatedMetricsSection";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -26,11 +27,9 @@ interface CachedData {
 
 export default function ConsolidatedView() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, selectedCountry, setSelectedCountry } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,

@@ -18,6 +18,7 @@ import ShopifyPerformance from "./pages/ShopifyPerformance";
 import TrafficAnalysis from "./pages/TrafficAnalysis";
 
 import NotFound from "./pages/NotFound";
+import { DateRangeProvider } from "./contexts/DateRangeContext";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <DateRangeProvider>
           <div className="flex min-h-screen w-full">
             {/* Mobile menu button */}
             <Button
@@ -113,6 +115,7 @@ const App = () => {
               </div>
             </main>
           </div>
+        </DateRangeProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

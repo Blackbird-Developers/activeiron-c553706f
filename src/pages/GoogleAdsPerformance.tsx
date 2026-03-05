@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { PageHeader } from "@/components/PageHeader";
 import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { GoogleAdsAIOverview } from "@/components/GoogleAdsAIOverview";
@@ -27,14 +28,11 @@ interface CachedData {
 
 export default function GoogleAdsPerformance() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, selectedCountry, setSelectedCountry, compareMode, setCompareMode } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [googleAdsData, setGoogleAdsData] = useState<any>(placeholderData);
   const [showActiveOnly, setShowActiveOnly] = useState(true);
-  const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
 

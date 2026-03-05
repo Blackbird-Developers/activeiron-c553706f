@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { PageHeader } from "@/components/PageHeader";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -35,12 +36,10 @@ interface EmailAttributionData {
 
 export default function EmailPerformance() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(startOfMonth(subMonths(new Date(), 1)));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, compareMode, setCompareMode } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [mailerliteData, setMailerliteData] = useState<any>(placeholderData);
-  const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
   const [attributionData, setAttributionData] = useState<EmailAttributionData | null>(null);

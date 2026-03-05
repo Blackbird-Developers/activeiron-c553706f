@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,9 +12,9 @@ import { CountryCode } from "@/components/CountryFilter";
 
 export default function AIOverview() {
   const { toast } = useToast();
+  const { selectedCountry, setSelectedCountry } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [insights, setInsights] = useState<string>("");
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [marketingData, setMarketingData] = useState({
     ga4: ga4Data,
     googleAds: googleAdsData,
