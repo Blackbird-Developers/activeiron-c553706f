@@ -71,6 +71,18 @@ const SOURCE_LABELS: Record<string, string> = {
   "statics.teams.cdn.office.net": "Teams",
   "www-activeiron-com.translate.goog": "Google Translate",
   "qr-codes.io": "QR Code",
+  "chatgpt.com": "ChatGPT",
+  perplexity: "Perplexity",
+  "perplexity.ai": "Perplexity",
+  "activeiron-sp.admin.rechargeapps.com": "Recharge",
+};
+
+// AI sources — any source that should always get medium "AI"
+const AI_SOURCES = new Set(["ChatGPT", "Perplexity", "AI"]);
+
+// Sources that should override medium to a specific value
+const MEDIUM_OVERRIDES: Record<string, string> = {
+  "Recharge": "Subscriptions",
 };
 
 const MEDIUM_LABELS: Record<string, string> = {
@@ -126,20 +138,28 @@ function friendlySource(raw: string, medium?: string) {
 /** Resolve medium label, splitting "social" into Paid/Organic based on source context */
 function friendlyMedium(raw: string, source?: string) {
   const lower = raw.toLowerCase();
-  if (EXCLUDED_MEDIUMS.has(lower)) return null; // will be filtered out
+  if (EXCLUDED_MEDIUMS.has(lower)) return null;
+  const srcLabel = source ? friendlySource(source) : undefined;
+
+  // AI sources always get medium "AI"
+  if (srcLabel && AI_SOURCES.has(srcLabel)) return "AI";
+
+  // Source-specific medium overrides (e.g. Recharge → Subscriptions)
+  if (srcLabel && MEDIUM_OVERRIDES[srcLabel]) return MEDIUM_OVERRIDES[srcLabel];
+
+  // LinkedIn referral → Organic Social
+  if (srcLabel === "LinkedIn" && lower === "referral") return "Organic Social";
+
   // For referral medium from FB/IG, keep as Referral (not Paid Social)
   if (lower === "referral" && source) {
-    const srcLabel = SOURCE_LABELS[source.toLowerCase()] ?? source;
-    if (srcLabel === "Facebook" || srcLabel === "Instagram") {
+    const rawSrcLabel = SOURCE_LABELS[source.toLowerCase()] ?? source;
+    if (rawSrcLabel === "Facebook" || rawSrcLabel === "Instagram") {
       return "Referral";
     }
   }
   // All other FB/IG traffic is Paid Social regardless of medium
-  if (source) {
-    const srcLabel = friendlySource(source);
-    if (SOCIAL_PAID_MERGE_SOURCES.has(srcLabel)) {
-      return "Paid Social";
-    }
+  if (srcLabel && SOCIAL_PAID_MERGE_SOURCES.has(srcLabel)) {
+    return "Paid Social";
   }
   // Split "social" into paid vs organic
   if (lower === "social" && source) {
