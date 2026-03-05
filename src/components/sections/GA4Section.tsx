@@ -149,9 +149,9 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
           <CardHeader className="pb-2 lg:pb-6">
             <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
               Traffic by Source
-              <ShadTooltip>
+              <ShadTooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  <span tabIndex={0} className="inline-flex"><Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" /></span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[220px] text-xs">
                   Uses GA4 Default Channel Groups — GA4's built-in traffic classification.
