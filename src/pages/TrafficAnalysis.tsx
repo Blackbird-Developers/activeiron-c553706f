@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScoreCard } from "@/components/ScoreCard";
 import { calcCompare } from "@/lib/compareUtils";
-import { Globe, Users, ArrowUpDown, BarChart3, Clock } from "lucide-react";
+import { Globe, Users, ArrowUpDown, BarChart3, Clock, Info } from "lucide-react";
+import { Tooltip as ShadTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Treemap } from "recharts";
 import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -317,7 +318,17 @@ export default function TrafficAnalysis() {
           {/* Sessions by Medium - Pie */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base lg:text-lg text-ga4-foreground">Sessions by Medium</CardTitle>
+              <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
+                Sessions by Medium
+                <ShadTooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    Aggregated from raw Source/Medium data with custom grouping rules applied.
+                  </TooltipContent>
+                </ShadTooltip>
+              </CardTitle>
             </CardHeader>
             <CardContent className="px-2 lg:px-6">
               <ResponsiveContainer width="100%" height={300}>
@@ -367,7 +378,17 @@ export default function TrafficAnalysis() {
           {/* Top Sources - Bar */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base lg:text-lg text-ga4-foreground">Top Sources by Sessions</CardTitle>
+              <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
+                Top Sources by Sessions
+                <ShadTooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[240px] text-xs">
+                    Aggregated from raw Source/Medium data. FB &amp; IG merged into "Paid Social"; Google split into Paid/Organic.
+                  </TooltipContent>
+                </ShadTooltip>
+              </CardTitle>
             </CardHeader>
             <CardContent className="px-2 lg:px-6">
               <ResponsiveContainer width="100%" height={300}>

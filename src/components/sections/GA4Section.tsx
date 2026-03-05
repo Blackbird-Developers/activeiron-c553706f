@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { Users, UserPlus, Activity, TrendingDown, Clock, MousePointerClick, BarChart3, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Users, UserPlus, Activity, TrendingDown, Clock, MousePointerClick, BarChart3, ChevronLeft, ChevronRight, AlertTriangle, Info } from "lucide-react";
 import { Tooltip as RechartsTooltip } from "recharts";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { Tooltip as ShadTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
@@ -147,7 +147,17 @@ export function GA4Section({ data = placeholderData, compareData, compareLabel, 
 
         <Card>
           <CardHeader className="pb-2 lg:pb-6">
-            <CardTitle className="text-base lg:text-lg text-ga4-foreground">Traffic by Source</CardTitle>
+            <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
+              Traffic by Source
+              <ShadTooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[220px] text-xs">
+                  Uses GA4 Default Channel Groups — GA4's built-in traffic classification.
+                </TooltipContent>
+              </ShadTooltip>
+            </CardTitle>
           </CardHeader>
           <CardContent className="px-2 lg:px-6">
             <div className="flex items-center gap-6">
