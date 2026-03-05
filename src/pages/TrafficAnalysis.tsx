@@ -61,7 +61,7 @@ const SOURCE_LABELS: Record<string, string> = {
   "klaviyo.com": "Klaviyo",
   shopify: "Shopify",
   "shopify.com": "Shopify",
-  shop_app: "Shopify App",
+  shop_app: "Shop App",
   "(data not available)": "AI",
   duckduckgo: "DuckDuckGo",
   "duckduckgo.com": "DuckDuckGo",
@@ -69,6 +69,8 @@ const SOURCE_LABELS: Record<string, string> = {
   "baidu.com": "Baidu",
   newsletter: "Email",
   "statics.teams.cdn.office.net": "Teams",
+  "www-activeiron-com.translate.goog": "Google Translate",
+  "qr-codes.io": "QR Code",
 };
 
 const MEDIUM_LABELS: Record<string, string> = {
@@ -92,7 +94,7 @@ const MEDIUM_LABELS: Record<string, string> = {
 
 // Mediums to exclude entirely
 const EXCLUDED_MEDIUMS = new Set(["product_sync", "builtin"]);
-const EXCLUDED_SOURCES = new Set(["cro.media"]);
+const EXCLUDED_SOURCES = new Set(["cro.media", "cdn.shopify.com"]);
 
 // Sources that should be split into "X Organic" / "X Paid" in the bySource chart
 const SPLITTABLE_SOURCES = new Set(["Google"]);
