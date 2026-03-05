@@ -67,12 +67,14 @@ const SOURCE_LABELS: Record<string, string> = {
 
 const MEDIUM_LABELS: Record<string, string> = {
   "(none)": "None",
-  "(not set)": "Unknown",
+  "(not set)": "AI",
   organic: "Organic Search",
-  cpc: "Paid Search (CPC)",
+  cpc: "Paid Search",
+  ppc: "Paid Search",
   email: "Email",
   referral: "Referral",
   social: "Social",
+  paid: "Paid Social",
   display: "Display",
   affiliate: "Affiliate",
   video: "Video",
@@ -81,13 +83,35 @@ const MEDIUM_LABELS: Record<string, string> = {
   direct: "Direct",
 };
 
+// Mediums to exclude entirely
+const EXCLUDED_MEDIUMS = new Set(["product_sync"]);
+
+// Social sources used to distinguish paid vs organic social
+const SOCIAL_SOURCES = new Set([
+  "facebook", "facebook.com", "l.facebook.com", "m.facebook.com", "lm.facebook.com", "web.facebook.com",
+  "instagram", "instagram.com", "l.instagram.com", "m.instagram.com",
+  "twitter", "twitter.com", "t.co", "x.com",
+  "linkedin", "linkedin.com", "lnkd.in",
+  "pinterest", "pinterest.com", "pin.it",
+  "tiktok", "tiktok.com", "l.tiktok.com",
+]);
+
 function friendlySource(raw: string) {
   const lower = raw.toLowerCase();
   return SOURCE_LABELS[lower] ?? SOURCE_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
 }
 
-function friendlyMedium(raw: string) {
+/** Resolve medium label, splitting "social" into Paid/Organic based on source context */
+function friendlyMedium(raw: string, source?: string) {
   const lower = raw.toLowerCase();
+  if (EXCLUDED_MEDIUMS.has(lower)) return null; // will be filtered out
+  // Split "social" into paid vs organic
+  if (lower === "social" && source) {
+    const srcLower = source.toLowerCase();
+    const isSocialSource = SOCIAL_SOURCES.has(srcLower);
+    // If the source is a known social platform, it's organic social (paid would come via cpc/paid medium)
+    return isSocialSource ? "Organic Social" : "Paid Social";
+  }
   return MEDIUM_LABELS[lower] ?? MEDIUM_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
 }
 
@@ -186,7 +210,9 @@ export default function TrafficAnalysis() {
   }, [compareMode, startDate, endDate, selectedCountry]);
 
   const sorted = useMemo(() => {
-    return [...data].sort((a, b) => {
+    return [...data]
+      .filter(d => !EXCLUDED_MEDIUMS.has(d.medium.toLowerCase()))
+      .sort((a, b) => {
       const av = a[sortField];
       const bv = b[sortField];
       if (typeof av === "number" && typeof bv === "number") return sortDir === "desc" ? bv - av : av - bv;
@@ -203,7 +229,9 @@ export default function TrafficAnalysis() {
   const byMedium = useMemo(() => {
     const map = new Map<string, number>();
     data.forEach(d => {
-      const label = friendlyMedium(d.medium);
+      if (EXCLUDED_MEDIUMS.has(d.medium.toLowerCase())) return;
+      const label = friendlyMedium(d.medium, d.source);
+      if (!label) return;
       map.set(label, (map.get(label) || 0) + d.sessions);
     });
     return Array.from(map, ([name, sessions]) => ({ name, sessions })).sort((a, b) => b.sessions - a.sessions);
@@ -379,7 +407,7 @@ export default function TrafficAnalysis() {
                     sorted.map((row, i) => (
                       <TableRow key={i}>
                         <TableCell className="font-medium">{friendlySource(row.source)}</TableCell>
-                        <TableCell>{friendlyMedium(row.medium)}</TableCell>
+                        <TableCell>{friendlyMedium(row.medium, row.source)}</TableCell>
                         <TableCell className="text-right">{row.sessions.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.newUsers.toLocaleString()}</TableCell>
