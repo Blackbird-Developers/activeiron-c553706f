@@ -116,7 +116,7 @@ export function GoogleAdsSection({ data = placeholderData, selectedCountry = "al
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} />
                 <Bar dataKey="conversions" fill="hsl(var(--google-ads-primary))" name="Conversions" />
-                <Bar dataKey="roas" fill="hsl(var(--chart-2))" name="ROAS" />
+                <Bar dataKey="roas" fill="hsl(var(--chart-3))" name="ROAS" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
