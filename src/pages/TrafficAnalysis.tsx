@@ -62,7 +62,7 @@ const SOURCE_LABELS: Record<string, string> = {
   shopify: "Shopify",
   "shopify.com": "Shopify",
   shop_app: "Shopify App",
-  "(data not available)": "Unknown",
+  "(data not available)": "AI",
   duckduckgo: "DuckDuckGo",
   "duckduckgo.com": "DuckDuckGo",
   baidu: "Baidu",
@@ -87,7 +87,7 @@ const MEDIUM_LABELS: Record<string, string> = {
   push: "Push Notification",
   sms: "SMS",
   direct: "Direct",
-  "(data not available)": "Unknown",
+  "(data not available)": "AI",
 };
 
 // Mediums to exclude entirely
@@ -110,16 +110,29 @@ const SOCIAL_SOURCES = new Set([
   "tiktok", "tiktok.com", "l.tiktok.com",
 ]);
 
-function friendlySource(raw: string) {
+function friendlySource(raw: string, medium?: string) {
   const lower = raw.toLowerCase();
-  return SOURCE_LABELS[lower] ?? SOURCE_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
+  const label = SOURCE_LABELS[lower] ?? SOURCE_LABELS[raw] ?? (raw.charAt(0).toUpperCase() + raw.slice(1));
+  // Relabel FB/IG with referral medium as organic
+  if (medium && medium.toLowerCase() === "referral") {
+    if (label === "Facebook") return "Facebook Organic";
+    if (label === "Instagram") return "Instagram Organic";
+  }
+  return label;
 }
 
 /** Resolve medium label, splitting "social" into Paid/Organic based on source context */
 function friendlyMedium(raw: string, source?: string) {
   const lower = raw.toLowerCase();
   if (EXCLUDED_MEDIUMS.has(lower)) return null; // will be filtered out
-  // All FB/IG traffic is Paid Social regardless of medium
+  // For referral medium from FB/IG, keep as Referral (not Paid Social)
+  if (lower === "referral" && source) {
+    const srcLabel = SOURCE_LABELS[source.toLowerCase()] ?? source;
+    if (srcLabel === "Facebook" || srcLabel === "Instagram") {
+      return "Referral";
+    }
+  }
+  // All other FB/IG traffic is Paid Social regardless of medium
   if (source) {
     const srcLabel = friendlySource(source);
     if (SOCIAL_PAID_MERGE_SOURCES.has(srcLabel)) {
@@ -230,9 +243,30 @@ export default function TrafficAnalysis() {
   }, [compareMode, startDate, endDate, selectedCountry]);
 
   const sorted = useMemo(() => {
-    return [...data]
-      .filter(d => !EXCLUDED_MEDIUMS.has(d.medium.toLowerCase()))
-      .sort((a, b) => {
+    // First apply labels and merge rows with the same friendly source+medium
+    const mergeMap = new Map<string, SourceMediumEntry>();
+    data.forEach(d => {
+      if (EXCLUDED_MEDIUMS.has(d.medium.toLowerCase())) return;
+      const src = friendlySource(d.source, d.medium);
+      const med = friendlyMedium(d.medium, d.source) || d.medium;
+      const key = `${src}|||${med}`;
+      const existing = mergeMap.get(key);
+      if (existing) {
+        existing.sessions += d.sessions;
+        existing.users += d.users;
+        existing.newUsers += d.newUsers;
+        existing.pageViews += d.pageViews;
+        // Weighted averages for rates/duration
+        const totalSess = existing.sessions;
+        const prevSess = totalSess - d.sessions;
+        existing.engagementRate = prevSess > 0 ? ((existing.engagementRate * prevSess) + (d.engagementRate * d.sessions)) / totalSess : d.engagementRate;
+        existing.bounceRate = prevSess > 0 ? ((existing.bounceRate * prevSess) + (d.bounceRate * d.sessions)) / totalSess : d.bounceRate;
+        existing.avgSessionDuration = prevSess > 0 ? ((existing.avgSessionDuration * prevSess) + (d.avgSessionDuration * d.sessions)) / totalSess : d.avgSessionDuration;
+      } else {
+        mergeMap.set(key, { source: src, medium: med, sessions: d.sessions, users: d.users, newUsers: d.newUsers, engagementRate: d.engagementRate, bounceRate: d.bounceRate, avgSessionDuration: d.avgSessionDuration, pageViews: d.pageViews });
+      }
+    });
+    return Array.from(mergeMap.values()).sort((a, b) => {
       const av = a[sortField];
       const bv = b[sortField];
       if (typeof av === "number" && typeof bv === "number") return sortDir === "desc" ? bv - av : av - bv;
@@ -456,8 +490,8 @@ export default function TrafficAnalysis() {
                   ) : (
                     sorted.map((row, i) => (
                       <TableRow key={i}>
-                        <TableCell className="font-medium">{friendlySource(row.source)}</TableCell>
-                        <TableCell>{friendlyMedium(row.medium, row.source)}</TableCell>
+                        <TableCell className="font-medium">{row.source}</TableCell>
+                        <TableCell>{row.medium}</TableCell>
                         <TableCell className="text-right">{row.sessions.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{row.newUsers.toLocaleString()}</TableCell>
