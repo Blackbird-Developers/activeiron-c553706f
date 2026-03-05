@@ -276,7 +276,7 @@ serve(async (req) => {
               desc: true,
             },
           ],
-          limit: 50,
+          limit: 250,
         }),
       }
     );
