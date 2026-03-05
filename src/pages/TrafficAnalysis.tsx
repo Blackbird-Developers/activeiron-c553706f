@@ -91,7 +91,10 @@ const EXCLUDED_MEDIUMS = new Set(["product_sync"]);
 const EXCLUDED_SOURCES = new Set(["cro.media"]);
 
 // Sources that should be split into "X Organic" / "X Paid" in the bySource chart
-const SPLITTABLE_SOURCES = new Set(["Google", "Facebook", "Instagram"]);
+const SPLITTABLE_SOURCES = new Set(["Google"]);
+
+// Social sources whose paid traffic merges into "Paid Social"
+const SOCIAL_PAID_MERGE_SOURCES = new Set(["Facebook", "Instagram"]);
 
 // Social sources used to distinguish paid vs organic social
 const SOCIAL_SOURCES = new Set([
@@ -251,10 +254,12 @@ export default function TrafficAnalysis() {
       if (EXCLUDED_SOURCES.has(d.source.toLowerCase())) return;
       if (EXCLUDED_MEDIUMS.has(d.medium.toLowerCase())) return;
       const baseLabel = friendlySource(d.source);
+      const isPaid = PAID_MEDIUMS.has(d.medium.toLowerCase());
       let label = baseLabel;
       if (SPLITTABLE_SOURCES.has(baseLabel)) {
-        const isPaid = PAID_MEDIUMS.has(d.medium.toLowerCase());
         label = isPaid ? `${baseLabel} Paid` : `${baseLabel} Organic`;
+      } else if (SOCIAL_PAID_MERGE_SOURCES.has(baseLabel)) {
+        label = isPaid ? "Paid Social" : `${baseLabel} Organic`;
       }
       map.set(label, (map.get(label) || 0) + d.sessions);
     });
