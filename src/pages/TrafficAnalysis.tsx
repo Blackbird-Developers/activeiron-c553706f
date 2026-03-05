@@ -375,7 +375,7 @@ export default function TrafficAnalysis() {
                     }}
                     formatter={(value: number) => value.toLocaleString()}
                   />
-                  <Bar dataKey="sessions" fill="hsl(var(--ga4-primary))" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="sessions" fill="hsl(var(--ga4-primary))" radius={[0, 4, 4, 0]} label={{ position: 'right', fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
