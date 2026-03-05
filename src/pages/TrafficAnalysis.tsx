@@ -320,9 +320,9 @@ export default function TrafficAnalysis() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
                 Sessions by Medium
-                <ShadTooltip>
+                <ShadTooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    <span tabIndex={0} className="inline-flex"><Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" /></span>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-[240px] text-xs">
                     Aggregated from raw Source/Medium data with custom grouping rules applied.
@@ -380,9 +380,9 @@ export default function TrafficAnalysis() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-1.5">
                 Top Sources by Sessions
-                <ShadTooltip>
+                <ShadTooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    <span tabIndex={0} className="inline-flex"><Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" /></span>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-[240px] text-xs">
                     Aggregated from raw Source/Medium data. FB &amp; IG merged into "Paid Social"; Google split into Paid/Organic.
