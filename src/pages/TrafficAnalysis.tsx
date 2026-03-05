@@ -17,7 +17,7 @@ import { CompareMode } from "@/components/DateFilter";
 // Maps raw GA4 source/medium values to human-readable labels
 const SOURCE_LABELS: Record<string, string> = {
   "(direct)": "Direct",
-  "(not set)": "Unknown",
+  "(not set)": "AI",
   "(other)": "Other",
   google: "Google",
   "google.com": "Google",
@@ -25,6 +25,7 @@ const SOURCE_LABELS: Record<string, string> = {
   "bing.com": "Bing",
   yahoo: "Yahoo",
   "yahoo.com": "Yahoo",
+  "uk.search.yahoo.com": "Yahoo",
   facebook: "Facebook",
   "facebook.com": "Facebook",
   "l.facebook.com": "Facebook",
@@ -63,6 +64,8 @@ const SOURCE_LABELS: Record<string, string> = {
   "duckduckgo.com": "DuckDuckGo",
   baidu: "Baidu",
   "baidu.com": "Baidu",
+  newsletter: "Email",
+  "statics.teams.cdn.office.net": "Teams",
 };
 
 const MEDIUM_LABELS: Record<string, string> = {
@@ -85,6 +88,10 @@ const MEDIUM_LABELS: Record<string, string> = {
 
 // Mediums to exclude entirely
 const EXCLUDED_MEDIUMS = new Set(["product_sync"]);
+const EXCLUDED_SOURCES = new Set(["cro.media"]);
+
+// Sources that should be split into "X Organic" / "X Paid" in the bySource chart
+const SPLITTABLE_SOURCES = new Set(["Google", "Facebook", "Instagram"]);
 
 // Social sources used to distinguish paid vs organic social
 const SOCIAL_SOURCES = new Set([
@@ -238,9 +245,17 @@ export default function TrafficAnalysis() {
   }, [data]);
 
   const bySource = useMemo(() => {
+    const PAID_MEDIUMS = new Set(["cpc", "ppc", "paid", "display", "cpm", "cpv"]);
     const map = new Map<string, number>();
     data.forEach(d => {
-      const label = friendlySource(d.source);
+      if (EXCLUDED_SOURCES.has(d.source.toLowerCase())) return;
+      if (EXCLUDED_MEDIUMS.has(d.medium.toLowerCase())) return;
+      const baseLabel = friendlySource(d.source);
+      let label = baseLabel;
+      if (SPLITTABLE_SOURCES.has(baseLabel)) {
+        const isPaid = PAID_MEDIUMS.has(d.medium.toLowerCase());
+        label = isPaid ? `${baseLabel} Paid` : `${baseLabel} Organic`;
+      }
       map.set(label, (map.get(label) || 0) + d.sessions);
     });
     return Array.from(map, ([name, sessions]) => ({ name, sessions })).sort((a, b) => b.sessions - a.sessions).slice(0, 10);
