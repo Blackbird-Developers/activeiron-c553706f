@@ -296,7 +296,7 @@ export default function TrafficAnalysis() {
                   <Pie
                     data={byMedium}
                     cx="50%"
-                    cy="50%"
+                    cy="45%"
                     innerRadius={60}
                     outerRadius={90}
                     dataKey="sessions"
@@ -307,10 +307,10 @@ export default function TrafficAnalysis() {
                     ))}
                   </Pie>
                   {/* Center label */}
-                  <text x="50%" y="46%" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" style={{ fontSize: "11px" }}>
+                  <text x="50%" y="42%" textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" style={{ fontSize: "11px" }}>
                     Total Sessions
                   </text>
-                  <text x="50%" y="54%" textAnchor="middle" dominantBaseline="central" className="fill-foreground" style={{ fontSize: "20px", fontWeight: 700 }}>
+                  <text x="50%" y="49%" textAnchor="middle" dominantBaseline="central" className="fill-foreground" style={{ fontSize: "20px", fontWeight: 700 }}>
                     {totalSessions.toLocaleString()}
                   </text>
                   <Tooltip
