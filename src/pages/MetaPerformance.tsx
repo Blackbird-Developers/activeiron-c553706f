@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { PageHeader } from "@/components/PageHeader";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { CampaignsTable } from "@/components/CampaignsTable";
@@ -28,15 +29,12 @@ interface CachedData {
 
 export default function MetaPerformance() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, selectedCountry, setSelectedCountry, compareMode, setCompareMode } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [metaData, setMetaData] = useState<any>(placeholderData);
   const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
 

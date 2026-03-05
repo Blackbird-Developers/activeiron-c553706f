@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ga4Data, googleAdsData, metaAdsData, mailerliteData, shopifyData } from "@/data/placeholderData";
 import { CountryCode, parseCountryFromCampaignName } from "@/components/CountryFilter";
 import { CompareMode } from "@/components/DateFilter";
+import { useDateRange } from "@/contexts/DateRangeContext";
 const CACHE_KEY = 'marketing_dashboard_cache';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
@@ -32,12 +33,9 @@ interface CachedData {
 
 const Index = () => {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, selectedCountry, setSelectedCountry, compareMode, setCompareMode } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
-  const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
   const [marketingData, setMarketingData] = useState({

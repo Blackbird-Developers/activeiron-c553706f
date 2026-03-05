@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useDateRange } from "@/contexts/DateRangeContext";
 import { PageHeader } from "@/components/PageHeader";
 import { ShopifySection } from "@/components/sections/ShopifySection";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -81,13 +82,10 @@ const defaultShopifyData: ShopifyData = {
 
 export default function ShopifyPerformance() {
   const { toast } = useToast();
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const { startDate, endDate, setStartDate, setEndDate, selectedCountry, setSelectedCountry, compareMode, setCompareMode } = useDateRange();
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>("all");
   const [shopifyData, setShopifyData] = useState<ShopifyData>(defaultShopifyData);
-  const [compareMode, setCompareMode] = useState<CompareMode>("off");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
 
