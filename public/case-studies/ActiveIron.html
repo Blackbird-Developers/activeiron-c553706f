@@ -1335,31 +1335,49 @@
         })();
     </script>
     <script>
-        // Animated counters for dashboard preview
-        document.querySelectorAll('.dash-counter').forEach(el => {
-            const target = parseFloat(el.dataset.target);
-            const prefix = el.dataset.prefix || '';
-            const isDecimal = el.dataset.decimal === 'true';
-            const duration = 1500;
-            const delay = parseFloat(el.closest('.dash-card')?.style.animationDelay || '0') * 1000;
-            setTimeout(() => {
-                const start = performance.now();
-                function update(now) {
-                    const progress = Math.min((now - start) / duration, 1);
-                    const eased = 1 - Math.pow(1 - progress, 3);
-                    const val = eased * target;
-                    if (isDecimal) {
-                        el.textContent = val.toFixed(1) + 'x';
-                    } else if (target >= 1000) {
-                        el.textContent = prefix + Math.round(val).toLocaleString();
+        // Tab cycling animation
+        (function() {
+            const tabs = ['dashboard', 'google-ads', 'meta-ads', 'shopify', 'email', 'traffic', 'ai-insights'];
+            let currentIndex = 0;
+            const INTERVAL = 4000;
+
+            function switchTab(newIndex) {
+                const oldTab = document.querySelector(`.dash-tab-content[data-tab="${tabs[currentIndex]}"]`);
+                const newTab = document.querySelector(`.dash-tab-content[data-tab="${tabs[newIndex]}"]`);
+                
+                // Animate out
+                if (oldTab) { oldTab.style.opacity = '0'; oldTab.style.transform = 'translateY(-10px)'; oldTab.style.pointerEvents = 'none'; }
+                
+                // Animate in
+                setTimeout(() => {
+                    if (newTab) { newTab.style.opacity = '1'; newTab.style.transform = 'translateY(0)'; newTab.style.pointerEvents = 'auto'; }
+                }, 200);
+
+                // Update sidebar
+                document.querySelectorAll('.dash-nav-item').forEach(item => {
+                    if (item.dataset.tab === tabs[newIndex]) {
+                        item.className = 'dash-nav-item bg-iron/10 text-iron text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
                     } else {
-                        el.textContent = prefix + Math.round(val);
+                        item.className = 'dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
                     }
-                    if (progress < 1) requestAnimationFrame(update);
-                }
-                requestAnimationFrame(update);
-            }, delay + 500);
-        });
+                });
+
+                // Update dots
+                document.querySelectorAll('#dash-dots > div').forEach(dot => {
+                    if (dot.dataset.tab === tabs[newIndex]) {
+                        dot.className = 'w-6 h-1.5 rounded-full bg-iron transition-all duration-300';
+                    } else {
+                        dot.className = 'w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300';
+                    }
+                });
+
+                currentIndex = newIndex;
+            }
+
+            setInterval(() => {
+                switchTab((currentIndex + 1) % tabs.length);
+            }, INTERVAL);
+        })();
     </script>
 
 </body>
