@@ -102,6 +102,30 @@
         .dash-bar { height: 0; animation: dashBarGrow 0.8s ease-out forwards; }
         @keyframes dashBarGrow { to { height: var(--bar-height); } }
         .dash-donut { opacity: 0; animation: dashReveal 0.6s ease-out 1.6s forwards; }
+
+        /* Animated cursor */
+        .dash-cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 50;
+            pointer-events: none;
+            transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), top 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        /* Subtitle bar */
+        #dash-subtitle {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #dash-subtitle.hidden-sub {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        #dash-subtitle.visible-sub {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 
@@ -145,7 +169,11 @@
                     </div>
                 </div>
                 <!-- Dashboard Content -->
-                <div class="bg-[#faf8f5] rounded-b-2xl border border-gray-200 border-t-0 overflow-hidden shadow-2xl shadow-black/10" style="height: 480px;">
+                <div class="bg-[#faf8f5] rounded-b-2xl border border-gray-200 border-t-0 overflow-hidden shadow-2xl shadow-black/10 relative" style="height: 480px;">
+                    <!-- Animated Cursor -->
+                    <svg class="dash-cursor" id="dash-cursor" viewBox="0 0 24 24" style="left: 60px; top: 100px; opacity: 0;">
+                        <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="#0f172a" stroke="white" stroke-width="1.5"/>
+                    </svg>
                     <div class="flex h-full">
                         <!-- Sidebar -->
                         <div id="dash-sidebar" class="w-[200px] bg-white border-r border-gray-200 p-4 flex-shrink-0 hidden md:block">
@@ -532,6 +560,10 @@
                     <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="email"></div>
                     <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="traffic"></div>
                     <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="ai-insights"></div>
+                </div>
+                <!-- Subtitle -->
+                <div id="dash-subtitle" class="text-center mt-5 hidden-sub">
+                    <p class="text-sm text-gray-500 font-medium" id="dash-subtitle-text">All your marketing data in one place</p>
                 </div>
                 <!-- Glow effect -->
                 <div class="absolute -inset-4 bg-gradient-to-b from-iron/5 via-transparent to-transparent rounded-3xl -z-10 blur-2xl"></div>
@@ -1335,48 +1367,112 @@
         })();
     </script>
     <script>
-        // Tab cycling animation
+        // Tab cycling with cursor + subtitles
         (function() {
             const tabs = ['dashboard', 'google-ads', 'meta-ads', 'shopify', 'email', 'traffic', 'ai-insights'];
+            const subtitles = {
+                'dashboard': 'All your marketing data, consolidated into one real-time view',
+                'google-ads': 'Google Ads spend, clicks, CPC and conversions — tracked daily',
+                'meta-ads': 'Meta campaigns split by objective: Awareness vs. Conversions',
+                'shopify': 'Shopify orders, revenue, and top products — by market',
+                'email': 'MailerLite campaign performance: open rates, clicks, and trends',
+                'traffic': 'Auto-classified traffic sources — including AI traffic detection',
+                'ai-insights': 'AI analyses your data and recommends what to do next',
+            };
+            // Sidebar nav item positions (approximate Y offsets from top of dashboard container)
+            // Nav items start at ~110px, each ~32px apart
+            const navPositions = {
+                'dashboard':   { left: 75, top: 120 },
+                'google-ads':  { left: 75, top: 152 },
+                'meta-ads':    { left: 75, top: 184 },
+                'shopify':     { left: 75, top: 216 },
+                'email':       { left: 75, top: 248 },
+                'traffic':     { left: 75, top: 280 },
+                'ai-insights': { left: 75, top: 312 },
+            };
             let currentIndex = 0;
-            const INTERVAL = 4000;
+            const INTERVAL = 4500;
+            const cursor = document.getElementById('dash-cursor');
+            const subtitleEl = document.getElementById('dash-subtitle');
+            const subtitleText = document.getElementById('dash-subtitle-text');
+
+            // Show cursor after initial delay
+            setTimeout(() => { cursor.style.opacity = '1'; }, 1500);
+            // Show initial subtitle
+            setTimeout(() => {
+                subtitleText.textContent = subtitles['dashboard'];
+                subtitleEl.classList.remove('hidden-sub');
+                subtitleEl.classList.add('visible-sub');
+            }, 800);
 
             function switchTab(newIndex) {
                 const oldTab = document.querySelector(`.dash-tab-content[data-tab="${tabs[currentIndex]}"]`);
                 const newTab = document.querySelector(`.dash-tab-content[data-tab="${tabs[newIndex]}"]`);
-                
-                // Animate out
-                if (oldTab) { oldTab.style.opacity = '0'; oldTab.style.transform = 'translateY(-10px)'; oldTab.style.pointerEvents = 'none'; }
-                
-                // Animate in
+                const tabName = tabs[newIndex];
+                const pos = navPositions[tabName];
+
+                // 1. Move cursor to sidebar nav item
+                cursor.style.left = pos.left + 'px';
+                cursor.style.top = pos.top + 'px';
+
+                // 2. Hide subtitle
+                subtitleEl.classList.remove('visible-sub');
+                subtitleEl.classList.add('hidden-sub');
+
+                // 3. After cursor arrives, "click" — scale cursor briefly
                 setTimeout(() => {
-                    if (newTab) { newTab.style.opacity = '1'; newTab.style.transform = 'translateY(0)'; newTab.style.pointerEvents = 'auto'; }
-                }, 200);
+                    cursor.style.transform = 'scale(0.8)';
+                    setTimeout(() => { cursor.style.transform = 'scale(1)'; }, 150);
 
-                // Update sidebar
-                document.querySelectorAll('.dash-nav-item').forEach(item => {
-                    if (item.dataset.tab === tabs[newIndex]) {
-                        item.className = 'dash-nav-item bg-iron/10 text-iron text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
-                    } else {
-                        item.className = 'dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
-                    }
-                });
+                    // Animate out old tab
+                    if (oldTab) { oldTab.style.opacity = '0'; oldTab.style.transform = 'translateY(-10px)'; oldTab.style.pointerEvents = 'none'; }
 
-                // Update dots
-                document.querySelectorAll('#dash-dots > div').forEach(dot => {
-                    if (dot.dataset.tab === tabs[newIndex]) {
-                        dot.className = 'w-6 h-1.5 rounded-full bg-iron transition-all duration-300';
-                    } else {
-                        dot.className = 'w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300';
-                    }
-                });
+                    // Animate in new tab
+                    setTimeout(() => {
+                        if (newTab) { newTab.style.opacity = '1'; newTab.style.transform = 'translateY(0)'; newTab.style.pointerEvents = 'auto'; }
+                    }, 200);
+
+                    // Update sidebar
+                    document.querySelectorAll('.dash-nav-item').forEach(item => {
+                        if (item.dataset.tab === tabName) {
+                            item.className = 'dash-nav-item bg-iron/10 text-iron text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
+                        } else {
+                            item.className = 'dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300';
+                        }
+                    });
+
+                    // Update dots
+                    document.querySelectorAll('#dash-dots > div').forEach(dot => {
+                        if (dot.dataset.tab === tabName) {
+                            dot.className = 'w-6 h-1.5 rounded-full bg-iron transition-all duration-300';
+                        } else {
+                            dot.className = 'w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300';
+                        }
+                    });
+
+                    // Show new subtitle
+                    setTimeout(() => {
+                        subtitleText.textContent = subtitles[tabName];
+                        subtitleEl.classList.remove('hidden-sub');
+                        subtitleEl.classList.add('visible-sub');
+                    }, 400);
+                }, 800);
 
                 currentIndex = newIndex;
             }
 
-            setInterval(() => {
-                switchTab((currentIndex + 1) % tabs.length);
-            }, INTERVAL);
+            // After cursor moves to content area initially
+            setTimeout(() => {
+                cursor.style.left = '350px';
+                cursor.style.top = '250px';
+            }, 2000);
+
+            // Start cycling
+            setTimeout(() => {
+                setInterval(() => {
+                    switchTab((currentIndex + 1) % tabs.length);
+                }, INTERVAL);
+            }, 3500);
         })();
     </script>
 
