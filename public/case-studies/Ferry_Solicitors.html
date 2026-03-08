@@ -1,0 +1,818 @@
+
+    <meta name="description" content="How Blackbird Marketing delivered clarity and growth to Ferry Solicitors, driving an anticipated €1M in additional ARR and a 20x ROI through precision lead attribution.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        accent: '#d97706', // Amber-600 (Gold/Wealth)
+                        'accent-bg': '#fef3c7', // Amber-100
+                        dark: '#0f172a', // Slate-900 (Navy feel)
+                        card: '#f8fafc',
+                    },
+                    spacing: {
+                        '100': '25rem',
+                    },
+                    keyframes: {
+                        scrollUp: {
+                            '0%': { transform: 'translateY(0)' },
+                            '100%': { transform: 'translateY(-50%)' },
+                        },
+                        stamp: {
+                            '0%': { transform: 'scale(3)', opacity: '0' },
+                            '50%': { transform: 'scale(0.9)', opacity: '1' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        chartGrow: {
+                            '0%': { height: '0%' },
+                            '100%': { height: '100%' },
+                        }
+                    },
+                    animation: {
+                        'scroll-up': 'scrollUp 20s linear infinite',
+                        'stamp-in': 'stamp 0.4s cubic-bezier(0.5, 0, 0.75, 0) forwards',
+                        'chart-grow': 'chartGrow 1.5s ease-out forwards',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Three.js for Background Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: revealAnim 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes revealAnim {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+
+
+  
+
+    <main class="pt-40 pb-24 px-4 sm:px-6 lg:px-8 max-w-[1200px] mx-auto">
+        
+        <!-- Hero Section -->
+        <header class="mb-20 text-center max-w-4xl mx-auto relative">
+            <div class="reveal relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gray-200 bg-gray-50 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-accent border border-black/10"></span>
+                    <span class="text-xs font-bold text-gray-600 uppercase tracking-wide">Legal Growth Strategy</span>
+                </div>
+            </div>
+            
+            <h1 class="reveal delay-100 text-5xl md:text-7xl font-bold tracking-tighter mb-8 leading-[1.1] relative z-10">
+                The Verdict: <br> <span class="text-gray-400">20x Return on Investment.</span>
+            </h1>
+            
+            <p class="reveal delay-200 text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed relative z-10">
+                How we brought revenue clarity to Ferry Solicitors, turning a confused ad account into a predictable engine generating an anticipated €1M in additional ARR.
+            </p>
+        </header>
+
+        <!-- High Impact Stats (Animated Background) -->
+        <div class="relative w-full max-w-[1200px] mx-auto mb-32 isolate">
+            
+            <!-- Three.js Canvas Container -->
+            <div class="absolute inset-0 -z-10 overflow-visible flex items-center justify-center pointer-events-none transform scale-110">
+                <div class="relative w-full h-full"> 
+                     <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out" style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+                        <canvas id="impact-canvas" style="display: block; width: 100%; height: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Card -->
+            <section class="reveal delay-300 bg-white border border-gray-100 shadow-xl rounded-3xl p-8 md:p-20 relative overflow-hidden z-10 ring-1 ring-black/5">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12 relative z-10">
+                    <div class="max-w-xs">
+                        <h2 class="text-2xl font-bold font-display text-black mb-2">The Impact</h2>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            From uncertainty to precision. We validated the net impact of marketing efforts, proving value beyond just "clicks".
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-12 md:gap-24">
+                        <div>
+                            <div class="text-6xl md:text-7xl font-bold font-display text-black mb-1 tracking-tighter">€1M</div>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Anticipated ARR</div>
+                        </div>
+                        <div>
+                            <div class="text-6xl md:text-7xl font-bold font-display text-black mb-1 tracking-tighter">20x</div>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Return on Investment</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Project Metadata Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 mb-32 border-b border-gray-100 pb-12">
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Departments</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Immigration Law</li>
+                    <li>Criminal Defense</li>
+                    <li>Employment Law</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Capabilities</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Revenue Attribution</li>
+                    <li>Search Advertising</li>
+                    <li>Lead Validation</li>
+                    <li>Performance Reporting</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Key Metric</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Net Revenue Impact</li>
+                    <li>Qualified Lead Rate</li>
+                    <li>Client Acquisition Cost</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Timeline</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Start: August 2025</li>
+                    <li>Status: Ongoing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- The Challenge Section -->
+        <section class="grid md:grid-cols-12 gap-12 mb-32">
+            <div class="md:col-span-4">
+                <div class="sticky top-32">
+                    <h2 class="text-3xl font-bold text-black mb-4">The Challenge</h2>
+                    <div class="h-1 w-12 bg-accent"></div>
+                </div>
+            </div>
+            <div class="md:col-span-8 prose prose-lg prose-neutral max-w-none">
+                <p class="text-xl text-black font-medium mb-6 leading-relaxed">
+                    Ferry Solicitors was stuck in a "value void". A previous agency had been running ads, but was unable to provide clarity on what was actually working.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    When we took the torch in August, the client was frustrated. They saw activity, but lacked validation. Were the leads turning into cases? Was the ad spend actually profitable? They needed more than just a monthly PDF of "impressions"—they needed a financial partner who could speak the language of revenue.
+                </p>
+                <p class="text-gray-600">
+                    The goal wasn't just to get more leads (though we did that immediately); the goal was to prove the net impact of marketing on the firm's bottom line.
+                </p>
+            </div>
+        </section>
+
+        <!-- The Solution (Bento Grid) -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-12">The Solution</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
+                
+                <!-- Card 1: Core Strength (Revenue Intelligence) -->
+                <div class="lg:col-span-2 bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-amber-100/50 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                <i data-lucide="badge-euro" class="w-6 h-6 text-accent"></i>
+                            </div>
+                            <span class="text-xs font-bold bg-white border border-gray-200 px-2 py-1 rounded text-gray-500">CORE STRENGTH</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-black mb-3">Revenue Intelligence</h3>
+                        <p class="text-gray-600 max-w-lg">
+                            We bridge the gap between "Marketing" and "Finance". Within the first quarter, we implemented a reporting framework that highlighted not just conversion rates, but the actual revenue generated by new clients. This clarity transformed the client's confidence.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Immediate Impact -->
+                <div class="bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-fit mb-6">
+                        <i data-lucide="zap" class="w-6 h-6 text-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Day 1 Velocity</h3>
+                    <p class="text-gray-600 text-sm">
+                        No "warm-up" excuses. We hit the ground running. Immigration, criminal, and employment law departments saw a noticeable rise in qualified leads within the first 30 days.
+                    </p>
+                </div>
+
+                <!-- Card 3: Validation -->
+                <div class="bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-fit mb-6">
+                        <i data-lucide="check-circle-2" class="w-6 h-6 text-accent"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Net Impact Validation</h3>
+                    <p class="text-gray-600 text-sm">
+                        We were on a mission to validate every euro spent. We tracked leads through to consultation and retainer, proving the ROI was real.
+                    </p>
+                </div>
+
+                <!-- Card 4: Continuous Optimization -->
+                <div class="lg:col-span-2 bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-accent"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Continuous Process Optimization</h3>
+                    <p class="text-gray-600">
+                        We don't set and forget. By continuously optimizing the intake process and ad targeting based on revenue data, we are currently tracking towards a 20x return on investment (including our fees).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Proof Section -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-12">Visual Proof</h2>
+            
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                
+                <!-- Card 1: Attribution Engine (The "Digital Docket") -->
+                <div class="flex flex-col justify-between overflow-hidden relative bg-neutral-900 rounded-3xl h-[600px] border border-white/10 ring-1 ring-black/5 group">
+                    
+                    <!-- Header -->
+                    <div class="absolute top-0 w-full p-6 border-b border-white/10 bg-black/40 backdrop-blur z-20 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                            <span class="text-xs font-mono text-gray-400 uppercase">System: Attribution_Log_v4</span>
+                        </div>
+                        <div class="text-xs font-bold text-amber-500 border border-amber-500/30 bg-amber-500/10 px-2 py-1 rounded">Verified</div>
+                    </div>
+
+                    <!-- Visual: Lead to Revenue Transformation -->
+                    <div class="absolute inset-0 pt-24 px-10 z-10 flex flex-col items-center">
+                        <!-- Step 1: Lead -->
+                        <div class="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 flex items-center justify-between opacity-50 group-hover:opacity-100 transition-opacity duration-500">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-blue-900/50 rounded-lg flex items-center justify-center border border-blue-500/30">
+                                    <i data-lucide="user" class="text-blue-400 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400">New Lead</div>
+                                    <div class="text-sm font-bold text-white">Employment Dispute</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 font-mono">Source: Google Ads</div>
+                        </div>
+
+                        <!-- Connecting Arrow -->
+                        <div class="h-8 w-px bg-gradient-to-b from-blue-500 to-amber-500 opacity-50 mb-4"></div>
+
+                        <!-- Step 2: Validated Case -->
+                        <div class="w-full bg-amber-900/20 border border-amber-500/20 p-4 rounded-xl mb-4 flex items-center justify-between transform scale-105 shadow-2xl relative overflow-hidden">
+                            <div class="absolute inset-0 bg-amber-500/5 animate-pulse"></div>
+                            <div class="flex items-center gap-4 relative z-10">
+                                <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+                                    <i data-lucide="scale" class="text-black w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-amber-300">Case Opened</div>
+                                    <div class="text-sm font-bold text-white">Retainer Secured</div>
+                                </div>
+                            </div>
+                            <div class="text-xl font-bold text-amber-400 font-mono relative z-10">€2,500+</div>
+                        </div>
+
+                        <!-- Connecting Arrow -->
+                        <div class="h-8 w-px bg-amber-500 opacity-50 mb-4"></div>
+
+                        <!-- Step 3: Database Entry -->
+                        <div class="w-full bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between opacity-50 group-hover:opacity-100 transition-opacity duration-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="database" class="text-gray-400 w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-400">CRM Update</div>
+                                    <div class="text-sm font-bold text-gray-300">ROI Calculated</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-green-400 font-mono">Positive</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Overlay -->
+                    <div class="relative z-30 p-10 mt-auto bg-gradient-to-t from-black via-black/90 to-transparent">
+                        <h3 class="text-3xl font-bold text-white mb-2">Lead Attribution</h3>
+                        <p class="text-gray-400 mb-0 max-w-md">
+                            We don't just count leads; we validate value. Tracking the journey from "Google Click" to "Case Retainer" gave the client total financial clarity.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: The 20x Trajectory (Graph) -->
+                <div class="flex flex-col justify-between overflow-hidden relative bg-white rounded-3xl h-[600px] border border-gray-200 ring-1 ring-black/5 group">
+                    
+                    <!-- Graph Visual -->
+                    <div class="absolute inset-0 z-0 flex items-end justify-center p-12 pb-32">
+                        <!-- Grid Lines -->
+                        <div class="absolute inset-0 z-0" style="background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px); background-size: 40px 40px; opacity: 0.5;"></div>
+                        
+                        <!-- Bars Container -->
+                        <div class="w-full h-full flex items-end justify-between gap-4 relative z-10 pl-8">
+                            <!-- Bar 1 (Month 1) -->
+                            <div class="w-1/4 h-[30%] bg-gray-200 rounded-t-lg relative group-hover:h-[30%] transition-all duration-1000">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Aug</div>
+                            </div>
+                            <!-- Bar 2 (Month 2) -->
+                            <div class="w-1/4 h-[55%] bg-gray-300 rounded-t-lg relative group-hover:h-[55%] transition-all duration-1000 delay-100">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Sep</div>
+                            </div>
+                            <!-- Bar 3 (Month 3 - Boom) -->
+                            <div class="w-1/4 h-[85%] bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg relative shadow-lg group-hover:h-[85%] transition-all duration-1000 delay-200 overflow-hidden">
+                                <!-- Shine effect -->
+                                <div class="absolute inset-0 bg-white/30 translate-y-full animate-[shimmer_2s_infinite]"></div>
+                                
+                                <!-- Floating Badge -->
+                                <div class="absolute -top-16 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full shadow-xl flex items-center gap-2 animate-bounce">
+                                    <span class="text-amber-400 font-bold">20x</span> ROI
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Overlay -->
+                    <div class="relative z-30 p-10 mt-auto bg-gradient-to-t from-white via-white/95 to-transparent">
+                        <div class="flex items-center gap-2 mb-2">
+                             <div class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-bold uppercase border border-green-200">Profitability</div>
+                        </div>
+                        <h3 class="text-3xl font-bold text-slate-900 mb-2">The 20x Trajectory</h3>
+                        <p class="text-slate-500 mb-0 max-w-md">
+                            With verified data, we optimized aggressively. The result is a trajectory towards €1M additional ARR and a massive 20x return on total investment.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Performance Deep Dive -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-8">Performance Deep Dive</h2>
+            <div class="grid lg:grid-cols-2 gap-8">
+                
+                <!-- 1. ARR Growth Chart -->
+                <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm flex flex-col justify-center">
+                    <h3 class="text-xl font-bold font-display text-black mb-6">Annual Recurring Revenue</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-500 font-medium">Projected Impact</span>
+                                <span class="text-accent font-bold text-lg">+€1 Million</span>
+                            </div>
+                            <!-- Linear Progress Bar -->
+                            <div class="w-full bg-gray-100 rounded-full h-4 overflow-hidden">
+                                <div class="bg-accent h-full rounded-full w-[85%] relative">
+                                    <div class="absolute inset-0 bg-white/20 w-full h-full" style="background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem;"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-400 mt-2">
+                                <span>Baseline</span>
+                                <span class="text-black font-medium">Target Exceeded</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Efficiency Metrics Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- ROI -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-accent"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">20x</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total ROI</div>
+                            <div class="text-[10px] text-green-600 font-bold mt-1">Incl. Fees + Ad Spend</div>
+                        </div>
+                    </div>
+
+                    <!-- Client Sentiment -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="heart" class="w-5 h-5 text-black"></i>
+                        </div>
+                        <div>
+                            <div class="text-xl font-bold font-display text-black mb-1">"Above the Moon"</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Client Feedback</div>
+                        </div>
+                    </div>
+
+                    <!-- Departments -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="layers" class="w-5 h-5 text-black"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">3</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Core Depts Scaled</div>
+                        </div>
+                    </div>
+
+                    <!-- Speed -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="clock" class="w-5 h-5 text-black"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">30 Days</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Time to Impact</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication / Process Section -->
+        <section class="mb-32 bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-16 relative overflow-hidden">
+            <div class="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-6">
+                        <span class="w-2 h-2 rounded-full bg-accent border border-black/10 animate-pulse"></span>
+                        <span class="text-xs font-bold text-black uppercase">The Blackbird Standard</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-black mb-6">Clarity is the Strategy.</h2>
+                    <p class="text-gray-500 mb-8 text-lg leading-relaxed">
+                        The previous agency failed because they couldn't explain the value. We succeed because we make the value undeniable. Our "Revenue Intelligence" reports mean the client never has to guess where their money is going.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-200">
+                                <i data-lucide="file-bar-chart" class="w-5 h-5 text-accent"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-black font-bold">The "Net Impact" Report</h4>
+                                <p class="text-sm text-gray-500">Monthly breakdown of leads, conversions, and estimated case value.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-200">
+                                <i data-lucide="refresh-cw" class="w-5 h-5 text-accent"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-black font-bold">Feedback Loops</h4>
+                                <p class="text-sm text-gray-500">We adjust campaigns weekly based on which leads are actually closing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Mockup (Replaces Report) -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 relative shadow-lg shadow-gray-100">
+                    <div class="space-y-6 font-mono text-xs">
+                        
+                        <!-- Message 1: Client (Validation) -->
+                        <div class="flex gap-3 items-start">
+                            <div class="w-8 h-8 rounded-full bg-black flex-shrink-0 flex items-center justify-center font-bold text-black border border-gray-200 mt-1 overflow-hidden">
+                                <img src="http://52.12.220.182/wordpress/wp-content/uploads/2026/01/Group-60.png" alt="Ferrys" class="w-full h-full object-contain p-1">
+                            </div>
+                            <div>
+                                <div class="bg-gray-50 p-3 rounded-lg rounded-tl-none text-gray-600 border border-gray-100 mb-1">
+                                    Just finished the consults from this week. The 'Visa Appeals' leads are exactly the quality we need.
+                                </div>
+                                <div class="text-[10px] text-gray-400 pl-1">10:15 AM</div>
+                            </div>
+                        </div>
+
+                        <!-- Message 2: Blackbird (Strategy) -->
+                        <div class="flex gap-3 flex-row-reverse items-start">
+                            <div class="w-8 h-8 rounded-full bg-black flex-shrink-0 flex items-center justify-center font-bold text-white mt-1">BB</div>
+                            <div class="flex flex-col items-end">
+                                <div class="bg-amber-50 border border-amber-100 p-3 rounded-lg rounded-tr-none text-black mb-1">
+                                    Excellent. We shifted budget away from general queries to high-intent search terms based on last month's revenue data. ROI is looking strong. 📈
+                                </div>
+                                <div class="flex items-center gap-1.5 pr-1">
+                                    <span class="text-[10px] font-bold text-accent">Reply time: 2m</span>
+                                    <span class="text-[10px] text-gray-300">•</span>
+                                    <span class="text-[10px] text-gray-400">10:17 AM</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message 3: Client (Action) -->
+                        <div class="flex gap-3 items-start">
+                            <div class="w-8 h-8 rounded-full bg-black flex-shrink-0 flex items-center justify-center font-bold text-black border border-gray-200 mt-1 overflow-hidden">
+                                <img src="http://52.12.220.182/wordpress/wp-content/uploads/2026/01/Group-60.png" alt="Ferrys" class="w-full h-full object-contain p-1">
+                            </div>
+                            <div>
+                                <div class="bg-gray-50 p-3 rounded-lg rounded-tl-none text-gray-600 border border-gray-100 mb-1">
+                                    Great work. Let's look at scaling the Employment Law campaign next week then.
+                                </div>
+                                <div class="text-[10px] text-gray-400 pl-1">10:20 AM</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonial Section -->
+        <section class="mb-32 max-w-4xl mx-auto text-center reveal">
+            <div class="mb-8">
+                <i data-lucide="quote" class="w-12 h-12 text-gray-200 mx-auto fill-gray-100"></i>
+            </div>
+            <blockquote class="text-3xl md:text-4xl font-medium text-black leading-tight mb-8 tracking-tight font-display">
+                "Finally, an agency that speaks finance. Blackbird didn't just bring us leads; they brought us a verifiable revenue engine. We know exactly what every euro generates."
+            </blockquote>
+            <div class="flex items-center justify-center gap-4">
+                <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center border border-amber-200 overflow-hidden p-1">
+                    <img src="http://52.12.220.182/wordpress/wp-content/uploads/2026/01/Group-60.png" alt="Ferrys" class="w-full h-full object-contain">
+                </div>
+                <div class="text-left">
+                    <div class="font-bold text-black text-sm">Managing Partner</div>
+                    <div class="text-sm text-gray-500">Ferry Solicitors</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="text-center py-12 border-t border-gray-100">
+            <h2 class="text-4xl md:text-5xl font-bold text-black mb-8 tracking-tight">Need revenue clarity?</h2>
+            <a href="#contact" class="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-gray-800 transition-all group">
+                Audit Your ROI
+                <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </section>
+
+    </main>
+
+
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+        
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        let isMenuOpen = false;
+
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('translate-x-full', 'opacity-0');
+                menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                mobileMenu.classList.add('translate-x-full', 'opacity-0');
+                menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                document.body.style.overflow = '';
+            }
+            lucide.createIcons();
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileMenu.classList.add('translate-x-full', 'opacity-0');
+                menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                document.body.style.overflow = '';
+                lucide.createIcons();
+            });
+        });
+
+        // ------------------------------------------------------------------
+        // Background Animation (Navy & Gold Palette)
+        // ------------------------------------------------------------------
+        (function() {
+            const canvas = document.getElementById('impact-canvas');
+            if (!canvas) return;
+
+            const renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                alpha: true, 
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const scene = new THREE.Scene();
+
+            const viewSize = 10; 
+            const aspectRatio = canvas.clientWidth / canvas.clientHeight;
+            const camera = new THREE.OrthographicCamera(
+                -viewSize * aspectRatio, viewSize * aspectRatio, 
+                viewSize, -viewSize, 
+                0.1, 1000
+            );
+            camera.position.set(0, 0, 10);
+            camera.lookAt(0, 0, 0);
+
+            const isMobile = window.innerWidth < 768;
+            const segmentsX = isMobile ? 64 : 128;
+            const segmentsY = isMobile ? 32 : 64;
+            const geometry = new THREE.PlaneGeometry(24, 12, segmentsX, segmentsY);
+
+            const noiseChunk = `
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+                float snoise(vec3 v) {
+                    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                    vec3 i  = floor(v + dot(v, C.yyy) );
+                    vec3 x0 = v - i + dot(i, C.xxx) ;
+                    vec3 g = step(x0.yzx, x0.xyz);
+                    vec3 l = 1.0 - g;
+                    vec3 i1 = min( g.xyz, l.zxy );
+                    vec3 i2 = max( g.xyz, l.zxy );
+                    vec3 x1 = x0 - i1 + C.xxx;
+                    vec3 x2 = x0 - i2 + C.yyy;
+                    vec3 x3 = x0 - D.yyy;
+                    i = mod289(i); 
+                    vec4 p = permute( permute( permute( 
+                                i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                            + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+                            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                    float n_ = 0.142857142857; 
+                    vec3  ns = n_ * D.wyz - D.xzx;
+                    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                    vec4 x_ = floor(j * ns.z);
+                    vec4 y_ = floor(j - 7.0 * x_ );
+                    vec4 x = x_ *ns.x + ns.yyyy;
+                    vec4 y = y_ *ns.x + ns.yyyy;
+                    vec4 h = 1.0 - abs(x) - abs(y);
+                    vec4 b0 = vec4( x.xy, y.xy );
+                    vec4 b1 = vec4( x.zw, y.zw );
+                    vec4 s0 = floor(b0)*2.0 + 1.0;
+                    vec4 s1 = floor(b1)*2.0 + 1.0;
+                    vec4 sh = -step(h, vec4(0.0));
+                    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                    vec3 p0 = vec3(a0.xy,h.x);
+                    vec3 p1 = vec3(a0.zw,h.y);
+                    vec3 p2 = vec3(a1.xy,h.z);
+                    vec3 p3 = vec3(a1.zw,h.w);
+                    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+                    p0 *= norm.x;
+                    p1 *= norm.y;
+                    p2 *= norm.z;
+                    p3 *= norm.w;
+                    vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                    m = m * m;
+                    return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+                                                dot(p2,x2), dot(p3,x3) ) );
+                }
+            `;
+
+            // Gradient Palette: Navy/Slate + Gold
+            const uniforms = {
+                uTime: { value: 0 },
+                uSpeed: { value: 0.1 }, 
+                uAmplitude: { value: 0.8 }, 
+                uDensity: { value: 0.4 },
+                uGradientRepeat: { value: 1.0 },
+                
+                // Colors
+                uC0: { value: new THREE.Color('#FFFFFF') }, 
+                uC1: { value: new THREE.Color('#F1F5F9') }, // Slate 100
+                uC2: { value: new THREE.Color('#FCD34D') }, // Amber 300 (Gold Light)
+                uC3: { value: new THREE.Color('#D97706') }, // Amber 600 (Gold Deep)
+                uC4: { value: new THREE.Color('#0F172A') }, // Slate 900 (Navy)
+                uC5: { value: new THREE.Color('#334155') }, // Slate 700
+                uC6: { value: new THREE.Color('#FFFFFF') }, 
+            };
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uSpeed;
+                    uniform float uAmplitude;
+                    uniform float uDensity;
+                    varying vec2 vUv;
+                    varying float vDisplace;
+                    ${noiseChunk}
+                    void main() {
+                        vUv = uv;
+                        float noiseVal = snoise(vec3(position.x * uDensity, position.y * uDensity, uTime * uSpeed));
+                        vDisplace = noiseVal;
+                        vec3 newPos = position + normal * (uAmplitude * noiseVal);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTime;
+                    uniform float uGradientRepeat;
+                    uniform vec3 uC0; uniform vec3 uC1; uniform vec3 uC2; uniform vec3 uC3; uniform vec3 uC4; uniform vec3 uC5; uniform vec3 uC6;
+                    varying vec2 vUv;
+                    varying float vDisplace;
+
+                    vec3 getGradientColor(float t) {
+                        float t0 = smoothstep(0.0, 0.2, t);
+                        vec3 color = mix(uC0, uC1, t0);
+                        float t1 = smoothstep(0.2, 0.35, t);
+                        color = mix(color, uC2, t1);
+                        float t2 = smoothstep(0.35, 0.55, t);
+                        color = mix(color, uC3, t2);
+                        float t3 = smoothstep(0.55, 0.7, t);
+                        color = mix(color, uC4, t3);
+                        float t4 = smoothstep(0.7, 0.85, t);
+                        color = mix(color, uC5, t4);
+                        float t5 = smoothstep(0.85, 1.0, t);
+                        color = mix(color, uC6, t5);
+                        return color;
+                    }
+
+                    void main() {
+                        float t = fract(vUv.x * uGradientRepeat + uTime * 0.05); 
+                        vec3 color = getGradientColor(t);
+                        color += vDisplace * 0.05;
+                        
+                        // Edge Fading
+                        float alphaTop = smoothstep(0.0, 0.1, vUv.y);
+                        float alphaBottom = 1.0 - smoothstep(0.9, 1.0, vUv.y);
+                        float alphaLeft = smoothstep(0.0, 0.05, vUv.x);
+                        float alphaRight = 1.0 - smoothstep(0.95, 1.0, vUv.x);
+                        float alpha = alphaTop * alphaBottom * alphaLeft * alphaRight;
+
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.set(-0.2, 0, 0); 
+            scene.add(mesh);
+
+            function resize() {
+                const parent = canvas.parentElement;
+                if (!parent) return;
+                const rect = parent.getBoundingClientRect();
+                renderer.setSize(rect.width, rect.height);
+                const aspect = rect.width / rect.height;
+                const frustumSize = 10;
+                camera.left = -frustumSize * aspect / 2;
+                camera.right = frustumSize * aspect / 2;
+                camera.top = frustumSize / 2;
+                camera.bottom = -frustumSize / 2;
+                camera.updateProjectionMatrix();
+            }
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resize, 100);
+            });
+            setTimeout(resize, 0);
+
+            function animate(time) {
+                requestAnimationFrame(animate);
+                material.uniforms.uTime.value = time * 0.001; 
+                renderer.render(scene, camera);
+            }
+            animate(0);
+        })();
+    </script>
