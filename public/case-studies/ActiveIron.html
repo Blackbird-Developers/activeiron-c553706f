@@ -1059,6 +1059,33 @@
             animate(0);
         })();
     </script>
+    <script>
+        // Animated counters for dashboard preview
+        document.querySelectorAll('.dash-counter').forEach(el => {
+            const target = parseFloat(el.dataset.target);
+            const prefix = el.dataset.prefix || '';
+            const isDecimal = el.dataset.decimal === 'true';
+            const duration = 1500;
+            const delay = parseFloat(el.closest('.dash-card')?.style.animationDelay || '0') * 1000;
+            setTimeout(() => {
+                const start = performance.now();
+                function update(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const val = eased * target;
+                    if (isDecimal) {
+                        el.textContent = val.toFixed(1) + 'x';
+                    } else if (target >= 1000) {
+                        el.textContent = prefix + Math.round(val).toLocaleString();
+                    } else {
+                        el.textContent = prefix + Math.round(val);
+                    }
+                    if (progress < 1) requestAnimationFrame(update);
+                }
+                requestAnimationFrame(update);
+            }, delay + 500);
+        });
+    </script>
 
 </body>
 </html>
