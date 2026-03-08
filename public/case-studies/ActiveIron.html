@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Iron Case Study | Blackbird Marketing</title>
+    <meta name="description" content="How Blackbird Marketing built a real-time, multi-channel marketing intelligence platform for Active Iron — unifying GA4, Google Ads, Meta Ads, Shopify, and MailerLite into one executive dashboard.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        accent: '#d97706',
+                        'accent-bg': '#fef3c7',
+                        dark: '#0f172a',
+                        card: '#f8fafc',
+                        iron: '#1a7a4f',
+                        'iron-light': '#dcfce7',
+                    },
+                    keyframes: {
+                        scrollUp: {
+                            '0%': { transform: 'translateY(0)' },
+                            '100%': { transform: 'translateY(-50%)' },
+                        },
+                        stamp: {
+                            '0%': { transform: 'scale(3)', opacity: '0' },
+                            '50%': { transform: 'scale(0.9)', opacity: '1' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        chartGrow: {
+                            '0%': { height: '0%' },
+                            '100%': { height: '100%' },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        }
+                    },
+                    animation: {
+                        'scroll-up': 'scrollUp 20s linear infinite',
+                        'stamp-in': 'stamp 0.4s cubic-bezier(0.5, 0, 0.75, 0) forwards',
+                        'chart-grow': 'chartGrow 1.5s ease-out forwards',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Three.js for Background Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: revealAnim 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes revealAnim {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #fff; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+
+<body>
+
+    <main class="pt-40 pb-24 px-4 sm:px-6 lg:px-8 max-w-[1200px] mx-auto">
+        
+        <!-- Hero Section -->
+        <header class="mb-20 text-center max-w-4xl mx-auto relative">
+            <div class="reveal relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gray-200 bg-gray-50 mb-6">
+                    <span class="w-2 h-2 rounded-full bg-iron border border-black/10"></span>
+                    <span class="text-xs font-bold text-gray-600 uppercase tracking-wide">Health & Wellness DTC</span>
+                </div>
+            </div>
+            
+            <h1 class="reveal delay-100 text-5xl md:text-7xl font-bold tracking-tighter mb-8 leading-[1.1] relative z-10">
+                One Dashboard. <br> <span class="text-gray-400">Five Data Sources. Zero Guesswork.</span>
+            </h1>
+            
+            <p class="reveal delay-200 text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed relative z-10">
+                How we built Active Iron a real-time marketing intelligence platform that unified GA4, Google Ads, Meta Ads, Shopify, and MailerLite — replacing scattered spreadsheets with instant, actionable clarity across Ireland and the UK.
+            </p>
+        </header>
+
+        <!-- High Impact Stats (Animated Background) -->
+        <div class="relative w-full max-w-[1200px] mx-auto mb-32 isolate">
+            
+            <!-- Three.js Canvas Container -->
+            <div class="absolute inset-0 -z-10 overflow-visible flex items-center justify-center pointer-events-none transform scale-110">
+                <div class="relative w-full h-full"> 
+                     <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out" style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+                        <canvas id="impact-canvas" style="display: block; width: 100%; height: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Card -->
+            <section class="reveal delay-300 bg-white border border-gray-100 shadow-xl rounded-3xl p-8 md:p-20 relative overflow-hidden z-10 ring-1 ring-black/5">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12 relative z-10">
+                    <div class="max-w-xs">
+                        <h2 class="text-2xl font-bold font-display text-black mb-2">The Impact</h2>
+                        <p class="text-gray-600 text-sm leading-relaxed">
+                            From siloed platforms to a unified command centre. Real-time data driving real decisions.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-12 md:gap-24">
+                        <div>
+                            <div class="text-6xl md:text-7xl font-bold font-display text-black mb-1 tracking-tighter">5</div>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Platforms Unified</div>
+                        </div>
+                        <div>
+                            <div class="text-6xl md:text-7xl font-bold font-display text-black mb-1 tracking-tighter">2</div>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Markets (IRE & UK)</div>
+                        </div>
+                        <div>
+                            <div class="text-6xl md:text-7xl font-bold font-display text-black mb-1 tracking-tighter">0</div>
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Spreadsheets Needed</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Project Metadata Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 mb-32 border-b border-gray-100 pb-12">
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Industry</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Health & Wellness</li>
+                    <li>DTC eCommerce</li>
+                    <li>Supplements</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Integrations</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Google Analytics 4</li>
+                    <li>Google Ads</li>
+                    <li>Meta Ads</li>
+                    <li>Shopify</li>
+                    <li>MailerLite</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Capabilities</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Real-Time Reporting</li>
+                    <li>Multi-Market Analysis</li>
+                    <li>AI-Powered Insights</li>
+                    <li>Revenue Attribution</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Deliverable</h3>
+                <ul class="text-sm text-gray-900 font-medium space-y-1">
+                    <li>Custom Web Dashboard</li>
+                    <li>Live at activeiron.lovable.app</li>
+                    <li>Status: Ongoing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- The Challenge Section -->
+        <section class="grid md:grid-cols-12 gap-12 mb-32">
+            <div class="md:col-span-4">
+                <div class="sticky top-32">
+                    <h2 class="text-3xl font-bold text-black mb-4">The Challenge</h2>
+                    <div class="h-1 w-12 bg-iron"></div>
+                </div>
+            </div>
+            <div class="md:col-span-8 prose prose-lg prose-neutral max-w-none">
+                <p class="text-xl text-black font-medium mb-6 leading-relaxed">
+                    Active Iron's marketing data was scattered across five disconnected platforms — and nobody had the full picture.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    The team was toggling between Google Analytics, Google Ads, Meta Ads Manager, Shopify admin, and MailerLite — each with its own interface, its own date ranges, and its own version of the truth. Reporting was manual: exported CSVs stitched together in spreadsheets, always a week behind.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    Operating across Ireland and the UK added another layer of complexity. Performance metrics needed to be segmented by country, but doing so manually was time-consuming and error-prone. The team couldn't quickly answer basic questions: <em>"How did our Irish campaigns perform vs. UK this week?"</em>
+                </p>
+                <p class="text-gray-600">
+                    They needed a single source of truth — a real-time, always-on platform that could pull every channel together, filter by market, and surface the metrics that actually mattered. Not another static PDF. A living dashboard.
+                </p>
+            </div>
+        </section>
+
+        <!-- The Solution (Bento Grid) -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-12">The Solution</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
+                
+                <!-- Card 1: Core Strength (Unified Dashboard) -->
+                <div class="lg:col-span-2 bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-green-100/50 to-transparent pointer-events-none"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                <i data-lucide="layout-dashboard" class="w-6 h-6 text-iron"></i>
+                            </div>
+                            <span class="text-xs font-bold bg-white border border-gray-200 px-2 py-1 rounded text-gray-500">CORE DELIVERABLE</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-black mb-3">Unified Marketing Command Centre</h3>
+                        <p class="text-gray-600 max-w-lg">
+                            We designed and built a custom web application that pulls live data from all five marketing platforms via secure API integrations. No more tab-switching. No more stale exports. One URL, every metric, always current.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Country Filtering -->
+                <div class="bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-fit mb-6">
+                        <i data-lucide="globe" class="w-6 h-6 text-iron"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Multi-Market Filtering</h3>
+                    <p class="text-gray-600 text-sm">
+                        Every data view supports country-level filtering — Ireland, UK, or combined. Shopify orders, GA4 traffic, ad performance — all segmented by market at the click of a button.
+                    </p>
+                </div>
+
+                <!-- Card 3: Objective Splitting -->
+                <div class="bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-fit mb-6">
+                        <i data-lucide="split" class="w-6 h-6 text-iron"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Campaign Objective Splits</h3>
+                    <p class="text-gray-600 text-sm">
+                        Meta Ads metrics are split by campaign objective — Awareness vs. Conversions — so CPC and CTR are only shown where they're meaningful. No more muddied averages across ad types.
+                    </p>
+                </div>
+
+                <!-- Card 4: AI Insights -->
+                <div class="bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm w-fit mb-6">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-iron"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">AI-Powered Analysis</h3>
+                    <p class="text-gray-600 text-sm">
+                        Built-in AI generates written performance summaries and strategic recommendations based on live data — for Google Ads, Meta creative performance, and cross-channel trends.
+                    </p>
+                </div>
+
+                <!-- Card 5: Traffic Intelligence -->
+                <div class="lg:col-span-2 bg-gray-50 border border-gray-200 p-8 rounded-2xl hover:border-gray-400 transition-colors duration-300">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                            <i data-lucide="activity" class="w-6 h-6 text-iron"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-black mb-3">Intelligent Traffic Classification</h3>
+                    <p class="text-gray-600">
+                        Raw GA4 source/medium data is automatically cleaned, relabelled, and grouped — ChatGPT and Perplexity visits are classified as "AI" traffic, LinkedIn referrals as "Organic Social", and subscription platform hits are properly attributed. Duplicate sources are merged. The result: a clean, accurate traffic breakdown without manual intervention.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Proof Section -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-12">Visual Proof</h2>
+            
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                
+                <!-- Card 1: Dashboard Architecture -->
+                <div class="flex flex-col justify-between overflow-hidden relative bg-neutral-900 rounded-3xl h-[600px] border border-white/10 ring-1 ring-black/5 group">
+                    
+                    <!-- Header -->
+                    <div class="absolute top-0 w-full p-6 border-b border-white/10 bg-black/40 backdrop-blur z-20 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <span class="text-xs font-mono text-gray-400 uppercase">System: Live_Dashboard_v1</span>
+                        </div>
+                        <div class="text-xs font-bold text-green-500 border border-green-500/30 bg-green-500/10 px-2 py-1 rounded">Live</div>
+                    </div>
+
+                    <!-- Visual: Data Flow -->
+                    <div class="absolute inset-0 pt-24 px-10 z-10 flex flex-col items-center gap-3">
+                        
+                        <!-- Sources Row -->
+                        <div class="w-full grid grid-cols-5 gap-2 mb-2">
+                            <div class="bg-white/5 border border-white/10 p-3 rounded-xl text-center opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] text-gray-500 mb-1">GA4</div>
+                                <div class="text-xs font-bold text-white">22.8K</div>
+                                <div class="text-[10px] text-gray-500">Users</div>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-3 rounded-xl text-center opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] text-gray-500 mb-1">Google</div>
+                                <div class="text-xs font-bold text-white">€3.7K</div>
+                                <div class="text-[10px] text-gray-500">Spend</div>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-3 rounded-xl text-center opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] text-gray-500 mb-1">Meta</div>
+                                <div class="text-xs font-bold text-white">€1.9K</div>
+                                <div class="text-[10px] text-gray-500">Spend</div>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-3 rounded-xl text-center opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] text-gray-500 mb-1">Shopify</div>
+                                <div class="text-xs font-bold text-white">186</div>
+                                <div class="text-[10px] text-gray-500">Orders</div>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-3 rounded-xl text-center opacity-60 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] text-gray-500 mb-1">Email</div>
+                                <div class="text-xs font-bold text-white">26.3K</div>
+                                <div class="text-[10px] text-gray-500">Subs</div>
+                            </div>
+                        </div>
+
+                        <!-- Connecting Lines -->
+                        <div class="flex gap-1 items-center">
+                            <div class="h-6 w-px bg-gradient-to-b from-gray-600 to-green-500"></div>
+                            <div class="h-6 w-px bg-gradient-to-b from-gray-600 to-green-500"></div>
+                            <div class="h-6 w-px bg-gradient-to-b from-gray-600 to-green-500"></div>
+                            <div class="h-6 w-px bg-gradient-to-b from-gray-600 to-green-500"></div>
+                            <div class="h-6 w-px bg-gradient-to-b from-gray-600 to-green-500"></div>
+                        </div>
+
+                        <!-- Unified Dashboard -->
+                        <div class="w-full bg-green-900/20 border border-green-500/20 p-5 rounded-xl flex items-center justify-between transform scale-105 shadow-2xl relative overflow-hidden">
+                            <div class="absolute inset-0 bg-green-500/5 animate-pulse"></div>
+                            <div class="flex items-center gap-4 relative z-10">
+                                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                                    <i data-lucide="layout-dashboard" class="text-black w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-green-300">Blackbird Dashboard</div>
+                                    <div class="text-sm font-bold text-white">All Channels, One View</div>
+                                </div>
+                            </div>
+                            <div class="text-sm font-bold text-green-400 font-mono relative z-10">LIVE</div>
+                        </div>
+
+                        <!-- Connecting Arrow -->
+                        <div class="h-6 w-px bg-green-500 opacity-50"></div>
+
+                        <!-- Output -->
+                        <div class="w-full grid grid-cols-2 gap-3">
+                            <div class="bg-white/5 border border-white/10 p-4 rounded-xl opacity-50 group-hover:opacity-100 transition-opacity duration-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="bar-chart-3" class="text-gray-400 w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] text-gray-400">Output</div>
+                                        <div class="text-xs font-bold text-gray-300">Country Reports</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-4 rounded-xl opacity-50 group-hover:opacity-100 transition-opacity duration-700">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="sparkles" class="text-gray-400 w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] text-gray-400">Output</div>
+                                        <div class="text-xs font-bold text-gray-300">AI Insights</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Overlay -->
+                    <div class="relative z-30 p-10 mt-auto bg-gradient-to-t from-black via-black/90 to-transparent">
+                        <h3 class="text-3xl font-bold text-white mb-2">Data Architecture</h3>
+                        <p class="text-gray-400 mb-0 max-w-md">
+                            Five platform APIs feed into a single, always-live dashboard. No exports. No delays. No guesswork.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: The Numbers -->
+                <div class="flex flex-col justify-between overflow-hidden relative bg-white rounded-3xl h-[600px] border border-gray-200 ring-1 ring-black/5 group">
+                    
+                    <!-- Graph Visual -->
+                    <div class="absolute inset-0 z-0 flex items-end justify-center p-12 pb-32">
+                        <!-- Grid Lines -->
+                        <div class="absolute inset-0 z-0" style="background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px); background-size: 40px 40px; opacity: 0.5;"></div>
+                        
+                        <!-- Platform Integration Bars -->
+                        <div class="w-full h-full flex items-end justify-between gap-4 relative z-10 pl-8">
+                            <div class="w-1/5 bg-blue-200 rounded-t-lg relative" style="height: 85%">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">GA4</div>
+                                <div class="absolute bottom-2 w-full text-center text-[10px] font-bold text-blue-700">22.8K</div>
+                            </div>
+                            <div class="w-1/5 bg-yellow-200 rounded-t-lg relative" style="height: 65%">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Google</div>
+                                <div class="absolute bottom-2 w-full text-center text-[10px] font-bold text-yellow-700">€3.7K</div>
+                            </div>
+                            <div class="w-1/5 bg-indigo-200 rounded-t-lg relative" style="height: 50%">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Meta</div>
+                                <div class="absolute bottom-2 w-full text-center text-[10px] font-bold text-indigo-700">€1.9K</div>
+                            </div>
+                            <div class="w-1/5 bg-green-200 rounded-t-lg relative" style="height: 70%">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Shopify</div>
+                                <div class="absolute bottom-2 w-full text-center text-[10px] font-bold text-green-700">€6K</div>
+                            </div>
+                            <div class="w-1/5 bg-purple-200 rounded-t-lg relative" style="height: 55%">
+                                <div class="absolute -top-8 w-full text-center text-xs font-bold text-gray-400">Email</div>
+                                <div class="absolute bottom-2 w-full text-center text-[10px] font-bold text-purple-700">57%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Overlay -->
+                    <div class="relative z-30 p-10 mt-auto bg-gradient-to-t from-white via-white/95 to-transparent">
+                        <h3 class="text-3xl font-bold text-black mb-2">Monthly Snapshot</h3>
+                        <p class="text-gray-500 max-w-md">
+                            Every key metric — from 22.8K website users to 186 Shopify orders to 57% email open rates — visible instantly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-12">The Results</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- 1. Before & After -->
+                <div class="md:col-span-3 bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+                    <h3 class="text-xl font-bold font-display text-black mb-8">Before vs. After</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Before -->
+                        <div class="bg-red-50 border border-red-100 rounded-2xl p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="x-circle" class="w-5 h-5 text-red-400"></i>
+                                <span class="text-sm font-bold text-red-600">Before Blackbird</span>
+                            </div>
+                            <ul class="space-y-3 text-sm text-gray-600">
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> Manual CSV exports from 5 platforms</li>
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> Reporting always a week behind</li>
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> No country-level segmentation</li>
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> Awareness and Conversion metrics muddled together</li>
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> No AI-powered analysis or recommendations</li>
+                                <li class="flex gap-2"><span class="text-red-400">✗</span> Messy traffic source attribution</li>
+                            </ul>
+                        </div>
+
+                        <!-- After -->
+                        <div class="bg-green-50 border border-green-100 rounded-2xl p-6">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i>
+                                <span class="text-sm font-bold text-green-600">After Blackbird</span>
+                            </div>
+                            <ul class="space-y-3 text-sm text-gray-600">
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> One live dashboard, all platforms unified</li>
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> Real-time data, always current</li>
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> Instant Ireland vs. UK filtering</li>
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> Meta metrics split by campaign objective</li>
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> AI-generated insights and strategic recommendations</li>
+                                <li class="flex gap-2"><span class="text-green-500">✓</span> Clean, intelligent traffic source classification</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Efficiency Metrics Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:col-span-3">
+                    <!-- Platforms -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="plug" class="w-5 h-5 text-iron"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">5</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">API Integrations</div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="zap" class="w-5 h-5 text-iron"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">Live</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Data Freshness</div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Views -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="monitor" class="w-5 h-5 text-iron"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">8+</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Dashboard Views</div>
+                        </div>
+                    </div>
+
+                    <!-- Markets -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-300 transition-colors">
+                        <div class="w-10 h-10 bg-white rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                            <i data-lucide="map" class="w-5 h-5 text-iron"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold font-display text-black mb-1">2</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Markets Segmented</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication / Process Section -->
+        <section class="mb-32 bg-gray-50 border border-gray-100 rounded-3xl p-8 md:p-16 relative overflow-hidden">
+            <div class="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-6">
+                        <span class="w-2 h-2 rounded-full bg-iron border border-black/10 animate-pulse"></span>
+                        <span class="text-xs font-bold text-black uppercase">The Blackbird Standard</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-black mb-6">Built to Scale, Not to Break.</h2>
+                    <p class="text-gray-500 mb-8 text-lg leading-relaxed">
+                        This isn't a static report or a one-off build. It's a living product — architected with secure backend functions, date-range filtering, and intelligent data processing that evolves with the business.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-200">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-iron"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-black font-bold">Secure Edge Functions</h4>
+                                <p class="text-sm text-gray-500">All API keys and credentials stored securely in cloud functions — never exposed to the browser.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-200">
+                                <i data-lucide="calendar-range" class="w-5 h-5 text-iron"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-black font-bold">Flexible Date Ranges</h4>
+                                <p class="text-sm text-gray-500">Custom date picker with presets (7d, 14d, 30d, 90d) — every section responds to the selected period instantly.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 border border-gray-200">
+                                <i data-lucide="brain" class="w-5 h-5 text-iron"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-black font-bold">AI That Reads Your Data</h4>
+                                <p class="text-sm text-gray-500">Not generic summaries — AI models consume live campaign data and generate specific, actionable recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tech Stack Mockup -->
+                <div class="bg-white border border-gray-200 rounded-2xl p-6 relative shadow-lg shadow-gray-100">
+                    <div class="text-xs font-mono text-gray-400 mb-4 uppercase tracking-wider">Tech Stack</div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-sm font-medium text-black">React + TypeScript</span>
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">Frontend</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-sm font-medium text-black">Tailwind CSS + shadcn/ui</span>
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">UI</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-sm font-medium text-black">Cloud Edge Functions</span>
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">Backend</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-sm font-medium text-black">Recharts</span>
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">Charting</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <span class="text-sm font-medium text-black">React Query</span>
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">Data Layer</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                            <span class="text-sm font-medium text-black">9 Edge Functions</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-1 rounded">API Layer</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Detail Section -->
+        <section class="mb-32">
+            <h2 class="text-3xl font-bold text-black mb-4">What the Dashboard Delivers</h2>
+            <p class="text-gray-500 mb-12 max-w-2xl">Every view is purpose-built for a specific decision the team needs to make.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Consolidated Overview</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Cross-channel funnel from total users → sessions → orders → revenue. Includes GA4, Shopify, and ad spend in one view.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="search" class="w-4 h-4 text-yellow-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Google Ads Performance</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">CPC, CTR, conversions, ROAS — with campaign-level breakdown and AI-generated strategic recommendations.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="megaphone" class="w-4 h-4 text-indigo-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Meta Ads (Split by Objective)</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Awareness shows reach, impressions, thruplays. Conversions shows CPC, CTR, cost per conversion. Clean separation, clean decisions.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-green-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Shopify Revenue</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Orders, revenue, AOV, top products — filterable by Ireland or UK. Visual trends over time with daily granularity.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="mail" class="w-4 h-4 text-purple-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Email Performance</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">MailerLite campaign metrics: open rates (57%+), CTR, subscriber counts, and individual campaign breakdowns.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl p-6 hover:border-gray-400 transition-colors">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                            <i data-lucide="route" class="w-4 h-4 text-orange-600"></i>
+                        </div>
+                        <h4 class="font-bold text-black">Traffic Analysis</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Intelligent source/medium classification — with AI traffic detection, duplicate merging, and clean attribution across all channels.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonial Section -->
+        <section class="mb-32 max-w-4xl mx-auto text-center reveal">
+            <div class="mb-8">
+                <i data-lucide="quote" class="w-12 h-12 text-gray-200 mx-auto fill-gray-100"></i>
+            </div>
+            <blockquote class="text-3xl md:text-4xl font-medium text-black leading-tight mb-8 tracking-tight font-display">
+                "We went from toggling between five platforms every morning to opening one dashboard. Everything we need is right there — live, segmented by market, and with AI telling us what to do next."
+            </blockquote>
+            <div class="flex items-center justify-center gap-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center border border-green-200 overflow-hidden">
+                    <span class="text-lg font-bold text-green-700">AI</span>
+                </div>
+                <div class="text-left">
+                    <div class="font-bold text-black text-sm">Marketing Team</div>
+                    <div class="text-sm text-gray-500">Active Iron</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="text-center py-12 border-t border-gray-100">
+            <h2 class="text-4xl md:text-5xl font-bold text-black mb-4 tracking-tight">Need a dashboard like this?</h2>
+            <p class="text-gray-500 mb-8 text-lg">We build custom marketing intelligence platforms that replace spreadsheet chaos with real-time clarity.</p>
+            <a href="#contact" class="inline-flex items-center gap-2 bg-black text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-gray-800 transition-all group">
+                Let's Talk
+                <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </section>
+
+    </main>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // ------------------------------------------------------------------
+        // Background Animation (Green & White Palette for ActiveIron)
+        // ------------------------------------------------------------------
+        (function() {
+            const canvas = document.getElementById('impact-canvas');
+            if (!canvas) return;
+
+            const renderer = new THREE.WebGLRenderer({ 
+                canvas: canvas, 
+                alpha: true, 
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const scene = new THREE.Scene();
+
+            const viewSize = 10; 
+            const aspectRatio = canvas.clientWidth / canvas.clientHeight;
+            const camera = new THREE.OrthographicCamera(
+                -viewSize * aspectRatio, viewSize * aspectRatio, 
+                viewSize, -viewSize, 
+                0.1, 1000
+            );
+            camera.position.set(0, 0, 10);
+            camera.lookAt(0, 0, 0);
+
+            const isMobile = window.innerWidth < 768;
+            const segmentsX = isMobile ? 64 : 128;
+            const segmentsY = isMobile ? 32 : 64;
+            const geometry = new THREE.PlaneGeometry(24, 12, segmentsX, segmentsY);
+
+            const noiseChunk = `
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+                float snoise(vec3 v) {
+                    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                    vec3 i  = floor(v + dot(v, C.yyy) );
+                    vec3 x0 = v - i + dot(i, C.xxx) ;
+                    vec3 g = step(x0.yzx, x0.xyz);
+                    vec3 l = 1.0 - g;
+                    vec3 i1 = min( g.xyz, l.zxy );
+                    vec3 i2 = max( g.xyz, l.zxy );
+                    vec3 x1 = x0 - i1 + C.xxx;
+                    vec3 x2 = x0 - i2 + C.yyy;
+                    vec3 x3 = x0 - D.yyy;
+                    i = mod289(i); 
+                    vec4 p = permute( permute( permute( 
+                                i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                            + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+                            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                    float n_ = 0.142857142857; 
+                    vec3  ns = n_ * D.wyz - D.xzx;
+                    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                    vec4 x_ = floor(j * ns.z);
+                    vec4 y_ = floor(j - 7.0 * x_ );
+                    vec4 x = x_ *ns.x + ns.yyyy;
+                    vec4 y = y_ *ns.x + ns.yyyy;
+                    vec4 h = 1.0 - abs(x) - abs(y);
+                    vec4 b0 = vec4( x.xy, y.xy );
+                    vec4 b1 = vec4( x.zw, y.zw );
+                    vec4 s0 = floor(b0)*2.0 + 1.0;
+                    vec4 s1 = floor(b1)*2.0 + 1.0;
+                    vec4 sh = -step(h, vec4(0.0));
+                    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                    vec3 p0 = vec3(a0.xy,h.x);
+                    vec3 p1 = vec3(a0.zw,h.y);
+                    vec3 p2 = vec3(a1.xy,h.z);
+                    vec3 p3 = vec3(a1.zw,h.w);
+                    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+                    p0 *= norm.x;
+                    p1 *= norm.y;
+                    p2 *= norm.z;
+                    p3 *= norm.w;
+                    vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                    m = m * m;
+                    return 105.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+                                                dot(p2,x2), dot(p3,x3) ) );
+                }
+            `;
+
+            const uniforms = {
+                uTime: { value: 0 },
+                uSpeed: { value: 0.1 }, 
+                uAmplitude: { value: 0.8 }, 
+                uDensity: { value: 0.4 },
+                uGradientRepeat: { value: 1.0 },
+                uC0: { value: new THREE.Color('#FFFFFF') }, 
+                uC1: { value: new THREE.Color('#F0FDF4') },
+                uC2: { value: new THREE.Color('#86EFAC') },
+                uC3: { value: new THREE.Color('#1a7a4f') },
+                uC4: { value: new THREE.Color('#0F172A') },
+                uC5: { value: new THREE.Color('#334155') },
+                uC6: { value: new THREE.Color('#FFFFFF') }, 
+            };
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: uniforms,
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uSpeed;
+                    uniform float uAmplitude;
+                    uniform float uDensity;
+                    varying vec2 vUv;
+                    varying float vDisplace;
+                    ${noiseChunk}
+                    void main() {
+                        vUv = uv;
+                        float noiseVal = snoise(vec3(position.x * uDensity, position.y * uDensity, uTime * uSpeed));
+                        vDisplace = noiseVal;
+                        vec3 newPos = position + normal * (uAmplitude * noiseVal);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTime;
+                    uniform float uGradientRepeat;
+                    uniform vec3 uC0; uniform vec3 uC1; uniform vec3 uC2; uniform vec3 uC3; uniform vec3 uC4; uniform vec3 uC5; uniform vec3 uC6;
+                    varying vec2 vUv;
+                    varying float vDisplace;
+
+                    vec3 getGradientColor(float t) {
+                        float t0 = smoothstep(0.0, 0.2, t);
+                        vec3 color = mix(uC0, uC1, t0);
+                        float t1 = smoothstep(0.2, 0.35, t);
+                        color = mix(color, uC2, t1);
+                        float t2 = smoothstep(0.35, 0.55, t);
+                        color = mix(color, uC3, t2);
+                        float t3 = smoothstep(0.55, 0.7, t);
+                        color = mix(color, uC4, t3);
+                        float t4 = smoothstep(0.7, 0.85, t);
+                        color = mix(color, uC5, t4);
+                        float t5 = smoothstep(0.85, 1.0, t);
+                        color = mix(color, uC6, t5);
+                        return color;
+                    }
+
+                    void main() {
+                        float t = fract(vUv.x * uGradientRepeat + uTime * 0.05); 
+                        vec3 color = getGradientColor(t);
+                        color += vDisplace * 0.05;
+                        
+                        float alphaTop = smoothstep(0.0, 0.1, vUv.y);
+                        float alphaBottom = 1.0 - smoothstep(0.9, 1.0, vUv.y);
+                        float alphaLeft = smoothstep(0.0, 0.05, vUv.x);
+                        float alphaRight = 1.0 - smoothstep(0.95, 1.0, vUv.x);
+                        float alpha = alphaTop * alphaBottom * alphaLeft * alphaRight;
+
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.set(-0.2, 0, 0); 
+            scene.add(mesh);
+
+            function resize() {
+                const parent = canvas.parentElement;
+                if (!parent) return;
+                const rect = parent.getBoundingClientRect();
+                renderer.setSize(rect.width, rect.height);
+                const aspect = rect.width / rect.height;
+                const frustumSize = 10;
+                camera.left = -frustumSize * aspect / 2;
+                camera.right = frustumSize * aspect / 2;
+                camera.top = frustumSize / 2;
+                camera.bottom = -frustumSize / 2;
+                camera.updateProjectionMatrix();
+            }
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(resize, 100);
+            });
+            setTimeout(resize, 0);
+
+            function animate(time) {
+                requestAnimationFrame(animate);
+                material.uniforms.uTime.value = time * 0.001; 
+                renderer.render(scene, camera);
+            }
+            animate(0);
+        })();
+    </script>
+
+</body>
+</html>
