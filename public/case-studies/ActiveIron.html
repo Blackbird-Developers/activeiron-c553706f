@@ -169,7 +169,11 @@
                     </div>
                 </div>
                 <!-- Dashboard Content -->
-                <div class="bg-[#faf8f5] rounded-b-2xl border border-gray-200 border-t-0 overflow-hidden shadow-2xl shadow-black/10" style="height: 480px;">
+                <div class="bg-[#faf8f5] rounded-b-2xl border border-gray-200 border-t-0 overflow-hidden shadow-2xl shadow-black/10 relative" style="height: 480px;">
+                    <!-- Animated Cursor -->
+                    <svg class="dash-cursor" id="dash-cursor" viewBox="0 0 24 24" style="left: 60px; top: 100px; opacity: 0;">
+                        <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.54.35-.85L6.35 2.85a.5.5 0 0 0-.85.36Z" fill="#0f172a" stroke="white" stroke-width="1.5"/>
+                    </svg>
                     <div class="flex h-full">
                         <!-- Sidebar -->
                         <div id="dash-sidebar" class="w-[200px] bg-white border-r border-gray-200 p-4 flex-shrink-0 hidden md:block">
