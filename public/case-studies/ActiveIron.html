@@ -148,115 +148,390 @@
                 <div class="bg-[#faf8f5] rounded-b-2xl border border-gray-200 border-t-0 overflow-hidden shadow-2xl shadow-black/10" style="height: 480px;">
                     <div class="flex h-full">
                         <!-- Sidebar -->
-                        <div class="w-[200px] bg-white border-r border-gray-200 p-4 flex-shrink-0 hidden md:block">
+                        <div id="dash-sidebar" class="w-[200px] bg-white border-r border-gray-200 p-4 flex-shrink-0 hidden md:block">
                             <div class="flex items-center gap-2 mb-6">
                                 <div class="w-8 h-8 rounded-lg bg-iron flex items-center justify-center">
                                     <span class="text-white text-xs font-bold">AI</span>
                                 </div>
                                 <span class="text-sm font-bold text-gray-800">Active Iron</span>
                             </div>
-                            <div class="space-y-1">
-                                <div class="bg-iron/10 text-iron text-xs font-semibold px-3 py-2 rounded-lg">Dashboard</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">Google Ads</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">Meta Ads</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">Shopify</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">Email</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">Traffic</div>
-                                <div class="text-gray-400 text-xs px-3 py-2">AI Insights</div>
+                            <div class="space-y-1" id="dash-nav">
+                                <div class="dash-nav-item bg-iron/10 text-iron text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="dashboard">Dashboard</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="google-ads">Google Ads</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="meta-ads">Meta Ads</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="shopify">Shopify</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="email">Email</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="traffic">Traffic</div>
+                                <div class="dash-nav-item text-gray-400 text-xs px-3 py-2 rounded-lg cursor-pointer transition-all duration-300" data-tab="ai-insights">AI Insights</div>
                             </div>
                         </div>
                         <!-- Main Area -->
-                        <div class="flex-1 p-5 overflow-hidden">
-                            <!-- Header row -->
-                            <div class="flex items-center justify-between mb-5">
-                                <div>
-                                    <div class="text-sm font-bold text-gray-800">Consolidated Dashboard</div>
-                                    <div class="text-[10px] text-gray-400">Last 30 days · All Markets</div>
+                        <div class="flex-1 p-5 overflow-hidden relative">
+
+                            <!-- TAB: Dashboard -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="dashboard" style="opacity:1; transform:translateY(0)">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Consolidated Dashboard</div>
+                                        <div class="text-[10px] text-gray-400">Last 30 days · All Markets</div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <div class="text-[10px] px-2 py-1 rounded bg-iron/10 text-iron font-semibold">IRE</div>
+                                        <div class="text-[10px] px-2 py-1 rounded bg-gray-100 text-gray-400 font-semibold">UK</div>
+                                    </div>
                                 </div>
-                                <div class="flex gap-2">
-                                    <div class="text-[10px] px-2 py-1 rounded bg-iron/10 text-iron font-semibold">IRE</div>
-                                    <div class="text-[10px] px-2 py-1 rounded bg-gray-100 text-gray-400 font-semibold">UK</div>
+                                <div class="grid grid-cols-4 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Sessions</div>
+                                        <div class="text-lg font-bold text-gray-900">22,847</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 12.4%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Revenue</div>
+                                        <div class="text-lg font-bold text-gray-900">€18,420</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 8.7%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Orders</div>
+                                        <div class="text-lg font-bold text-gray-900">186</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 15.2%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">ROAS</div>
+                                        <div class="text-lg font-bold text-gray-900">3.2x</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 0.4x</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- Metric Cards -->
-                            <div class="grid grid-cols-4 gap-3 mb-5">
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 dash-card" style="animation-delay: 0.5s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Sessions</div>
-                                    <div class="text-lg font-bold text-gray-900 dash-counter" data-target="22847">0</div>
-                                    <div class="text-[10px] text-green-600 font-semibold">↑ 12.4%</div>
-                                </div>
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 dash-card" style="animation-delay: 0.7s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Revenue</div>
-                                    <div class="text-lg font-bold text-gray-900 dash-counter" data-target="18420" data-prefix="€">€0</div>
-                                    <div class="text-[10px] text-green-600 font-semibold">↑ 8.7%</div>
-                                </div>
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 dash-card" style="animation-delay: 0.9s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Orders</div>
-                                    <div class="text-lg font-bold text-gray-900 dash-counter" data-target="186">0</div>
-                                    <div class="text-[10px] text-green-600 font-semibold">↑ 15.2%</div>
-                                </div>
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 dash-card" style="animation-delay: 1.1s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">ROAS</div>
-                                    <div class="text-lg font-bold text-gray-900 dash-counter" data-target="3.2" data-decimal="true">0</div>
-                                    <div class="text-[10px] text-green-600 font-semibold">↑ 0.4x</div>
-                                </div>
-                            </div>
-                            <!-- Charts Row -->
-                            <div class="grid grid-cols-3 gap-3">
-                                <!-- Bar Chart -->
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 col-span-2 dash-card" style="animation-delay: 1.3s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Sessions by Channel</div>
-                                    <div class="flex items-end gap-[6px] h-[120px]">
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-iron/80 dash-bar" style="--bar-height: 85%; animation-delay: 1.5s"></div>
-                                            <span class="text-[8px] text-gray-400">Organic</span>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100 col-span-2">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Sessions by Channel</div>
+                                        <div class="flex items-end gap-[6px] h-[120px]">
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-iron/80" style="height:85%"></div><span class="text-[8px] text-gray-400">Organic</span></div>
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-amber-500/80" style="height:60%"></div><span class="text-[8px] text-gray-400">Paid</span></div>
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-blue-500/80" style="height:45%"></div><span class="text-[8px] text-gray-400">Direct</span></div>
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-purple-500/80" style="height:30%"></div><span class="text-[8px] text-gray-400">Email</span></div>
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-pink-500/80" style="height:20%"></div><span class="text-[8px] text-gray-400">Social</span></div>
+                                            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t bg-gray-400/80" style="height:15%"></div><span class="text-[8px] text-gray-400">AI</span></div>
                                         </div>
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-amber-500/80 dash-bar" style="--bar-height: 60%; animation-delay: 1.6s"></div>
-                                            <span class="text-[8px] text-gray-400">Paid</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-blue-500/80 dash-bar" style="--bar-height: 45%; animation-delay: 1.7s"></div>
-                                            <span class="text-[8px] text-gray-400">Direct</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-purple-500/80 dash-bar" style="--bar-height: 30%; animation-delay: 1.8s"></div>
-                                            <span class="text-[8px] text-gray-400">Email</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-pink-500/80 dash-bar" style="--bar-height: 20%; animation-delay: 1.9s"></div>
-                                            <span class="text-[8px] text-gray-400">Social</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-col items-center gap-1">
-                                            <div class="w-full rounded-t bg-gray-400/80 dash-bar" style="--bar-height: 15%; animation-delay: 2.0s"></div>
-                                            <span class="text-[8px] text-gray-400">AI</span>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Ad Spend Split</div>
+                                        <div class="flex items-center justify-center h-[120px]">
+                                            <svg viewBox="0 0 100 100" class="w-24 h-24">
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#1a7a4f" stroke-width="12" stroke-dasharray="155 239" stroke-dashoffset="0"/>
+                                                <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="84 239" stroke-dashoffset="-155"/>
+                                                <text x="50" y="48" text-anchor="middle" class="text-[8px] fill-gray-800 font-bold">€3.7K</text>
+                                                <text x="50" y="58" text-anchor="middle" class="text-[6px] fill-gray-400">Total Spend</text>
+                                            </svg>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Donut Chart -->
-                                <div class="bg-white rounded-xl p-3 border border-gray-100 dash-card" style="animation-delay: 1.5s">
-                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Ad Spend Split</div>
-                                    <div class="flex items-center justify-center h-[120px]">
-                                        <svg viewBox="0 0 100 100" class="w-24 h-24 dash-donut">
-                                            <circle cx="50" cy="50" r="38" fill="none" stroke="#e5e7eb" stroke-width="12"/>
-                                            <circle cx="50" cy="50" r="38" fill="none" stroke="#1a7a4f" stroke-width="12"
-                                                stroke-dasharray="155 239" stroke-dashoffset="0" 
-                                                class="dash-donut-segment" style="animation-delay: 1.8s"/>
-                                            <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="12"
-                                                stroke-dasharray="84 239" stroke-dashoffset="-155"
-                                                class="dash-donut-segment" style="animation-delay: 2.0s"/>
-                                            <text x="50" y="48" text-anchor="middle" class="text-[8px] fill-gray-800 font-bold">€3.7K</text>
-                                            <text x="50" y="58" text-anchor="middle" class="text-[6px] fill-gray-400">Total Spend</text>
-                                        </svg>
+                            </div>
+
+                            <!-- TAB: Google Ads -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="google-ads" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Google Ads Performance</div>
+                                        <div class="text-[10px] text-gray-400">Last 30 days · Ireland</div>
                                     </div>
-                                    <div class="flex justify-center gap-3 mt-1">
-                                        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-iron"></div><span class="text-[8px] text-gray-500">Google</span></div>
-                                        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-amber-500"></div><span class="text-[8px] text-gray-500">Meta</span></div>
+                                    <div class="flex gap-2">
+                                        <div class="text-[10px] px-2 py-1 rounded bg-amber-100 text-amber-700 font-semibold">Search</div>
+                                        <div class="text-[10px] px-2 py-1 rounded bg-gray-100 text-gray-400 font-semibold">Shopping</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-4 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Spend</div>
+                                        <div class="text-lg font-bold text-gray-900">€2,147</div>
+                                        <div class="text-[10px] text-red-500 font-semibold">↑ 5.2%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Clicks</div>
+                                        <div class="text-lg font-bold text-gray-900">4,832</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 18.3%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">CPC</div>
+                                        <div class="text-lg font-bold text-gray-900">€0.44</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↓ 11.1%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Conv. Rate</div>
+                                        <div class="text-lg font-bold text-gray-900">3.8%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 0.6%</div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Daily Spend & Conversions</div>
+                                    <svg viewBox="0 0 400 100" class="w-full h-[140px]">
+                                        <polyline fill="none" stroke="#f59e0b" stroke-width="2" points="0,80 30,72 60,65 90,70 120,55 150,48 180,52 210,40 240,35 270,42 300,30 330,25 360,28 390,20"/>
+                                        <polyline fill="none" stroke="#1a7a4f" stroke-width="2" stroke-dasharray="4,4" points="0,90 30,85 60,82 90,78 120,72 150,68 180,70 210,62 240,58 270,55 300,50 330,48 360,45 390,40"/>
+                                        <text x="5" y="15" class="text-[7px] fill-amber-600">— Spend</text>
+                                        <text x="80" y="15" class="text-[7px] fill-iron">- - Conv.</text>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- TAB: Meta Ads -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="meta-ads" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Meta Ads Performance</div>
+                                        <div class="text-[10px] text-gray-400">Last 30 days · All Markets</div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <div class="text-[10px] px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold">Awareness</div>
+                                        <div class="text-[10px] px-2 py-1 rounded bg-green-100 text-green-700 font-semibold">Conversions</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-4 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Spend</div>
+                                        <div class="text-lg font-bold text-gray-900">€1,553</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↓ 3.1%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Reach</div>
+                                        <div class="text-lg font-bold text-gray-900">142K</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 22.5%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">CTR</div>
+                                        <div class="text-lg font-bold text-gray-900">2.1%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 0.3%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">CPM</div>
+                                        <div class="text-lg font-bold text-gray-900">€8.42</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↓ 12.8%</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-2">Top Campaigns</div>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between items-center"><span class="text-[10px] text-gray-700">Spring Awareness IRE</span><span class="text-[10px] font-bold text-iron">89K reach</span></div>
+                                            <div class="w-full bg-gray-100 rounded-full h-1"><div class="bg-iron rounded-full h-1" style="width:75%"></div></div>
+                                            <div class="flex justify-between items-center"><span class="text-[10px] text-gray-700">Conversions UK Q1</span><span class="text-[10px] font-bold text-amber-600">34 purch.</span></div>
+                                            <div class="w-full bg-gray-100 rounded-full h-1"><div class="bg-amber-500 rounded-full h-1" style="width:55%"></div></div>
+                                            <div class="flex justify-between items-center"><span class="text-[10px] text-gray-700">Retargeting - All</span><span class="text-[10px] font-bold text-blue-600">4.2x ROAS</span></div>
+                                            <div class="w-full bg-gray-100 rounded-full h-1"><div class="bg-blue-500 rounded-full h-1" style="width:65%"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-2">Creative Performance</div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <div class="bg-gray-100 rounded-lg h-16 flex items-end p-1"><span class="text-[7px] text-gray-500">Video A</span></div>
+                                            <div class="bg-gray-100 rounded-lg h-16 flex items-end p-1 ring-2 ring-iron"><span class="text-[7px] text-iron font-bold">Image B ★</span></div>
+                                            <div class="bg-gray-100 rounded-lg h-16 flex items-end p-1"><span class="text-[7px] text-gray-500">Carousel C</span></div>
+                                        </div>
+                                        <div class="mt-2 text-[8px] text-gray-500">Best performer: <span class="text-iron font-semibold">Image B — 3.4% CTR</span></div>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- TAB: Shopify -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="shopify" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Shopify Performance</div>
+                                        <div class="text-[10px] text-gray-400">Last 30 days · Ireland</div>
+                                    </div>
+                                    <div class="text-[10px] px-2 py-1 rounded bg-green-100 text-green-700 font-semibold">● Live Store</div>
+                                </div>
+                                <div class="grid grid-cols-4 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Orders</div>
+                                        <div class="text-lg font-bold text-gray-900">186</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 15.2%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Revenue</div>
+                                        <div class="text-lg font-bold text-gray-900">€18,420</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 8.7%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">AOV</div>
+                                        <div class="text-lg font-bold text-gray-900">€99</div>
+                                        <div class="text-[10px] text-red-500 font-semibold">↓ 5.4%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Conv. Rate</div>
+                                        <div class="text-lg font-bold text-gray-900">2.4%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 0.3%</div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Top Products</div>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-iron/10 rounded-lg flex items-center justify-center text-[10px] font-bold text-iron">1</div>
+                                            <div class="flex-1"><div class="text-[11px] font-semibold text-gray-800">Active Iron 30 Capsules</div><div class="text-[9px] text-gray-400">82 orders · €2,460</div></div>
+                                            <div class="text-[10px] font-bold text-iron">44%</div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-[10px] font-bold text-amber-700">2</div>
+                                            <div class="flex-1"><div class="text-[11px] font-semibold text-gray-800">Active Iron Pregnancy</div><div class="text-[9px] text-gray-400">54 orders · €1,890</div></div>
+                                            <div class="text-[10px] font-bold text-amber-600">29%</div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-[10px] font-bold text-blue-700">3</div>
+                                            <div class="flex-1"><div class="text-[11px] font-semibold text-gray-800">Active Iron Bundle</div><div class="text-[9px] text-gray-400">50 orders · €3,500</div></div>
+                                            <div class="text-[10px] font-bold text-blue-600">27%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB: Email -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="email" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Email Performance</div>
+                                        <div class="text-[10px] text-gray-400">MailerLite · Last 30 days</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-4 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Sent</div>
+                                        <div class="text-lg font-bold text-gray-900">12,480</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">4 campaigns</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Open Rate</div>
+                                        <div class="text-lg font-bold text-gray-900">57.2%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 4.1%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Click Rate</div>
+                                        <div class="text-lg font-bold text-gray-900">8.4%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↑ 1.2%</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Unsubscribes</div>
+                                        <div class="text-lg font-bold text-gray-900">0.3%</div>
+                                        <div class="text-[10px] text-green-600 font-semibold">↓ 0.1%</div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Recent Campaigns</div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                            <div><div class="text-[10px] font-semibold text-gray-800">March Newsletter</div><div class="text-[8px] text-gray-400">Sent Mar 1</div></div>
+                                            <div class="flex gap-4"><span class="text-[9px] text-iron font-bold">62% open</span><span class="text-[9px] text-amber-600 font-bold">9.1% click</span></div>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                            <div><div class="text-[10px] font-semibold text-gray-800">Spring Sale Promo</div><div class="text-[8px] text-gray-400">Sent Feb 20</div></div>
+                                            <div class="flex gap-4"><span class="text-[9px] text-iron font-bold">55% open</span><span class="text-[9px] text-amber-600 font-bold">12.3% click</span></div>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                            <div><div class="text-[10px] font-semibold text-gray-800">Product Launch</div><div class="text-[8px] text-gray-400">Sent Feb 14</div></div>
+                                            <div class="flex gap-4"><span class="text-[9px] text-iron font-bold">51% open</span><span class="text-[9px] text-amber-600 font-bold">7.8% click</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB: Traffic -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="traffic" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">Traffic Analysis</div>
+                                        <div class="text-[10px] text-gray-400">GA4 · Auto-classified sources</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3 mb-5">
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Total Users</div>
+                                        <div class="text-lg font-bold text-gray-900">22,847</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">New Users</div>
+                                        <div class="text-lg font-bold text-gray-900">18,210</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                        <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-1">Avg. Duration</div>
+                                        <div class="text-lg font-bold text-gray-900">2m 14s</div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-gray-100">
+                                    <div class="text-[9px] text-gray-400 uppercase tracking-wider mb-3">Traffic Sources (auto-classified)</div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-iron"></div><div class="flex-1 text-[10px] text-gray-700">Organic Search</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-iron rounded-full h-2" style="width:38%"></div></div><span class="text-[9px] font-bold text-gray-600">38%</span></div>
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-amber-500"></div><div class="flex-1 text-[10px] text-gray-700">Paid Search</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 rounded-full h-2" style="width:24%"></div></div><span class="text-[9px] font-bold text-gray-600">24%</span></div>
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-blue-500"></div><div class="flex-1 text-[10px] text-gray-700">Direct</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 rounded-full h-2" style="width:18%"></div></div><span class="text-[9px] font-bold text-gray-600">18%</span></div>
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-purple-500"></div><div class="flex-1 text-[10px] text-gray-700">Paid Social</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-purple-500 rounded-full h-2" style="width:12%"></div></div><span class="text-[9px] font-bold text-gray-600">12%</span></div>
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-cyan-500"></div><div class="flex-1 text-[10px] text-gray-700">AI Traffic</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-cyan-500 rounded-full h-2" style="width:5%"></div></div><span class="text-[9px] font-bold text-gray-600">5%</span></div>
+                                        <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-pink-500"></div><div class="flex-1 text-[10px] text-gray-700">Email</div><div class="w-32 bg-gray-100 rounded-full h-2"><div class="bg-pink-500 rounded-full h-2" style="width:3%"></div></div><span class="text-[9px] font-bold text-gray-600">3%</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB: AI Insights -->
+                            <div class="dash-tab-content absolute inset-0 p-5 transition-all duration-500" data-tab="ai-insights" style="opacity:0; transform:translateY(20px); pointer-events:none">
+                                <div class="flex items-center justify-between mb-5">
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800">AI-Powered Insights</div>
+                                        <div class="text-[10px] text-gray-400">Auto-generated analysis</div>
+                                    </div>
+                                    <div class="text-[10px] px-2 py-1 rounded bg-purple-100 text-purple-700 font-semibold flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span> AI Active
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 border border-gray-100">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-6 h-6 rounded-lg bg-iron/10 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-[10px]">🎯</span></div>
+                                            <div>
+                                                <div class="text-[10px] font-bold text-gray-800 mb-1">Google Ads Efficiency Improving</div>
+                                                <div class="text-[9px] text-gray-500 leading-relaxed">CPC dropped 11.1% while conversion rate increased to 3.8%. Consider reallocating €200/week from broad match to top-performing exact match keywords.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-gray-100">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-[10px]">📊</span></div>
+                                            <div>
+                                                <div class="text-[10px] font-bold text-gray-800 mb-1">Meta Creative Winner Identified</div>
+                                                <div class="text-[9px] text-gray-500 leading-relaxed">Image B outperforms video and carousel formats with 3.4% CTR. Scale this creative across UK campaigns for potential 20% reach improvement.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-gray-100">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-[10px]">📈</span></div>
+                                            <div>
+                                                <div class="text-[10px] font-bold text-gray-800 mb-1">Email Attribution Opportunity</div>
+                                                <div class="text-[9px] text-gray-500 leading-relaxed">Spring Sale Promo had 12.3% click rate — 3x above average. Recommend A/B testing similar urgency-driven subject lines in the next campaign.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border border-purple-200 border-dashed">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-[10px]">🔮</span></div>
+                                            <div>
+                                                <div class="text-[10px] font-bold text-purple-700 mb-1">AI Traffic Growing</div>
+                                                <div class="text-[9px] text-gray-500 leading-relaxed">5% of traffic now comes from AI sources (ChatGPT, Perplexity). Monitor this channel — it's up 180% month-over-month.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
+                </div>
+                <!-- Tab indicator bar -->
+                <div class="flex justify-center mt-4 gap-1.5" id="dash-dots">
+                    <div class="w-6 h-1.5 rounded-full bg-iron transition-all duration-300" data-tab="dashboard"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="google-ads"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="meta-ads"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="shopify"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="email"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="traffic"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-gray-300 transition-all duration-300" data-tab="ai-insights"></div>
                 </div>
                 <!-- Glow effect -->
                 <div class="absolute -inset-4 bg-gradient-to-b from-iron/5 via-transparent to-transparent rounded-3xl -z-10 blur-2xl"></div>
