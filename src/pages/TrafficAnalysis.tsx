@@ -88,7 +88,7 @@ const SOURCE_LABELS: Record<string, string> = {
 };
 
 // AI sources — any source that should always get medium "AI"
-const AI_SOURCES = new Set(["ChatGPT", "Perplexity", "AI"]);
+const AI_SOURCES = new Set(["ChatGPT", "Perplexity", "AI", "Gemini", "Copilot", "Claude", "You.com"]);
 
 // Sources that should override medium to a specific value
 const MEDIUM_OVERRIDES: Record<string, string> = {
