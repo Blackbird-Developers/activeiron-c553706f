@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Coins } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Coins, Eye, Zap } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { googleAdsData as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
