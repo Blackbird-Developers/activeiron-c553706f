@@ -150,11 +150,11 @@ function friendlyMedium(raw: string, source?: string) {
   // LinkedIn referral → Organic Social
   if (srcLabel === "LinkedIn" && lower === "referral") return "Organic Social";
 
-  // For referral medium from FB/IG, keep as Referral (not Paid Social)
+  // FB/IG referral → Organic Social
   if (lower === "referral" && source) {
     const rawSrcLabel = SOURCE_LABELS[source.toLowerCase()] ?? source;
     if (rawSrcLabel === "Facebook" || rawSrcLabel === "Instagram") {
-      return "Referral";
+      return "Organic Social";
     }
   }
   // All other FB/IG traffic is Paid Social regardless of medium
