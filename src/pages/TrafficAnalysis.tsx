@@ -315,17 +315,20 @@ export default function TrafficAnalysis() {
 
   const bySource = useMemo(() => {
     const PAID_MEDIUMS = new Set(["cpc", "ppc", "paid", "display", "cpm", "cpv"]);
+    const ORGANIC_MEDIUMS = new Set(["referral", "organic", "social"]);
     const map = new Map<string, number>();
     data.forEach(d => {
       if (EXCLUDED_SOURCES.has(d.source.toLowerCase())) return;
       if (EXCLUDED_MEDIUMS.has(d.medium.toLowerCase())) return;
       const baseLabel = friendlySource(d.source);
-      const isPaid = PAID_MEDIUMS.has(d.medium.toLowerCase());
+      const medLower = d.medium.toLowerCase();
+      const isPaid = PAID_MEDIUMS.has(medLower);
+      const isOrganic = ORGANIC_MEDIUMS.has(medLower);
       let label = baseLabel;
       if (SPLITTABLE_SOURCES.has(baseLabel)) {
         label = isPaid ? `${baseLabel} Paid` : `${baseLabel} Organic`;
       } else if (SOCIAL_PAID_MERGE_SOURCES.has(baseLabel)) {
-        label = "Paid Social";
+        label = isOrganic ? "Organic Social" : "Paid Social";
       }
       map.set(label, (map.get(label) || 0) + d.sessions);
     });
