@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScoreCard } from "@/components/ScoreCard";
-import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Coins } from "lucide-react";
+import { DollarSign, MousePointer, Target, TrendingUp, AlertCircle, Coins, Eye, Zap } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { googleAdsData as placeholderData } from "@/data/placeholderData";
 import { calcCompare } from "@/lib/compareUtils";
@@ -60,13 +60,15 @@ export function GoogleAdsSection({ data = placeholderData, selectedCountry = "al
         </div>
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
+        <ScoreCard title="Impressions" value={Number(data.overview.impressions).toLocaleString()} icon={Eye} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.impressions), compareData.overview?.impressions, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="CPC" value={`€${Number(data.overview.cpc).toFixed(2)}`} icon={MousePointer} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.cpc), compareData.overview?.cpc, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
         <ScoreCard title="CTR" value={`${Number(data.overview.ctr).toFixed(2)}%`} icon={Target} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.ctr), compareData.overview?.ctr, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Conversions" value={data.overview.conversions.toLocaleString()} icon={TrendingUp} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(data.overview.conversions, compareData.overview?.conversions, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Conv. Value" value={`€${Number(data.overview.conversionsValue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} icon={Coins} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.conversionsValue || 0), compareData.overview?.conversionsValue, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Ad Spend" value={`€${Number(data.overview.adSpend).toFixed(2)}`} icon={DollarSign} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.adSpend), compareData.overview?.adSpend, compareLabel) : undefined} compareLoading={compareLoading} />
         <ScoreCard title="Cost per Conv." value={`€${Number(data.overview.costPerConversion).toFixed(2)}`} icon={DollarSign} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(Number(data.overview.costPerConversion), compareData.overview?.costPerConversion, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
+        <ScoreCard title="CPE" value={`€${(data.overview.clicks > 0 ? Number(data.overview.adSpend) / Number(data.overview.clicks) : 0).toFixed(2)}`} icon={Zap} colorScheme="google-ads" compare={compareData && compareLabel ? calcCompare(data.overview.clicks > 0 ? Number(data.overview.adSpend) / Number(data.overview.clicks) : 0, compareData.overview?.clicks > 0 ? compareData.overview.adSpend / compareData.overview.clicks : 0, compareLabel) : undefined} invertChange compareLoading={compareLoading} />
       </div>
 
       <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
