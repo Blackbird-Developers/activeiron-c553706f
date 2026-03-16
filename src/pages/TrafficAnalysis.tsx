@@ -72,13 +72,23 @@ const SOURCE_LABELS: Record<string, string> = {
   "www-activeiron-com.translate.goog": "Google Translate",
   "qr-codes.io": "QR Code",
   "chatgpt.com": "ChatGPT",
+  "chat.openai.com": "ChatGPT",
   perplexity: "Perplexity",
   "perplexity.ai": "Perplexity",
+  "labs.perplexity.ai": "Perplexity",
+  gemini: "Gemini",
+  "gemini.google.com": "Gemini",
+  copilot: "Copilot",
+  "copilot.microsoft.com": "Copilot",
+  "edgeservices.bing.com": "Copilot",
+  claude: "Claude",
+  "claude.ai": "Claude",
+  "you.com": "You.com",
   "activeiron-sp.admin.rechargeapps.com": "Recharge",
 };
 
 // AI sources — any source that should always get medium "AI"
-const AI_SOURCES = new Set(["ChatGPT", "Perplexity", "AI"]);
+const AI_SOURCES = new Set(["ChatGPT", "Perplexity", "AI", "Gemini", "Copilot", "Claude", "You.com"]);
 
 // Sources that should override medium to a specific value
 const MEDIUM_OVERRIDES: Record<string, string> = {
