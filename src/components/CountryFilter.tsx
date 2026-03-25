@@ -136,6 +136,22 @@ export function parseCountryFromCampaignName(campaignName: string): CountryCode 
   ) {
     return 'NZ';
   }
+
+  // Greece patterns
+  if (
+    nameLower.includes('greece') ||
+    nameLower.includes('greek') ||
+    nameLower.includes(' gr ') ||
+    nameLower.includes('-gr-') ||
+    nameLower.includes(' gr-') ||
+    nameLower.includes('-gr ') ||
+    nameLower.startsWith('gr ') ||
+    nameLower.startsWith('gr-') ||
+    nameLower.endsWith(' gr') ||
+    nameLower.endsWith('-gr')
+  ) {
+    return 'GR';
+  }
   
   return null;
 }

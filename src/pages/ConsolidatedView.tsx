@@ -194,6 +194,7 @@ export default function ConsolidatedView() {
       'US': ['US'],
       'DE': ['DE'],
       'NZ': ['NZ'],
+      'GR': ['GR'],
       'all': [],
     };
     const shopifyCountryData = (marketingData.shopify as any)?.countryBreakdown?.find(
