@@ -178,6 +178,7 @@ export default function ConsolidatedView() {
       'US': ['United States'],
       'DE': ['Germany'],
       'NZ': ['New Zealand'],
+      'GR': ['Greece'],
       'all': [],
     };
     const ga4CountryData = marketingData.ga4.countryBreakdown?.find(
