@@ -211,7 +211,10 @@ export default function ConsolidatedView() {
           sessions: ga4CountryData.sessions || 0,
           pageViews: ga4CountryData.pageViews || 0,
           engagementRate: ga4CountryData.engagementRate || 0,
-        } : marketingData.ga4.overview,
+        } : {
+          ...marketingData.ga4.overview,
+          totalUsers: 0, sessions: 0, pageViews: 0, engagementRate: 0,
+        },
       },
       googleAds: {
         ...marketingData.googleAds,
@@ -252,7 +255,16 @@ export default function ConsolidatedView() {
         topProducts: shopifyCountryData.topProducts || [],
         ordersByStatus: shopifyCountryData.ordersByStatus || [],
         countryBreakdown: (marketingData.shopify as any)?.countryBreakdown,
-      } : marketingData.shopify,
+      } : {
+        overview: {
+          totalOrders: 0, totalRevenue: 0, averageOrderValue: 0,
+          totalProducts: marketingData.shopify.overview?.totalProducts || 0,
+        },
+        ordersOverTime: [],
+        topProducts: [],
+        ordersByStatus: [],
+        countryBreakdown: (marketingData.shopify as any)?.countryBreakdown,
+      },
     };
   }, [marketingData, selectedCountry]);
 
