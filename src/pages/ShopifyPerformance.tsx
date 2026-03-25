@@ -208,6 +208,7 @@ export default function ShopifyPerformance() {
       'US': ['US'],
       'DE': ['DE'],
       'NZ': ['NZ'],
+      'GR': ['GR'],
       'all': [],
     };
 
