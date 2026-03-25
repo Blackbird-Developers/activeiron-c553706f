@@ -266,6 +266,7 @@ const Index = () => {
       'US': ['US'],
       'DE': ['DE'],
       'NZ': ['NZ'],
+      'GR': ['GR'],
       'all': [],
     };
     const targetCodes = shopifyCountryCodeMap[selectedCountry];
