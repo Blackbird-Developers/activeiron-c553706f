@@ -255,7 +255,16 @@ export default function ConsolidatedView() {
         topProducts: shopifyCountryData.topProducts || [],
         ordersByStatus: shopifyCountryData.ordersByStatus || [],
         countryBreakdown: (marketingData.shopify as any)?.countryBreakdown,
-      } : marketingData.shopify,
+      } : {
+        overview: {
+          totalOrders: 0, totalRevenue: 0, averageOrderValue: 0,
+          totalProducts: marketingData.shopify.overview?.totalProducts || 0,
+        },
+        ordersOverTime: [],
+        topProducts: [],
+        ordersByStatus: [],
+        countryBreakdown: (marketingData.shopify as any)?.countryBreakdown,
+      },
     };
   }, [marketingData, selectedCountry]);
 
