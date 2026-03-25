@@ -251,6 +251,7 @@ const Index = () => {
       'US': ['United States'],
       'DE': ['Germany'],
       'NZ': ['New Zealand'],
+      'GR': ['Greece'],
       'all': [],
     };
     const ga4CountryData: any = marketingData.ga4.countryBreakdown?.find(
