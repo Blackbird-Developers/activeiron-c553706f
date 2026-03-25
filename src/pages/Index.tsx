@@ -362,7 +362,7 @@ const Index = () => {
 
     // GA4
     const countryNameMap: Record<CountryCode, string[]> = {
-      'IE': ['Ireland'], 'UK': ['United Kingdom', 'Great Britain'], 'US': ['United States'], 'DE': ['Germany'], 'NZ': ['New Zealand'], 'all': [],
+      'IE': ['Ireland'], 'UK': ['United Kingdom', 'Great Britain'], 'US': ['United States'], 'DE': ['Germany'], 'NZ': ['New Zealand'], 'GR': ['Greece'], 'all': [],
     };
     const ga4Country = compareData.ga4?.countryBreakdown?.find(
       (c: any) => countryNameMap[selectedCountry]?.some((name: string) => c.country?.toLowerCase() === name.toLowerCase())
