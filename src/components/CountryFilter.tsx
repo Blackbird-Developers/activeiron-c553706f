@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type CountryCode = "all" | "IE" | "UK" | "US" | "DE" | "NZ";
+export type CountryCode = "all" | "IE" | "UK" | "US" | "DE" | "NZ" | "GR";
 
 interface CountryFilterProps {
   value: CountryCode;
@@ -21,6 +21,7 @@ const countryOptions: { value: CountryCode; label: string }[] = [
   { value: "US", label: "United States" },
   { value: "DE", label: "Germany" },
   { value: "NZ", label: "New Zealand" },
+  { value: "GR", label: "Greece" },
 ];
 
 export function CountryFilter({ value, onChange }: CountryFilterProps) {
@@ -134,6 +135,22 @@ export function parseCountryFromCampaignName(campaignName: string): CountryCode 
     nameLower.endsWith('-nz')
   ) {
     return 'NZ';
+  }
+
+  // Greece patterns
+  if (
+    nameLower.includes('greece') ||
+    nameLower.includes('greek') ||
+    nameLower.includes(' gr ') ||
+    nameLower.includes('-gr-') ||
+    nameLower.includes(' gr-') ||
+    nameLower.includes('-gr ') ||
+    nameLower.startsWith('gr ') ||
+    nameLower.startsWith('gr-') ||
+    nameLower.endsWith(' gr') ||
+    nameLower.endsWith('-gr')
+  ) {
+    return 'GR';
   }
   
   return null;

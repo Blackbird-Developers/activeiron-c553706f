@@ -178,6 +178,7 @@ export default function ConsolidatedView() {
       'US': ['United States'],
       'DE': ['Germany'],
       'NZ': ['New Zealand'],
+      'GR': ['Greece'],
       'all': [],
     };
     const ga4CountryData = marketingData.ga4.countryBreakdown?.find(
@@ -193,6 +194,7 @@ export default function ConsolidatedView() {
       'US': ['US'],
       'DE': ['DE'],
       'NZ': ['NZ'],
+      'GR': ['GR'],
       'all': [],
     };
     const shopifyCountryData = (marketingData.shopify as any)?.countryBreakdown?.find(

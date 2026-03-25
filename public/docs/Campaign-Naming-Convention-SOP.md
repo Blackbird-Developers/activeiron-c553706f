@@ -17,6 +17,10 @@ For the Market Filter to correctly identify and segment campaigns, **include one
 |--------|---------------------|----------|
 | **Ireland** | `IRE`, `IE`, `Ireland` | `Brand - IRE - Awareness`, `IE-Prospecting-Q1`, `Ireland Summer Sale` |
 | **United Kingdom** | `UK`, `United Kingdom`, `Britain`, `British` | `Brand - UK - Conversions`, `UK-Retargeting-Q1`, `British Spring Campaign` |
+| **United States** | `US`, `USA`, `United States` | `Brand - US - Awareness`, `USA-Prospecting-Q1` |
+| **Germany** | `DE`, `Germany`, `German` | `Brand - DE - Conversions`, `German Summer Campaign` |
+| **New Zealand** | `NZ`, `New Zealand` | `Brand - NZ - Awareness`, `New Zealand Q1` |
+| **Greece** | `GR`, `Greece`, `Greek` | `Brand - GR - Awareness`, `GR-Prospecting-Q1`, `Greek Summer Campaign` |
 
 ---
 
@@ -58,6 +62,8 @@ The system recognizes market codes regardless of case:
 | `UK-Retargeting-Iron Supplements` | United Kingdom ✅ |
 | `Ireland Prospecting Q1 2024` | Ireland ✅ |
 | `British Summer Campaign` | United Kingdom ✅ |
+| `GR-Prospecting-Supplements` | Greece ✅ |
+| `Greek Summer Campaign` | Greece ✅ |
 | `Brand Campaign 2024` | ⚠️ No market detected |
 
 ---

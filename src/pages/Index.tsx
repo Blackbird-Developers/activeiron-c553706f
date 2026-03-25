@@ -251,6 +251,7 @@ const Index = () => {
       'US': ['United States'],
       'DE': ['Germany'],
       'NZ': ['New Zealand'],
+      'GR': ['Greece'],
       'all': [],
     };
     const ga4CountryData: any = marketingData.ga4.countryBreakdown?.find(
@@ -265,6 +266,7 @@ const Index = () => {
       'US': ['US'],
       'DE': ['DE'],
       'NZ': ['NZ'],
+      'GR': ['GR'],
       'all': [],
     };
     const targetCodes = shopifyCountryCodeMap[selectedCountry];
@@ -360,14 +362,14 @@ const Index = () => {
 
     // GA4
     const countryNameMap: Record<CountryCode, string[]> = {
-      'IE': ['Ireland'], 'UK': ['United Kingdom', 'Great Britain'], 'US': ['United States'], 'DE': ['Germany'], 'NZ': ['New Zealand'], 'all': [],
+      'IE': ['Ireland'], 'UK': ['United Kingdom', 'Great Britain'], 'US': ['United States'], 'DE': ['Germany'], 'NZ': ['New Zealand'], 'GR': ['Greece'], 'all': [],
     };
     const ga4Country = compareData.ga4?.countryBreakdown?.find(
       (c: any) => countryNameMap[selectedCountry]?.some((name: string) => c.country?.toLowerCase() === name.toLowerCase())
     );
     // Shopify
     const shopifyCodeMap: Record<CountryCode, string[]> = {
-      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'all': [],
+      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'GR': ['GR'], 'all': [],
     };
     const shopifyCountry = compareData.shopify?.countryBreakdown?.find(
       (c: any) => shopifyCodeMap[selectedCountry]?.includes(c.countryCode?.toUpperCase())
