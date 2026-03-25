@@ -21,6 +21,7 @@ const countryOptions: { value: CountryCode; label: string }[] = [
   { value: "US", label: "United States" },
   { value: "DE", label: "Germany" },
   { value: "NZ", label: "New Zealand" },
+  { value: "GR", label: "Greece" },
 ];
 
 export function CountryFilter({ value, onChange }: CountryFilterProps) {
