@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type CountryCode = "all" | "IE" | "UK" | "US" | "DE" | "NZ";
+export type CountryCode = "all" | "IE" | "UK" | "US" | "DE" | "NZ" | "GR";
 
 interface CountryFilterProps {
   value: CountryCode;
