@@ -306,7 +306,10 @@ const Index = () => {
           bounceRate: Math.round((ga4CountryData.bounceRate || 0) * 10) / 10,
           avgSessionDuration: Math.round(ga4CountryData.avgSessionDuration || 0),
           engagedSessions: ga4CountryData.engagedSessions || 0,
-        } : marketingData.ga4.overview,
+        } : {
+          totalUsers: 0, newUsers: 0, sessions: 0, pageViews: 0,
+          engagementRate: 0, bounceRate: 0, avgSessionDuration: 0, engagedSessions: 0,
+        },
       },
       googleAds: {
         ...marketingData.googleAds,
