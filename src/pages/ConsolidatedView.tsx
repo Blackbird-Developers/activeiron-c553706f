@@ -211,7 +211,10 @@ export default function ConsolidatedView() {
           sessions: ga4CountryData.sessions || 0,
           pageViews: ga4CountryData.pageViews || 0,
           engagementRate: ga4CountryData.engagementRate || 0,
-        } : marketingData.ga4.overview,
+        } : {
+          ...marketingData.ga4.overview,
+          totalUsers: 0, sessions: 0, pageViews: 0, engagementRate: 0,
+        },
       },
       googleAds: {
         ...marketingData.googleAds,

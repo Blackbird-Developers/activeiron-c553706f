@@ -391,7 +391,10 @@ const Index = () => {
           bounceRate: Math.round((ga4Country.bounceRate || 0) * 10) / 10,
           avgSessionDuration: Math.round(ga4Country.avgSessionDuration || 0),
           engagedSessions: ga4Country.engagedSessions || 0,
-        } : compareData.ga4.overview,
+        } : {
+          totalUsers: 0, newUsers: 0, sessions: 0, pageViews: 0,
+          engagementRate: 0, bounceRate: 0, avgSessionDuration: 0, engagedSessions: 0,
+        },
       } : null,
       googleAds: compareData.googleAds ? {
         ...compareData.googleAds,
