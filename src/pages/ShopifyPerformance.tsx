@@ -246,7 +246,7 @@ export default function ShopifyPerformance() {
   const filteredCompareData = useMemo(() => {
     if (!compareData || selectedCountry === 'all') return compareData;
     const countryCodeMap: Record<CountryCode, string[]> = {
-      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'all': [],
+      'IE': ['IE'], 'UK': ['GB', 'UK'], 'US': ['US'], 'DE': ['DE'], 'NZ': ['NZ'], 'GR': ['GR'], 'all': [],
     };
     const targetCodes = countryCodeMap[selectedCountry];
     const countryData = compareData.countryBreakdown?.find(
