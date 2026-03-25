@@ -62,6 +62,8 @@ The system recognizes market codes regardless of case:
 | `UK-Retargeting-Iron Supplements` | United Kingdom ✅ |
 | `Ireland Prospecting Q1 2024` | Ireland ✅ |
 | `British Summer Campaign` | United Kingdom ✅ |
+| `GR-Prospecting-Supplements` | Greece ✅ |
+| `Greek Summer Campaign` | Greece ✅ |
 | `Brand Campaign 2024` | ⚠️ No market detected |
 
 ---
