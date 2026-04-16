@@ -570,7 +570,7 @@ export default function TrafficAnalysis() {
         </Card>
 
         {/* Most Popular Landing Pages */}
-        <Card>
+        <Card id="section-landing-pages" className="scroll-mt-4">
           <CardHeader className="pb-2">
             <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-2">
               <FileText className="h-4 w-4" />
