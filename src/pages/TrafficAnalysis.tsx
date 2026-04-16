@@ -315,6 +315,20 @@ export default function TrafficAnalysis() {
     else { setSortField(field); setSortDir("desc"); }
   };
 
+  const toggleLpSort = (field: string) => {
+    if (lpSortField === field) setLpSortDir(d => (d === "desc" ? "asc" : "desc"));
+    else { setLpSortField(field); setLpSortDir("desc"); }
+  };
+
+  const sortedLandingPages = useMemo(() => {
+    return [...landingPages].sort((a, b) => {
+      const av = a[lpSortField];
+      const bv = b[lpSortField];
+      if (typeof av === "number" && typeof bv === "number") return lpSortDir === "desc" ? bv - av : av - bv;
+      return lpSortDir === "desc" ? String(bv).localeCompare(String(av)) : String(av).localeCompare(String(bv));
+    });
+  }, [landingPages, lpSortField, lpSortDir]);
+
   // Aggregations for charts
   const byMedium = useMemo(() => {
     const map = new Map<string, number>();
