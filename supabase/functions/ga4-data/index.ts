@@ -129,6 +129,7 @@ serve(async (req) => {
       US: 'US',
       DE: 'DE',
       NZ: 'NZ',
+      GR: 'GR',
     };
     const countryId = country ? countryIdMap[country] : undefined;
     const countryFilterObj = country && country !== 'all' && countryId ? {
