@@ -560,6 +560,69 @@ export default function TrafficAnalysis() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Most Popular Landing Pages */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Most Popular Landing Pages
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 lg:px-2">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {[
+                      { key: "page", label: "Landing Page" },
+                      { key: "sessions", label: "Sessions" },
+                      { key: "users", label: "Users" },
+                      { key: "newUsers", label: "New Users" },
+                      { key: "bounceRate", label: "Bounce Rate" },
+                      { key: "engagementRate", label: "Eng. Rate" },
+                      { key: "avgSessionDuration", label: "Avg Duration" },
+                      { key: "conversions", label: "Conversions" },
+                    ].map(col => (
+                      <TableHead
+                        key={col.key}
+                        className="cursor-pointer select-none whitespace-nowrap hover:text-foreground"
+                        onClick={() => toggleLpSort(col.key)}
+                      >
+                        <div className="flex items-center gap-1">
+                          {col.label}
+                          <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedLandingPages.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                        No landing page data available
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sortedLandingPages.map((row, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium max-w-[300px] truncate" title={row.page}>{row.page}</TableCell>
+                        <TableCell className="text-right">{row.sessions.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.newUsers.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.bounceRate.toFixed(1)}%</TableCell>
+                        <TableCell className="text-right">{row.engagementRate.toFixed(1)}%</TableCell>
+                        <TableCell className="text-right">{formatDuration(row.avgSessionDuration)}</TableCell>
+                        <TableCell className="text-right">{row.conversions.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </>
   );
