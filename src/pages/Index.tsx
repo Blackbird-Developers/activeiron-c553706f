@@ -5,6 +5,7 @@ import { GoogleAdsSection } from "@/components/sections/GoogleAdsSection";
 import { MetaAdsSection } from "@/components/sections/MetaAdsSection";
 import { MailerLiteSection } from "@/components/sections/MailerLiteSection";
 import { ShopifySection } from "@/components/sections/ShopifySection";
+import { SectionQuickLinks } from "@/components/SectionQuickLinks";
 
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { subDays, subMonths, subYears, format, differenceInDays } from "date-fns";
@@ -450,12 +451,30 @@ const Index = () => {
         onCompareModeChange={setCompareMode}
       />
 
+      <SectionQuickLinks sections={[
+        { id: "section-ga4", label: "GA4 Traffic" },
+        { id: "section-google-ads", label: "Google Ads" },
+        { id: "section-meta-ads", label: "Meta Ads" },
+        { id: "section-shopify", label: "Shopify" },
+        { id: "section-mailerlite", label: "MailerLite" },
+      ]} />
+
       <div className="space-y-12">
-        <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? filteredCompareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
-        <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? filteredCompareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        <div id="section-ga4" className="scroll-mt-4">
+          <GA4Section data={filteredData.ga4} compareData={compareMode !== 'off' ? filteredCompareData?.ga4 : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        </div>
+        <div id="section-google-ads" className="scroll-mt-4">
+          <GoogleAdsSection data={filteredData.googleAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.googleAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        </div>
+        <div id="section-meta-ads" className="scroll-mt-4">
+          <MetaAdsSection data={filteredData.metaAds} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.metaAds : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        </div>
+        <div id="section-shopify" className="scroll-mt-4">
+          <ShopifySection data={filteredData.shopify} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData?.shopify : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        </div>
+        <div id="section-mailerlite" className="scroll-mt-4">
+          <MailerLiteSection data={filteredData.mailerlite} compareData={compareMode !== 'off' ? filteredCompareData?.mailerlite : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+        </div>
         </div>
       </div>
     </>
