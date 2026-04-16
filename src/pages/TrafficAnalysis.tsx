@@ -393,8 +393,15 @@ export default function TrafficAnalysis() {
           onCompareModeChange={setCompareMode}
         />
 
+        <SectionQuickLinks sections={[
+          { id: "section-overview", label: "Overview" },
+          { id: "section-charts", label: "Charts" },
+          { id: "section-source-medium", label: "Source / Medium" },
+          { id: "section-landing-pages", label: "Landing Pages" },
+        ]} />
+
         {/* Overview scorecards */}
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <div id="section-overview" className="scroll-mt-4 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
           <ScoreCard title="Total Sessions" value={totalSessions.toLocaleString()} icon={BarChart3} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalSessions, compareData.sessions, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
           <ScoreCard title="Total Users" value={totalUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalUsers, compareData.users, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
           <ScoreCard title="New Users" value={totalNewUsers.toLocaleString()} icon={Users} colorScheme="ga4" compare={compareData && compareMode !== 'off' ? calcCompare(totalNewUsers, compareData.newUsers, compareMode === 'mom' ? 'MoM' : 'YoY') : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
@@ -402,7 +409,7 @@ export default function TrafficAnalysis() {
         </div>
 
         {/* Charts row */}
-        <div className="grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
+        <div id="section-charts" className="scroll-mt-4 grid gap-4 lg:gap-6 grid-cols-1 xl:grid-cols-2">
           {/* Sessions by Medium - Pie */}
           <Card>
             <CardHeader className="pb-2">
