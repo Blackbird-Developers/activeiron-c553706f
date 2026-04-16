@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScoreCard } from "@/components/ScoreCard";
 import { calcCompare } from "@/lib/compareUtils";
-import { Globe, Users, ArrowUpDown, BarChart3, Clock, Info } from "lucide-react";
+import { Globe, Users, ArrowUpDown, BarChart3, Clock, Info, FileText } from "lucide-react";
 import { Tooltip as ShadTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Treemap } from "recharts";
 import { subDays, subYears, differenceInDays, format } from "date-fns";
@@ -211,8 +211,11 @@ export default function TrafficAnalysis() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [data, setData] = useState<SourceMediumEntry[]>([]);
+  const [landingPages, setLandingPages] = useState<any[]>([]);
   const [sortField, setSortField] = useState<keyof SourceMediumEntry>("sessions");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [lpSortField, setLpSortField] = useState<string>("sessions");
+  const [lpSortDir, setLpSortDir] = useState<"asc" | "desc">("desc");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
 
@@ -225,6 +228,7 @@ export default function TrafficAnalysis() {
       });
       const sourceMedium = res.data?.data?.sourceMediumBreakdown || [];
       setData(sourceMedium);
+      setLandingPages(res.data?.data?.landingPages || []);
       setLastRefresh(new Date());
     } catch (e) {
       console.error(e);
