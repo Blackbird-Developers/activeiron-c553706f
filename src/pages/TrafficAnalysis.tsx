@@ -508,7 +508,7 @@ export default function TrafficAnalysis() {
         </div>
 
         {/* Full source/medium table */}
-        <Card>
+        <Card id="section-source-medium" className="scroll-mt-4">
           <CardHeader className="pb-2">
             <CardTitle className="text-base lg:text-lg text-ga4-foreground">Source / Medium Breakdown</CardTitle>
           </CardHeader>
