@@ -386,6 +386,48 @@ serve(async (req) => {
     console.log('Trends over time:', trendsOverTime);
     console.log('Country breakdown:', countryBreakdown);
 
+    // SIXTH API CALL: Get top landing pages
+    const landingPagesResponse = await fetch(
+      `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY_ID}:runReport`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'landingPagePlusQueryString' }],
+          metrics: [
+            { name: 'sessions' },
+            { name: 'totalUsers' },
+            { name: 'newUsers' },
+            { name: 'engagementRate' },
+            { name: 'averageSessionDuration' },
+            { name: 'bounceRate' },
+            { name: 'conversions' },
+          ],
+          ...countryFilterObj,
+          orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+          limit: 20,
+        }),
+      }
+    );
+    const landingPagesData = landingPagesResponse.ok ? await landingPagesResponse.json() : { rows: [] };
+
+    const landingPages = landingPagesData.rows?.map((row: any) => ({
+      page: row.dimensionValues[0].value,
+      sessions: parseInt(row.metricValues[0].value),
+      users: parseInt(row.metricValues[1].value),
+      newUsers: parseInt(row.metricValues[2].value),
+      engagementRate: Math.round(parseFloat(row.metricValues[3].value) * 1000) / 10,
+      avgSessionDuration: Math.round(parseFloat(row.metricValues[4].value)),
+      bounceRate: Math.round(parseFloat(row.metricValues[5].value) * 1000) / 10,
+      conversions: parseInt(row.metricValues[6].value),
+    })) || [];
+
+    console.log('Landing pages entries:', landingPages.length);
+
     // Build source/medium breakdown
     const sourceMediumBreakdown = sourceMediumData.rows?.map((row: any) => {
       return {
@@ -420,6 +462,7 @@ serve(async (req) => {
       trendsOverTime: trendsOverTime,
       countryBreakdown: countryBreakdown,
       sourceMediumBreakdown: sourceMediumBreakdown,
+      landingPages: landingPages,
     };
 
     return new Response(JSON.stringify({ data: processedData }), {

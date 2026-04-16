@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScoreCard } from "@/components/ScoreCard";
 import { calcCompare } from "@/lib/compareUtils";
-import { Globe, Users, ArrowUpDown, BarChart3, Clock, Info } from "lucide-react";
+import { Globe, Users, ArrowUpDown, BarChart3, Clock, Info, FileText } from "lucide-react";
 import { Tooltip as ShadTooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Treemap } from "recharts";
 import { subDays, subYears, differenceInDays, format } from "date-fns";
@@ -211,8 +211,11 @@ export default function TrafficAnalysis() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [data, setData] = useState<SourceMediumEntry[]>([]);
+  const [landingPages, setLandingPages] = useState<any[]>([]);
   const [sortField, setSortField] = useState<keyof SourceMediumEntry>("sessions");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [lpSortField, setLpSortField] = useState<string>("sessions");
+  const [lpSortDir, setLpSortDir] = useState<"asc" | "desc">("desc");
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
 
@@ -225,6 +228,7 @@ export default function TrafficAnalysis() {
       });
       const sourceMedium = res.data?.data?.sourceMediumBreakdown || [];
       setData(sourceMedium);
+      setLandingPages(res.data?.data?.landingPages || []);
       setLastRefresh(new Date());
     } catch (e) {
       console.error(e);
@@ -310,6 +314,20 @@ export default function TrafficAnalysis() {
     if (sortField === field) setSortDir(d => (d === "desc" ? "asc" : "desc"));
     else { setSortField(field); setSortDir("desc"); }
   };
+
+  const toggleLpSort = (field: string) => {
+    if (lpSortField === field) setLpSortDir(d => (d === "desc" ? "asc" : "desc"));
+    else { setLpSortField(field); setLpSortDir("desc"); }
+  };
+
+  const sortedLandingPages = useMemo(() => {
+    return [...landingPages].sort((a, b) => {
+      const av = a[lpSortField];
+      const bv = b[lpSortField];
+      if (typeof av === "number" && typeof bv === "number") return lpSortDir === "desc" ? bv - av : av - bv;
+      return lpSortDir === "desc" ? String(bv).localeCompare(String(av)) : String(av).localeCompare(String(bv));
+    });
+  }, [landingPages, lpSortField, lpSortDir]);
 
   // Aggregations for charts
   const byMedium = useMemo(() => {
@@ -534,6 +552,69 @@ export default function TrafficAnalysis() {
                         <TableCell className="text-right">{row.bounceRate.toFixed(1)}%</TableCell>
                         <TableCell className="text-right">{formatDuration(row.avgSessionDuration)}</TableCell>
                         <TableCell className="text-right">{row.pageViews.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Most Popular Landing Pages */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base lg:text-lg text-ga4-foreground flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Most Popular Landing Pages
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 lg:px-2">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {[
+                      { key: "page", label: "Landing Page" },
+                      { key: "sessions", label: "Sessions" },
+                      { key: "users", label: "Users" },
+                      { key: "newUsers", label: "New Users" },
+                      { key: "bounceRate", label: "Bounce Rate" },
+                      { key: "engagementRate", label: "Eng. Rate" },
+                      { key: "avgSessionDuration", label: "Avg Duration" },
+                      { key: "conversions", label: "Conversions" },
+                    ].map(col => (
+                      <TableHead
+                        key={col.key}
+                        className="cursor-pointer select-none whitespace-nowrap hover:text-foreground"
+                        onClick={() => toggleLpSort(col.key)}
+                      >
+                        <div className="flex items-center gap-1">
+                          {col.label}
+                          <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                        </div>
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedLandingPages.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                        No landing page data available
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sortedLandingPages.map((row, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium max-w-[300px] truncate" title={row.page}>{row.page}</TableCell>
+                        <TableCell className="text-right">{row.sessions.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.users.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.newUsers.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{row.bounceRate.toFixed(1)}%</TableCell>
+                        <TableCell className="text-right">{row.engagementRate.toFixed(1)}%</TableCell>
+                        <TableCell className="text-right">{formatDuration(row.avgSessionDuration)}</TableCell>
+                        <TableCell className="text-right">{row.conversions.toLocaleString()}</TableCell>
                       </TableRow>
                     ))
                   )}
