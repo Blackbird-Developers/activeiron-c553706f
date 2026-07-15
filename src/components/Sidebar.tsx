@@ -21,7 +21,7 @@ export function Sidebar({ onNavigate, collapsed = false, onCollapsedChange }: Si
     { to: "/google-ads", label: "Google Ads", icon: Target },
     { to: "/email", label: "Email", icon: Mail },
     { to: "/shopify", label: "Shopify", icon: ShoppingBag },
-    
+    { to: "/system-health", label: "System Health", icon: Activity },
     { to: "/settings", label: "Settings", icon: Settings },
   ];
 
