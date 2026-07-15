@@ -73,12 +73,17 @@ export default function GoogleAdsPerformance() {
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
 
       const newData = data?.data || placeholderData;
       setGoogleAdsData(newData);
 
       const now = new Date();
       setLastRefresh(now);
+      setLastSuccess(now);
+      setSyncError(null);
+      localStorage.setItem(`${CACHE_KEY}_last_success`, now.toISOString());
+      localStorage.removeItem(`${CACHE_KEY}_last_error`);
 
       const cacheData: CachedData = {
         timestamp: now.getTime(),
@@ -92,17 +97,30 @@ export default function GoogleAdsPerformance() {
         title: "Data Updated",
         description: "Google Ads data refreshed successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching Google Ads data:', error);
+      const msg = error?.message || 'Failed to fetch Google Ads data.';
+      setSyncError(msg);
+      localStorage.setItem(`${CACHE_KEY}_last_error`, JSON.stringify({ message: msg, at: new Date().toISOString() }));
       toast({
-        title: "Error",
-        description: "Failed to fetch Google Ads data.",
+        title: "Sync Failed",
+        description: msg,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   }, [startDate, endDate, toast]);
+
+  // Restore last success/error from storage on mount
+  useEffect(() => {
+    const s = localStorage.getItem(`${CACHE_KEY}_last_success`);
+    if (s) setLastSuccess(new Date(s));
+    const e = localStorage.getItem(`${CACHE_KEY}_last_error`);
+    if (e) {
+      try { setSyncError(JSON.parse(e).message); } catch { /* ignore */ }
+    }
+  }, []);
 
   useEffect(() => {
     fetchGoogleAdsData();
