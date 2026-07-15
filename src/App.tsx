@@ -109,7 +109,7 @@ const App = () => {
                   <Route path="/email" element={<EmailPerformance />} />
                   <Route path="/google-ads" element={<GoogleAdsPerformance />} />
                   <Route path="/shopify" element={<ShopifyPerformance />} />
-                  
+                  <Route path="/system-health" element={<SystemHealth />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
