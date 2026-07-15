@@ -262,7 +262,45 @@ export default function GoogleAdsPerformance() {
           onCompareModeChange={setCompareMode}
         />
 
+        <Card className={syncError ? 'border-destructive/40 bg-destructive/5' : 'border-green-500/30 bg-green-500/5'}>
+          <CardContent className="py-3 px-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2">
+              {syncError ? (
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              )}
+              <span className="text-sm font-medium">
+                {syncError ? 'Sync Failed' : 'Sync Healthy'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>
+                Last successful pull:{' '}
+                {lastSuccess ? `${formatDistanceToNow(lastSuccess, { addSuffix: true })} (${lastSuccess.toLocaleString()})` : 'never'}
+              </span>
+            </div>
+            {syncError && (
+              <div className="text-xs text-destructive flex-1 sm:ml-2 break-words">
+                <span className="font-medium">Error:</span> {syncError}
+              </div>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="sm:ml-auto"
+              onClick={() => fetchGoogleAdsData(true)}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+              Retry sync
+            </Button>
+          </CardContent>
+        </Card>
+
         <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+
 
         <Tabs defaultValue="campaigns" className="w-full">
           <div className="flex items-center justify-between">
