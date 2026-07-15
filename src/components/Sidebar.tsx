@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/NavLink";
-import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings, ChevronLeft, ChevronRight, Target, ShoppingBag, Mail, Globe } from "lucide-react";
+import { BarChart3, Sparkles, TrendingUp, TableProperties, Settings, ChevronLeft, ChevronRight, Target, ShoppingBag, Mail, Globe, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import activeIronLogo from "@/assets/activeiron-logo.png";
