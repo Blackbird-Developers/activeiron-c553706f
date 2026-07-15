@@ -37,6 +37,8 @@ export default function GoogleAdsPerformance() {
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [lastSuccess, setLastSuccess] = useState<Date | null>(null);
 
   const fetchGoogleAdsData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
