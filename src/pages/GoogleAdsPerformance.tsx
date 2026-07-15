@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { LayoutList, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LayoutList, Sparkles, CheckCircle2, AlertTriangle, RefreshCw, Clock } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { subDays, subYears, differenceInDays, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +37,8 @@ export default function GoogleAdsPerformance() {
   const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [compareData, setCompareData] = useState<any>(null);
   const [compareLoading, setCompareLoading] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [lastSuccess, setLastSuccess] = useState<Date | null>(null);
 
   const fetchGoogleAdsData = useCallback(async (forceRefresh = false) => {
     if (!startDate || !endDate) return;
@@ -69,12 +73,17 @@ export default function GoogleAdsPerformance() {
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(typeof data.error === 'string' ? data.error : JSON.stringify(data.error));
 
       const newData = data?.data || placeholderData;
       setGoogleAdsData(newData);
 
       const now = new Date();
       setLastRefresh(now);
+      setLastSuccess(now);
+      setSyncError(null);
+      localStorage.setItem(`${CACHE_KEY}_last_success`, now.toISOString());
+      localStorage.removeItem(`${CACHE_KEY}_last_error`);
 
       const cacheData: CachedData = {
         timestamp: now.getTime(),
@@ -88,17 +97,30 @@ export default function GoogleAdsPerformance() {
         title: "Data Updated",
         description: "Google Ads data refreshed successfully.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching Google Ads data:', error);
+      const msg = error?.message || 'Failed to fetch Google Ads data.';
+      setSyncError(msg);
+      localStorage.setItem(`${CACHE_KEY}_last_error`, JSON.stringify({ message: msg, at: new Date().toISOString() }));
       toast({
-        title: "Error",
-        description: "Failed to fetch Google Ads data.",
+        title: "Sync Failed",
+        description: msg,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   }, [startDate, endDate, toast]);
+
+  // Restore last success/error from storage on mount
+  useEffect(() => {
+    const s = localStorage.getItem(`${CACHE_KEY}_last_success`);
+    if (s) setLastSuccess(new Date(s));
+    const e = localStorage.getItem(`${CACHE_KEY}_last_error`);
+    if (e) {
+      try { setSyncError(JSON.parse(e).message); } catch { /* ignore */ }
+    }
+  }, []);
 
   useEffect(() => {
     fetchGoogleAdsData();
@@ -240,7 +262,45 @@ export default function GoogleAdsPerformance() {
           onCompareModeChange={setCompareMode}
         />
 
+        <Card className={syncError ? 'border-destructive/40 bg-destructive/5' : 'border-green-500/30 bg-green-500/5'}>
+          <CardContent className="py-3 px-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2">
+              {syncError ? (
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              )}
+              <span className="text-sm font-medium">
+                {syncError ? 'Sync Failed' : 'Sync Healthy'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>
+                Last successful pull:{' '}
+                {lastSuccess ? `${formatDistanceToNow(lastSuccess, { addSuffix: true })} (${lastSuccess.toLocaleString()})` : 'never'}
+              </span>
+            </div>
+            {syncError && (
+              <div className="text-xs text-destructive flex-1 sm:ml-2 break-words">
+                <span className="font-medium">Error:</span> {syncError}
+              </div>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="sm:ml-auto"
+              onClick={() => fetchGoogleAdsData(true)}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+              Retry sync
+            </Button>
+          </CardContent>
+        </Card>
+
         <GoogleAdsSection data={filteredData} selectedCountry={selectedCountry} compareData={compareMode !== 'off' ? filteredCompareData : undefined} compareLabel={compareMode === 'mom' ? 'MoM' : compareMode === 'yoy' ? 'YoY' : undefined} compareLoading={compareMode !== 'off' && compareLoading} />
+
 
         <Tabs defaultValue="campaigns" className="w-full">
           <div className="flex items-center justify-between">
