@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import ShopifyPerformance from "./pages/ShopifyPerformance";
 import TrafficAnalysis from "./pages/TrafficAnalysis";
+import SystemHealth from "./pages/SystemHealth";
 
 import NotFound from "./pages/NotFound";
 import { DateRangeProvider } from "./contexts/DateRangeContext";
@@ -108,7 +109,7 @@ const App = () => {
                   <Route path="/email" element={<EmailPerformance />} />
                   <Route path="/google-ads" element={<GoogleAdsPerformance />} />
                   <Route path="/shopify" element={<ShopifyPerformance />} />
-                  
+                  <Route path="/system-health" element={<SystemHealth />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
