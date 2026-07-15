@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import GoogleAdsPerformance from "./pages/GoogleAdsPerformance";
 import ShopifyPerformance from "./pages/ShopifyPerformance";
 import TrafficAnalysis from "./pages/TrafficAnalysis";
+import SystemHealth from "./pages/SystemHealth";
 
 import NotFound from "./pages/NotFound";
 import { DateRangeProvider } from "./contexts/DateRangeContext";
